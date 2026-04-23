@@ -1,86 +1,455 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en" class="scroll-smooth" dir="ltr">
 <head>
-    <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Network Design — تصميم الشبكات | Network Mastery</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Network Design — تصميم الشبكات الاحترافية | Network Mastery</title>
+    <meta name="description" content="Three-Tier Architecture, VLAN design, redundancy, IP addressing plans for enterprise networks.">
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&family=Inter:wght@400;500;600;700;800&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
     <link href="../css/global-net.css" rel="stylesheet">
-    <style>body{background:#020617;color:#E2E8F0;font-family:'Inter',sans-serif;}.lesson-nav-bar{position:fixed;top:0;left:0;right:0;z-index:100;background:rgba(2,6,23,0.88);backdrop-filter:blur(20px);border-bottom:1px solid rgba(255,255,255,0.06);height:64px;display:flex;align-items:center;padding:0 1.5rem;}.nav-inner{max-width:1280px;margin:0 auto;width:100%;display:flex;align-items:center;justify-content:space-between;}.nav-brand{display:flex;align-items:center;gap:0.75rem;font-weight:700;}.back-btn{width:36px;height:36px;border-radius:10px;background:linear-gradient(135deg,#0EA5E9,#0284C7);display:flex;align-items:center;justify-content:center;color:white;font-size:0.85rem;}.lesson-hero{position:relative;padding:8rem 1.5rem 5rem;text-align:center;overflow:hidden;}.glow-orb{position:absolute;border-radius:50%;filter:blur(128px);pointer-events:none;}.glow-orb-1{width:500px;height:500px;top:-10%;right:-5%;background:rgba(14,165,233,0.12);}.lesson-badge{display:inline-flex;align-items:center;gap:0.5rem;padding:0.35rem 1rem;border-radius:50px;background:rgba(30,41,59,0.6);border:1px solid rgba(255,255,255,0.08);font-family:'Fira Code',monospace;font-size:0.78rem;color:#38BDF8;margin-bottom:1.5rem;}.dot{width:6px;height:6px;border-radius:50%;background:#0EA5E9;animation:pulse-dot 2s ease infinite;}.lesson-hero h1{font-size:clamp(2.5rem,5vw,4rem);font-weight:800;margin-bottom:1rem;}.text-g{background:linear-gradient(135deg,#0EA5E9,#34D399);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;}.subtitle{font-family:'Cairo',sans-serif;font-size:1.6rem;font-weight:700;color:var(--text-muted);direction:rtl;margin-bottom:1.5rem;}.desc{color:var(--text-faint);max-width:640px;margin:0 auto;font-size:1.05rem;font-family:'Cairo',sans-serif;direction:rtl;line-height:1.9;}.lesson-bottom-nav{display:flex;justify-content:space-between;align-items:center;gap:1rem;padding:2rem 0;border-top:1px solid var(--border-subtle);margin-top:3rem;}.lesson-bottom-nav a{display:flex;align-items:center;gap:0.5rem;padding:0.75rem 1.5rem;border-radius:12px;background:rgba(255,255,255,0.04);border:1px solid var(--border-subtle);transition:all 0.3s;font-weight:600;font-size:0.9rem;}.lesson-bottom-nav a:hover{background:rgba(14,165,233,0.1);border-color:rgba(14,165,233,0.3);transform:translateY(-2px);}</style>
+    <style>
+        body { background: #020617; color: #E2E8F0; font-family: 'Inter', sans-serif; }
+        .lesson-nav-bar { position: fixed; top: 0; left: 0; right: 0; z-index: 100; background: rgba(2,6,23,0.9); backdrop-filter: blur(20px); border-bottom: 1px solid rgba(255,255,255,0.06); height: 64px; display: flex; align-items: center; padding: 0 1.5rem; }
+        .nav-inner { max-width: 1280px; margin: 0 auto; width: 100%; display: flex; align-items: center; justify-content: space-between; }
+        .nav-brand { display: flex; align-items: center; gap: 0.75rem; font-weight: 700; text-decoration: none; color: inherit; }
+        .back-btn { width: 36px; height: 36px; border-radius: 10px; background: linear-gradient(135deg, #0EA5E9, #0284C7); display: flex; align-items: center; justify-content: center; color: white; font-size: 0.85rem; transition: transform 0.3s; }
+        .back-btn:hover { transform: scale(1.1); }
+        .nav-progress { font-family: 'Fira Code'; font-size: 0.75rem; color: #38BDF8; }
+        .lesson-hero { position: relative; padding: 8rem 1.5rem 5rem; text-align: center; overflow: hidden; }
+        .glow-orb { position: absolute; border-radius: 50%; filter: blur(128px); pointer-events: none; }
+        .glow-orb-1 { width: 600px; height: 600px; top: -15%; right: -10%; background: rgba(14,165,233,0.1); }
+        .glow-orb-2 { width: 350px; height: 350px; bottom: -15%; left: -5%; background: rgba(52,211,153,0.06); }
+        .lesson-badge { display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.35rem 1rem; border-radius: 50px; background: rgba(30,41,59,0.6); border: 1px solid rgba(255,255,255,0.08); font-family: 'Fira Code', monospace; font-size: 0.78rem; color: #38BDF8; margin-bottom: 1.5rem; }
+        .dot { width: 6px; height: 6px; border-radius: 50%; background: #0EA5E9; animation: pulse-dot 2s ease infinite; }
+        .lesson-hero h1 { font-size: clamp(2.5rem, 5vw, 4rem); font-weight: 800; margin-bottom: 1rem; }
+        .text-g { background: linear-gradient(135deg, #0EA5E9, #34D399); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
+        .subtitle { font-family: 'Cairo', sans-serif; font-size: 1.6rem; font-weight: 700; color: var(--text-muted); direction: rtl; margin-bottom: 1.5rem; }
+        .desc { color: var(--text-faint); max-width: 660px; margin: 0 auto; font-size: 1.05rem; font-family: 'Cairo', sans-serif; direction: rtl; line-height: 2; }
+        .lesson-bottom-nav { display: flex; justify-content: space-between; align-items: center; gap: 1rem; padding: 2rem 0; border-top: 1px solid var(--border-subtle); margin-top: 3rem; }
+        .lesson-bottom-nav a { display: flex; align-items: center; gap: 0.5rem; padding: 0.75rem 1.5rem; border-radius: 12px; background: rgba(255,255,255,0.04); border: 1px solid var(--border-subtle); transition: all 0.3s; font-weight: 600; font-size: 0.9rem; text-decoration: none; color: inherit; }
+        .lesson-bottom-nav a:hover { background: rgba(14,165,233,0.1); border-color: rgba(14,165,233,0.3); transform: translateY(-2px); }
+
+        /* ── Topology Canvas ── */
+        #topo-canvas { width: 100%; border-radius: 12px; background: #0D1117; border: 1px solid rgba(14,165,233,0.15); cursor: pointer; display: block; }
+
+        /* ── Layer Cards ── */
+        .tier-card { border-radius: 14px; padding: 1.25rem 1.5rem; border: 2px solid; position: relative; overflow: hidden; transition: all 0.3s; }
+        .tier-card::before { content:''; position:absolute; top:0;left:0;right:0; height:3px; border-radius:2px; }
+        .tier-card:hover { transform: translateX(4px); }
+        .tier-core { border-color: rgba(239,68,68,0.35); background: rgba(239,68,68,0.04); }
+        .tier-core::before { background: linear-gradient(90deg,#EF4444,#F87171); }
+        .tier-dist { border-color: rgba(245,158,11,0.35); background: rgba(245,158,11,0.04); }
+        .tier-dist::before { background: linear-gradient(90deg,#F59E0B,#FBBF24); }
+        .tier-access { border-color: rgba(16,185,129,0.35); background: rgba(16,185,129,0.04); }
+        .tier-access::before { background: linear-gradient(90deg,#10B981,#34D399); }
+
+        /* ── Design Principle Cards ── */
+        .principle-card { background: rgba(15,23,42,0.6); border: 1px solid rgba(255,255,255,0.07); border-radius: 12px; padding: 1.1rem; transition: all 0.3s; }
+        .principle-card:hover { border-color: rgba(14,165,233,0.3); transform: translateY(-3px); }
+        .principle-icon { font-size: 1.6rem; margin-bottom: 0.5rem; }
+
+        /* ── Redundancy Demo ── */
+        .redund-path { display: flex; align-items: center; gap: 0.5rem; padding: 0.6rem 0.8rem; border-radius: 8px; font-family: 'Fira Code'; font-size: 0.75rem; direction: ltr; margin: 0.3rem 0; }
+        .redund-active { background: rgba(16,185,129,0.08); border: 1px solid rgba(16,185,129,0.2); color: #34D399; }
+        .redund-standby { background: rgba(245,158,11,0.06); border: 1px solid rgba(245,158,11,0.15); color: #FBBF24; }
+        .redund-failed { background: rgba(239,68,68,0.06); border: 1px solid rgba(239,68,68,0.15); color: #F87171; text-decoration: line-through; opacity: 0.6; }
+
+        /* ── IP Plan Table ── */
+        .ip-table { width:100%; border-collapse:collapse; font-size:0.8rem; }
+        .ip-table th { background:rgba(14,165,233,0.1); color:#38BDF8; padding:0.6rem 0.75rem; text-align:right; font-weight:700; border-bottom:1px solid rgba(14,165,233,0.2); }
+        .ip-table td { padding:0.55rem 0.75rem; border-bottom:1px solid rgba(255,255,255,0.04); }
+        .ip-table tr:hover td { background:rgba(255,255,255,0.02); }
+        .ip-table .mono { font-family:'Fira Code'; direction:ltr; color:#38BDF8; font-size:0.75rem; }
+        .ip-table .rtl-cell { font-family:'Cairo'; direction:rtl; color:#94A3B8; }
+        .ip-table .vlan-badge { display:inline-block; padding:0.15rem 0.45rem; border-radius:5px; font-family:'Fira Code'; font-size:0.68rem; font-weight:700; }
+
+        /* ── Quiz ── */
+        .quiz-question { background:rgba(15,23,42,0.7); border:1px solid rgba(255,255,255,0.06); border-radius:14px; padding:1.5rem; margin-bottom:1.25rem; }
+        .quiz-question h4 { font-family:'Cairo'; direction:rtl; font-size:1rem; color:#E2E8F0; margin-bottom:1rem; }
+        .quiz-options { display:flex; flex-direction:column; gap:0.5rem; }
+        .quiz-option { padding:0.7rem 1rem; border-radius:10px; border:1px solid rgba(255,255,255,0.08); cursor:pointer; transition:all 0.25s; font-family:'Cairo'; font-size:0.88rem; direction:rtl; }
+        .quiz-option:hover { background:rgba(14,165,233,0.08); border-color:rgba(14,165,233,0.3); }
+        .quiz-option.correct { background:rgba(16,185,129,0.12); border-color:#34D399; color:#34D399; }
+        .quiz-option.wrong { background:rgba(239,68,68,0.1); border-color:#EF4444; color:#F87171; }
+        .quiz-feedback { display:none; margin-top:0.75rem; padding:0.75rem; border-radius:8px; font-family:'Cairo'; font-size:0.88rem; direction:rtl; line-height:1.7; }
+        .quiz-feedback.show { display:block; }
+        .quiz-feedback.correct-fb { background:rgba(16,185,129,0.08); border:1px solid rgba(16,185,129,0.2); color:#34D399; }
+        .quiz-feedback.wrong-fb { background:rgba(239,68,68,0.08); border:1px solid rgba(239,68,68,0.2); color:#F87171; }
+    </style>
 </head>
 <body>
-    <nav class="lesson-nav-bar"><div class="nav-inner"><a href="../index.html" class="nav-brand"><div class="back-btn"><i class="fas fa-arrow-left"></i></div><span>Net<span style="color:#0EA5E9;">Design</span></span></a></div></nav>
+    <nav class="lesson-nav-bar">
+        <div class="nav-inner">
+            <a href="../index.html" class="nav-brand"><div class="back-btn"><i class="fas fa-arrow-left"></i></div><span>Net <span style="color:#0EA5E9;">Design</span></span></a>
+            <span class="nav-progress">Unit 9 · Lesson 4 of 5</span>
+        </div>
+    </nav>
     <div class="progress-bar-container"><div class="progress-bar-fill" id="reading-progress" style="background:linear-gradient(90deg,#0EA5E9,#34D399);"></div></div>
+
     <header class="lesson-hero">
-        <div class="glow-orb glow-orb-1"></div>
+        <div class="glow-orb glow-orb-1"></div><div class="glow-orb glow-orb-2"></div>
         <div style="position:relative;z-index:1;">
-            <div class="lesson-badge" data-aos="fade-down"><span class="dot"></span>UNIT 9 • Lesson 4</div>
+            <div class="lesson-badge" data-aos="fade-down"><span class="dot"></span>UNIT 9 · Lesson 4 — Enterprise Level</div>
             <h1 data-aos="fade-up" data-aos-delay="150">Network <span class="text-g">Design</span></h1>
             <div class="subtitle" data-aos="fade-up" data-aos-delay="300">تصميم الشبكات الاحترافية</div>
-            <p class="desc" data-aos="fade-up" data-aos-delay="450">Cisco ثلاثي الطبقات هو الأساس في كل شبكة شركة كبيرة. Core → Distribution → Access. كل طبقة لها دور محدد وأجهزة محددة.</p>
+            <p class="desc" data-aos="fade-up" data-aos-delay="450">الـ Network Engineer مش بس بيحل مشاكل — بيصمم أنظمة من الصفر. كيف تبني شبكة 500 موظف تشتغل 99.999% من الوقت؟ الإجابة في الـ Three-Tier Architecture.</p>
         </div>
     </header>
 
+    <!-- ═══ Section 1: Three-Tier ═══ -->
     <section class="lesson-section">
-        <div class="section-header" data-aos="fade-up"><h2><i class="fas fa-sitemap" style="color:#38BDF8;margin-left:0.5rem;"></i> Three-Tier Architecture</h2><p class="en-sub">Core → Distribution → Access</p></div>
+        <div class="section-header" data-aos="fade-up">
+            <h2><i class="fas fa-sitemap" style="color:#38BDF8;margin-left:0.5rem;"></i> Three-Tier Hierarchical Design</h2>
+            <p class="en-sub">The gold standard for enterprise network architecture</p>
+        </div>
         <div class="glass-card" style="padding:1.8rem;" data-aos="fade-up">
+            <div class="rtl-block" style="color:#CBD5E1;line-height:1.9;margin-bottom:1.25rem;">
+                <p>Cisco طورت الـ Three-Tier Model في التسعينيات — ولسه الشركات الكبيرة بستخدمه لأنه بيفصل المسؤوليات بوضوح ويسهّل الـ Scalability والـ Troubleshooting.</p>
+            </div>
             <div style="display:flex;flex-direction:column;gap:0.75rem;">
-                <div style="background:rgba(239,68,68,0.08);border:2px solid rgba(239,68,68,0.3);border-radius:12px;padding:1.1rem;text-align:center;">
-                    <div style="font-family:'Fira Code';color:#F87171;font-weight:900;font-size:1rem;direction:ltr;margin-bottom:0.4rem;">🔥 Core Layer</div>
-                    <div class="rtl-block" style="font-size:0.85rem;color:#94A3B8;">العمود الفقري — High-Speed Switching — مش بيعمل أي Filtering. أجهزة: Cisco Nexus 9000، Catalyst 6500. SLA: 99.999% Uptime.</div>
+
+                <!-- Core -->
+                <div class="tier-card tier-core">
+                    <div style="display:flex;gap:1.25rem;align-items:flex-start;flex-wrap:wrap;">
+                        <div style="text-align:center;min-width:80px;">
+                            <div style="font-size:2rem;margin-bottom:0.3rem;">🔥</div>
+                            <div style="font-family:'Fira Code';color:#F87171;font-weight:900;font-size:0.85rem;">CORE</div>
+                            <div style="font-size:0.65rem;color:#64748B;">Layer 1</div>
+                        </div>
+                        <div style="flex:1;min-width:220px;">
+                            <div style="color:#F87171;font-weight:800;font-size:1rem;margin-bottom:0.4rem;">Core Layer — العمود الفقري</div>
+                            <div class="rtl-block" style="font-size:0.83rem;color:#94A3B8;line-height:1.8;">
+                                <strong style="color:#F87171;">المهمة:</strong> نقل البيانات بسرعة عالية بين الـ Distribution switches. مفيش filtering، مفيش ACL، مفيش routing complexities — بس سرعة.<br>
+                                <strong style="color:#F87171;">الأجهزة:</strong> Cisco Nexus 9500، Catalyst 9600 — 100GbE ports<br>
+                                <strong style="color:#F87171;">SLA:</strong> 99.999% = أقل من 5.26 دقيقة downtime سنياً<br>
+                                <strong style="color:#F87171;">Redundancy:</strong> Minimum 2 core switches + Redundant links
+                            </div>
+                        </div>
+                    </div>
                 </div>
-                <div style="text-align:center;color:#475569;font-size:0.8rem;font-family:'Fira Code';">↑ High-Bandwidth Links ↓</div>
-                <div style="background:rgba(245,158,11,0.08);border:2px solid rgba(245,158,11,0.3);border-radius:12px;padding:1.1rem;text-align:center;">
-                    <div style="font-family:'Fira Code';color:#FBBF24;font-weight:900;font-size:1rem;direction:ltr;margin-bottom:0.4rem;">⚡ Distribution Layer</div>
-                    <div class="rtl-block" style="font-size:0.85rem;color:#94A3B8;">Routing بين VLANs — ACLs — QoS — Route Summarization. Layer-3 Switches. HSS/VRRP للـ Redundancy.</div>
+
+                <div style="text-align:center;direction:ltr;font-family:'Fira Code';font-size:0.72rem;color:#475569;">⟵ 10GbE / 40GbE Uplinks ⟶</div>
+
+                <!-- Distribution -->
+                <div class="tier-card tier-dist">
+                    <div style="display:flex;gap:1.25rem;align-items:flex-start;flex-wrap:wrap;">
+                        <div style="text-align:center;min-width:80px;">
+                            <div style="font-size:2rem;margin-bottom:0.3rem;">⚡</div>
+                            <div style="font-family:'Fira Code';color:#FBBF24;font-weight:900;font-size:0.85rem;">DIST.</div>
+                            <div style="font-size:0.65rem;color:#64748B;">Layer 2</div>
+                        </div>
+                        <div style="flex:1;min-width:220px;">
+                            <div style="color:#FBBF24;font-weight:800;font-size:1rem;margin-bottom:0.4rem;">Distribution Layer — طبقة الذكاء</div>
+                            <div class="rtl-block" style="font-size:0.83rem;color:#94A3B8;line-height:1.8;">
+                                <strong style="color:#FBBF24;">المهمة:</strong> Routing بين VLANs، تطبيق ACLs وPolicies، Route Summarization. ده مكان القرارات.<br>
+                                <strong style="color:#FBBF24;">الأجهزة:</strong> Layer-3 Switches — Catalyst 9300، 9400<br>
+                                <strong style="color:#FBBF24;">Protocols:</strong> HSRP أو VRRP للـ Gateway Redundancy<br>
+                                <strong style="color:#FBBF24;">تصميم:</strong> دايماً جوزين (Pairs) — Active/Standby
+                            </div>
+                        </div>
+                    </div>
                 </div>
-                <div style="text-align:center;color:#475569;font-size:0.8rem;font-family:'Fira Code';">↑ STP / EtherChannel ↓</div>
-                <div style="background:rgba(16,185,129,0.08);border:2px solid rgba(16,185,129,0.3);border-radius:12px;padding:1.1rem;text-align:center;">
-                    <div style="font-family:'Fira Code';color:#34D399;font-weight:900;font-size:1rem;direction:ltr;margin-bottom:0.4rem;">💻 Access Layer</div>
-                    <div class="rtl-block" style="font-size:0.85rem;color:#94A3B8;">الطبقة اللي بتتوصل بيها الأجهزة. VLAN Assignment — Port Security — PoE للـ IP Phones والـ APs. Layer-2 Switches.</div>
+
+                <div style="text-align:center;direction:ltr;font-family:'Fira Code';font-size:0.72rem;color:#475569;">⟵ 1GbE / 10GbE Uplinks + EtherChannel ⟶</div>
+
+                <!-- Access -->
+                <div class="tier-card tier-access">
+                    <div style="display:flex;gap:1.25rem;align-items:flex-start;flex-wrap:wrap;">
+                        <div style="text-align:center;min-width:80px;">
+                            <div style="font-size:2rem;margin-bottom:0.3rem;">💻</div>
+                            <div style="font-family:'Fira Code';color:#34D399;font-weight:900;font-size:0.85rem;">ACCESS</div>
+                            <div style="font-size:0.65rem;color:#64748B;">Layer 3</div>
+                        </div>
+                        <div style="flex:1;min-width:220px;">
+                            <div style="color:#34D399;font-weight:800;font-size:1rem;margin-bottom:0.4rem;">Access Layer — نقطة الدخول</div>
+                            <div class="rtl-block" style="font-size:0.83rem;color:#94A3B8;line-height:1.8;">
+                                <strong style="color:#34D399;">المهمة:</strong> توصيل الـ End Devices. VLAN Assignment، Port Security، PoE للـ Phones والـ APs.<br>
+                                <strong style="color:#34D399;">الأجهزة:</strong> Catalyst 9200، 2960X — Layer-2 Switches<br>
+                                <strong style="color:#34D399;">Security:</strong> DHCP Snooping، Dynamic ARP Inspection، 802.1X<br>
+                                <strong style="color:#34D399;">نسبة:</strong> 1 Distribution switch لكل 4-8 Access switches
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="note" style="margin-top:1rem;">
+                <div class="rtl-block" style="font-size:0.85rem;">💡 <strong>Collapsed Core:</strong> للشبكات الصغيرة (أقل من 300 موظف) ممكن تدمج الـ Core والـ Distribution في نفس الأجهزة — اسمه <strong style="color:#38BDF8;">Collapsed Core / Two-Tier Design</strong>. توفير في التكلفة مع الحفاظ على المبدأ.</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ═══ Section 2: Redundancy ═══ -->
+    <section class="lesson-section alt-bg">
+        <div class="section-inner">
+            <div class="section-header" data-aos="fade-up">
+                <h2><i class="fas fa-shield-halved" style="color:#FBBF24;margin-left:0.5rem;"></i> Redundancy — مفيش Single Point of Failure</h2>
+                <p class="en-sub">Design for failure — assume every link can go down</p>
+            </div>
+            <div class="glass-card" style="padding:1.8rem;" data-aos="fade-up">
+                <div class="rtl-block" style="color:#CBD5E1;line-height:1.9;margin-bottom:1.25rem;">
+                    <p>كل مكون ممكن يعطل — الكابل، الـ Switch، الـ PSU. المهندس الجيد بيصمم على فرضية إن أي حاجة ممكن تقع.</p>
+                </div>
+
+                <!-- Scenario: Link Failure -->
+                <div style="background:rgba(0,0,0,0.25);border-radius:10px;padding:1.1rem;margin-bottom:1rem;">
+                    <div style="font-family:'Fira Code';color:#38BDF8;font-size:0.78rem;direction:ltr;margin-bottom:0.75rem;">// Scenario: Primary link fails between Distribution and Core</div>
+                    <div class="redund-path redund-failed">
+                        <i class="fas fa-times-circle"></i>
+                        <span>Dist-SW1 ──10GbE──▶ Core-SW1</span>
+                        <span style="font-size:0.65rem;margin-right:auto;"> (PRIMARY — DOWN)</span>
+                    </div>
+                    <div class="redund-path redund-active">
+                        <i class="fas fa-check-circle"></i>
+                        <span>Dist-SW1 ──10GbE──▶ Core-SW2</span>
+                        <span style="font-size:0.65rem;margin-right:auto;"> (BACKUP — ACTIVE, failover &lt;1s)</span>
+                    </div>
+                    <div class="redund-path redund-standby">
+                        <i class="fas fa-clock"></i>
+                        <span>HSRP: Dist-SW2 becomes Active Gateway</span>
+                        <span style="font-size:0.65rem;margin-right:auto;"> (STANDBY → ACTIVE)</span>
+                    </div>
+                </div>
+
+                <!-- Redundancy technologies -->
+                <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:0.75rem;margin-top:0.75rem;">
+                    <div style="background:rgba(14,165,233,0.06);border:1px solid rgba(14,165,233,0.15);border-radius:10px;padding:0.9rem;">
+                        <div style="font-family:'Fira Code';color:#38BDF8;font-weight:700;direction:ltr;margin-bottom:0.3rem;">EtherChannel</div>
+                        <div class="rtl-block" style="font-size:0.76rem;color:#64748B;">ربط 2-8 كابلات مع بعض زي لو كابل واحد. LACP (802.3ad). Bandwidth aggregation + Redundancy.</div>
+                    </div>
+                    <div style="background:rgba(245,158,11,0.06);border:1px solid rgba(245,158,11,0.15);border-radius:10px;padding:0.9rem;">
+                        <div style="font-family:'Fira Code';color:#FBBF24;font-weight:700;direction:ltr;margin-bottom:0.3rem;">HSRP / VRRP</div>
+                        <div class="rtl-block" style="font-size:0.76rem;color:#64748B;">Default Gateway Redundancy. لو الـ Active Router وقع، الـ Standby فوراً بيأخد الـ Virtual IP.</div>
+                    </div>
+                    <div style="background:rgba(139,92,246,0.06);border:1px solid rgba(139,92,246,0.15);border-radius:10px;padding:0.9rem;">
+                        <div style="font-family:'Fira Code';color:#A78BFA;font-weight:700;direction:ltr;margin-bottom:0.3rem;">Dual ISP</div>
+                        <div class="rtl-block" style="font-size:0.76rem;color:#64748B;">فرعين إنترنت من ISPs مختلفين. BGP للتوجيه بينهم. لو ISP1 وقع — ISP2 يشتغل.</div>
+                    </div>
+                    <div style="background:rgba(16,185,129,0.06);border:1px solid rgba(16,185,129,0.15);border-radius:10px;padding:0.9rem;">
+                        <div style="font-family:'Fira Code';color:#34D399;font-weight:700;direction:ltr;margin-bottom:0.3rem;">STP / RSTP</div>
+                        <div class="rtl-block" style="font-size:0.76rem;color:#64748B;">يمنع الـ Loop في Redundant Links. RSTP أسرع من STP (convergence &lt;1s vs 30-50s).</div>
+                    </div>
                 </div>
             </div>
         </div>
     </section>
 
+    <!-- ═══ Section 3: VLAN IP Plan ═══ -->
+    <section class="lesson-section">
+        <div class="section-header" data-aos="fade-up">
+            <h2><i class="fas fa-table-columns" style="color:#34D399;margin-left:0.5rem;"></i> Enterprise VLAN & IP Addressing Plan</h2>
+            <p class="en-sub">Real example — 500 employee company, 3 buildings</p>
+        </div>
+        <div class="glass-card" style="padding:1.2rem;overflow-x:auto;" data-aos="fade-up">
+            <table class="ip-table">
+                <thead>
+                    <tr><th>VLAN</th><th>الاسم</th><th>Subnet</th><th>Gateway</th><th>عدد الـ Hosts</th><th>الوظيفة</th></tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><span class="vlan-badge" style="background:rgba(239,68,68,0.15);color:#F87171;">VLAN 10</span></td>
+                        <td class="rtl-cell">Management</td>
+                        <td class="mono">10.0.10.0/24</td>
+                        <td class="mono">10.0.10.1</td>
+                        <td style="text-align:center;">254</td>
+                        <td class="rtl-cell">Network Devices فقط — SSH Access</td>
+                    </tr>
+                    <tr>
+                        <td><span class="vlan-badge" style="background:rgba(239,68,68,0.15);color:#F87171;">VLAN 20</span></td>
+                        <td class="rtl-cell">Servers</td>
+                        <td class="mono">10.0.20.0/23</td>
+                        <td class="mono">10.0.20.1</td>
+                        <td style="text-align:center;">510</td>
+                        <td class="rtl-cell">Web، DB، File، App Servers</td>
+                    </tr>
+                    <tr>
+                        <td><span class="vlan-badge" style="background:rgba(59,130,246,0.15);color:#60A5FA;">VLAN 30</span></td>
+                        <td class="rtl-cell">Finance</td>
+                        <td class="mono">10.0.30.0/25</td>
+                        <td class="mono">10.0.30.1</td>
+                        <td style="text-align:center;">126</td>
+                        <td class="rtl-cell">المحاسبة — إمكانية وصول محدودة جداً</td>
+                    </tr>
+                    <tr>
+                        <td><span class="vlan-badge" style="background:rgba(59,130,246,0.15);color:#60A5FA;">VLAN 40</span></td>
+                        <td class="rtl-cell">Employees</td>
+                        <td class="mono">10.0.40.0/22</td>
+                        <td class="mono">10.0.40.1</td>
+                        <td style="text-align:center;">1022</td>
+                        <td class="rtl-cell">باقي الموظفين — الـ Bulk</td>
+                    </tr>
+                    <tr>
+                        <td><span class="vlan-badge" style="background:rgba(139,92,246,0.15);color:#A78BFA;">VLAN 50</span></td>
+                        <td class="rtl-cell">VoIP</td>
+                        <td class="mono">10.0.50.0/24</td>
+                        <td class="mono">10.0.50.1</td>
+                        <td style="text-align:center;">254</td>
+                        <td class="rtl-cell">IP Phones — QoS Priority DSCP EF</td>
+                    </tr>
+                    <tr>
+                        <td><span class="vlan-badge" style="background:rgba(16,185,129,0.15);color:#34D399;">VLAN 60</span></td>
+                        <td class="rtl-cell">WiFi-Corp</td>
+                        <td class="mono">10.0.60.0/23</td>
+                        <td class="mono">10.0.60.1</td>
+                        <td style="text-align:center;">510</td>
+                        <td class="rtl-cell">Wireless للموظفين — 802.1X Auth</td>
+                    </tr>
+                    <tr>
+                        <td><span class="vlan-badge" style="background:rgba(245,158,11,0.15);color:#FBBF24;">VLAN 70</span></td>
+                        <td class="rtl-cell">Guest-WiFi</td>
+                        <td class="mono">172.16.70.0/23</td>
+                        <td class="mono">172.16.70.1</td>
+                        <td style="text-align:center;">510</td>
+                        <td class="rtl-cell">ضيوف — إنترنت فقط، معزول تماماً</td>
+                    </tr>
+                    <tr>
+                        <td><span class="vlan-badge" style="background:rgba(239,68,68,0.15);color:#F87171;">VLAN 200</span></td>
+                        <td class="rtl-cell">DMZ</td>
+                        <td class="mono">172.16.200.0/27</td>
+                        <td class="mono">172.16.200.1</td>
+                        <td style="text-align:center;">30</td>
+                        <td class="rtl-cell">Public Servers — بين الـ Firewall zones</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="note" style="margin-top:0.75rem;" data-aos="fade-up">
+            <div class="rtl-block" style="font-size:0.83rem;">💡 <strong>القاعدة الذهبية:</strong> اختار subnet size أكبر من احتياجك الحالي بـ 2x على الأقل. الـ Finance VLAN عندك 50 موظف؟ خد /25 (126 host) مش /26 (62 host) — لأنك هتوسّع.</div>
+        </div>
+    </section>
+
+    <!-- ═══ Section 4: Design Principles ═══ -->
     <section class="lesson-section alt-bg">
         <div class="section-inner">
-            <div class="section-header" data-aos="fade-up"><h2><i class="fas fa-network-wired" style="color:#34D399;margin-left:0.5rem;"></i> VLAN Design Best Practices</h2></div>
-            <div class="glass-card" style="padding:1.5rem;" data-aos="fade-up" style="overflow-x:auto;">
-                <table class="comparison-table">
-                    <thead><tr><th>VLAN ID</th><th>الاسم</th><th>Subnet</th><th>الأجهزة</th></tr></thead>
-                    <tbody>
-                        <tr><td style="font-family:'Fira Code';">10</td><td>Management</td><td style="direction:ltr;font-family:'Fira Code';">10.0.10.0/24</td><td class="rtl-block">Switches وRouters — SSH Access</td></tr>
-                        <tr><td style="font-family:'Fira Code';">20</td><td>Servers</td><td style="direction:ltr;font-family:'Fira Code';">10.0.20.0/24</td><td class="rtl-block">Web، Database، File Servers</td></tr>
-                        <tr><td style="font-family:'Fira Code';">30</td><td>Employees</td><td style="direction:ltr;font-family:'Fira Code';">10.0.30.0/24</td><td class="rtl-block">Workstations للموظفين</td></tr>
-                        <tr><td style="font-family:'Fira Code';">40</td><td>WiFi-Users</td><td style="direction:ltr;font-family:'Fira Code';">10.0.40.0/23</td><td class="rtl-block">Wireless Clients</td></tr>
-                        <tr><td style="font-family:'Fira Code';">50</td><td>VoIP</td><td style="direction:ltr;font-family:'Fira Code';">10.0.50.0/24</td><td class="rtl-block">IP Phones — عندهم QoS Priority</td></tr>
-                        <tr><td style="font-family:'Fira Code';">99</td><td>Guest</td><td style="direction:ltr;font-family:'Fira Code';">172.16.99.0/24</td><td class="rtl-block">Guests — Internet Only، معزولين</td></tr>
-                    </tbody>
-                </table>
+            <div class="section-header" data-aos="fade-up">
+                <h2><i class="fas fa-lightbulb" style="color:#FBBF24;margin-left:0.5rem;"></i> مبادئ التصميم الاحترافي</h2>
+                <p class="en-sub">What separates a good network from a great one</p>
+            </div>
+            <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:0.75rem;" data-aos="fade-up">
+                <div class="principle-card">
+                    <div class="principle-icon">📐</div>
+                    <div style="font-weight:700;color:#38BDF8;margin-bottom:0.3rem;font-size:0.9rem;">Scalability</div>
+                    <div class="rtl-block" style="font-size:0.78rem;color:#64748B;line-height:1.7;">صمم للضعف من أول. عندك 200 موظف دلوقتي؟ صمم لـ 400. الـ Three-Tier بيتوسع بسهولة — بس زود Access switches.</div>
+                </div>
+                <div class="principle-card">
+                    <div class="principle-icon">🔒</div>
+                    <div style="font-weight:700;color:#EC4899;margin-bottom:0.3rem;font-size:0.9rem;">Segmentation</div>
+                    <div class="rtl-block" style="font-size:0.78rem;color:#64748B;line-height:1.7;">كل قسم في VLAN منفصل. لو في Breach في الـ Guest WiFi — مش بيوصل للـ Finance VLAN. عزل = حماية.</div>
+                </div>
+                <div class="principle-card">
+                    <div class="principle-icon">⚡</div>
+                    <div style="font-weight:700;color:#FBBF24;margin-bottom:0.3rem;font-size:0.9rem;">Simplicity</div>
+                    <div class="rtl-block" style="font-size:0.78rem;color:#64748B;line-height:1.7;">الـ Design الأبسط = الأسهل في الـ Troubleshooting. مش كل feature لازم تشغّلها. الـ Complexity = مشاكل.</div>
+                </div>
+                <div class="principle-card">
+                    <div class="principle-icon">📋</div>
+                    <div style="font-weight:700;color:#34D399;margin-bottom:0.3rem;font-size:0.9rem;">Documentation</div>
+                    <div class="rtl-block" style="font-size:0.78rem;color:#64748B;line-height:1.7;">Network Diagram، IP Plan، VLAN table، Change Log. بدون Documentation = شبكة ticking bomb. افتكر إنك ممكن تمرض وحد تاني يشتغل.</div>
+                </div>
+                <div class="principle-card">
+                    <div class="principle-icon">🔁</div>
+                    <div style="font-weight:700;color:#A78BFA;margin-bottom:0.3rem;font-size:0.9rem;">Redundancy</div>
+                    <div class="rtl-block" style="font-size:0.78rem;color:#64748B;line-height:1.7;">Dual Links، Dual Power، Dual ISP. كل single point of failure = كارثة محتملة. حساب الـ RTO والـ RPO من البداية.</div>
+                </div>
+                <div class="principle-card">
+                    <div class="principle-icon">📊</div>
+                    <div style="font-weight:700;color:#FB923C;margin-bottom:0.3rem;font-size:0.9rem;">Manageability</div>
+                    <div class="rtl-block" style="font-size:0.78rem;color:#64748B;line-height:1.7;">SNMP، NetFlow، Syslog، NMS. تقدر تراقب كل switch وكل link من مكان واحد. Cisco DNA Center، SolarWinds، PRTG.</div>
+                </div>
             </div>
         </div>
     </section>
+
+    <!-- ═══ Section 5: Quiz ═══ -->
+    <section class="lesson-section" id="quiz">
+        <div class="section-header" data-aos="fade-up">
+            <h2><i class="fas fa-brain" style="color:#0EA5E9;margin-left:0.5rem;"></i> اختبر نفسك</h2>
+        </div>
+        <div data-aos="fade-up">
+            <div class="quiz-question" id="q1">
+                <h4>ليه Distribution Layer بيكون Layer-3 Switch ومش Layer-2؟</h4>
+                <div class="quiz-options">
+                    <div class="quiz-option" onclick="ans(this,'q1',false)">لأنه أحدث</div>
+                    <div class="quiz-option" onclick="ans(this,'q1',true)">لأنه محتاج يعمل Routing بين VLANs (Inter-VLAN Routing) وده بيحتاج طبقة 3</div>
+                    <div class="quiz-option" onclick="ans(this,'q1',false)">لأنه أسرع</div>
+                    <div class="quiz-option" onclick="ans(this,'q1',false)">لأن Cisco بتحب Layer-3 فقط</div>
+                </div>
+                <div class="quiz-feedback" id="fb-q1"></div>
+            </div>
+            <div class="quiz-question" id="q2">
+                <h4>ليه بنحط الـ Guest WiFi في Subnet مختلف تماماً (172.16.x.x) بدل ما نحطه في 10.0.x.x؟</h4>
+                <div class="quiz-options">
+                    <div class="quiz-option" onclick="ans(this,'q2',false)">لأن 172.16 أسرع</div>
+                    <div class="quiz-option" onclick="ans(this,'q2',false)">لتجنب تعارض الـ IPs</div>
+                    <div class="quiz-option" onclick="ans(this,'q2',true)">للعزل الكامل — وبيسهّل كتابة ACL rules تمنع الـ Guest من الوصول لأي شبكة داخلية</div>
+                    <div class="quiz-option" onclick="ans(this,'q2',false)">لأن الـ 10.x.x.x ممتلئ</div>
+                </div>
+                <div class="quiz-feedback" id="fb-q2"></div>
+            </div>
+            <div class="quiz-question" id="q3">
+                <h4>في الـ Collapsed Core Design — إيه اللي اتغير؟</h4>
+                <div class="quiz-options">
+                    <div class="quiz-option" onclick="ans(this,'q3',false)">إلغاء الـ Access Layer</div>
+                    <div class="quiz-option" onclick="ans(this,'q3',false)">إلغاء الـ VLAN</div>
+                    <div class="quiz-option" onclick="ans(this,'q3',true)">دمج الـ Core والـ Distribution في نفس الأجهزة — بيوفر تكلفة للشبكات الصغيرة</div>
+                    <div class="quiz-option" onclick="ans(this,'q3',false)">إضافة طبقة رابعة</div>
+                </div>
+                <div class="quiz-feedback" id="fb-q3"></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Bottom Nav -->
     <section class="lesson-section">
         <div class="lesson-bottom-nav">
             <a href="network_troubleshooting.html"><i class="fas fa-arrow-left"></i><span>Troubleshooting</span></a>
-            <div style="text-align:center;color:var(--text-faint);font-size:0.85rem;">Unit 9 • Lesson 4</div>
+            <div style="text-align:center;color:var(--text-faint);font-size:0.8rem;">Unit 9 · Lesson 4 of 5</div>
             <a href="cloud_networking.html"><span>Cloud Networking</span><i class="fas fa-arrow-right"></i></a>
         </div>
     </section>
+
     <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
-    <script>AOS.init({duration:800,once:true,offset:100}); window.addEventListener('scroll',()=>{ document.getElementById('reading-progress').style.width=(window.scrollY/(document.documentElement.scrollHeight-window.innerHeight))*100+'%'; });</script>
     <script>
-        // Auto-save progress when 90% scrolled
-        window.addEventListener('scroll', function() {
-            var pct = window.scrollY / (document.documentElement.scrollHeight - window.innerHeight);
-            if (pct > 0.90) {
-                var prog = JSON.parse(localStorage.getItem('nm_progress') || '{}');
-                prog['unit9_lesson4'] = true;
-                localStorage.setItem('nm_progress', JSON.stringify(prog));
-            }
+        AOS.init({ duration: 800, once: true, offset: 100 });
+        window.addEventListener('scroll', () => {
+            document.getElementById('reading-progress').style.width =
+                (window.scrollY / (document.documentElement.scrollHeight - window.innerHeight)) * 100 + '%';
         });
+
+        const fb = {
+            q1: { c: '✅ صح! Distribution Layer بيعمل Inter-VLAN Routing — بيوصّل الـ VLANs ببعض. ده بيحتاج Layer-3 (IP routing). Layer-2 switch مش بيعمل routing اصلاً.', w: '❌ غلط. Distribution Layer محتاج Inter-VLAN Routing — بيربط الـ VLANs ببعض. ده بيحتاج Layer-3 Switching (IP-aware).' },
+            q2: { c: '✅ صح! العزل في subnet مختلف بيسهل كتابة ACL تمنع الـ Guest من الوصول للـ 10.0.x.x كلها بـ rule واحدة. Security by design.', w: '❌ غلط. السبب الرئيسي هو العزل والأمان. ACL بتقدر تكتب "deny 172.16.70.0/23 any 10.0.0.0/8" — simple وقوي.' },
+            q3: { c: '✅ صح! Collapsed Core = نفس الأجهزة بتعمل دور الـ Core والـ Distribution. مناسب لشبكات أقل من 300-500 موظف. بيوفر حوالي 40-50% من التكلفة.', w: '❌ غلط. Collapsed Core = Core + Distribution في نفس الأجهزة. Access Layer بيفضل موجود. ده بيوفر تكلفة للشبكات الصغيرة.' }
+        };
+
+        function ans(el, qid, correct) {
+            const q = document.getElementById(qid);
+            if (q.dataset.answered) return;
+            q.dataset.answered = 'true';
+            q.querySelectorAll('.quiz-option').forEach(o => o.style.pointerEvents = 'none');
+            el.classList.add(correct ? 'correct' : 'wrong');
+            const f = document.getElementById('fb-' + qid);
+            f.textContent = correct ? fb[qid].c : fb[qid].w;
+            f.className = 'quiz-feedback show ' + (correct ? 'correct-fb' : 'wrong-fb');
+        }
+
+        // Progress tracking
+        (function() {
+            var saved = false;
+            window.addEventListener('scroll', function() {
+                if (saved) return;
+                var pct = window.scrollY / (document.documentElement.scrollHeight - window.innerHeight);
+                if (pct > 0.90) {
+                    var prog = JSON.parse(localStorage.getItem('nm_progress') || '{}');
+                    prog['unit9_lesson4'] = true;
+                    localStorage.setItem('nm_progress', JSON.stringify(prog));
+                    saved = true;
+                }
+            });
+        })();
     </script>
 </body>
 </html>
