@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MAC Addresses & Ethernet — عناوين MAC والإيثرنت | Network Mastery</title>
+    <meta name="description" content="MAC Address structure, OUI, Ethernet frame deep-dive, CSMA/CD, ARP table building.">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&family=Inter:wght@400;500;600;700;800&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    <link href="../css/global-net.css" rel="stylesheet">
+    <style>
+        body{background:#020617;color:#E2E8F0;font-family:'Inter',sans-serif;}
+        .lesson-nav-bar{position:fixed;top:0;left:0;right:0;z-index:100;background:rgba(2,6,23,0.88);backdrop-filter:blur(20px);border-bottom:1px solid rgba(255,255,255,0.06);height:64px;display:flex;align-items:center;padding:0 1.5rem;}
+        .nav-inner{max-width:1280px;margin:0 auto;width:100%;display:flex;align-items:center;justify-content:space-between;}
+        .nav-brand{display:flex;align-items:center;gap:0.75rem;font-weight:700;}
+        .back-btn{width:36px;height:36px;border-radius:10px;background:linear-gradient(135deg,#F59E0B,#D97706);display:flex;align-items:center;justify-content:center;color:white;font-size:0.85rem;transition:transform 0.3s;}
+        .back-btn:hover{transform:scale(1.1);}
+        .lesson-hero{position:relative;padding:8rem 1.5rem 5rem;text-align:center;overflow:hidden;}
+        .glow-orb{position:absolute;border-radius:50%;filter:blur(128px);pointer-events:none;}
+        .glow-orb-1{width:500px;height:500px;top:-10%;right:-5%;background:rgba(245,158,11,0.12);}
+        .glow-orb-2{width:400px;height:400px;bottom:-20%;left:-10%;background:rgba(251,191,36,0.06);}
+        .lesson-badge{display:inline-flex;align-items:center;gap:0.5rem;padding:0.35rem 1rem;border-radius:50px;background:rgba(30,41,59,0.6);border:1px solid rgba(255,255,255,0.08);font-family:'Fira Code',monospace;font-size:0.78rem;color:#FBBF24;margin-bottom:1.5rem;}
+        .dot{width:6px;height:6px;border-radius:50%;background:#F59E0B;animation:pulse-dot 2s ease infinite;}
+        .lesson-hero h1{font-size:clamp(2.5rem,5vw,4rem);font-weight:800;margin-bottom:1rem;}
+        .text-g{background:linear-gradient(135deg,#F59E0B,#FBBF24);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;}
+        .subtitle{font-family:'Cairo',sans-serif;font-size:1.6rem;font-weight:700;color:var(--text-muted);direction:rtl;margin-bottom:1.5rem;}
+        .desc{color:var(--text-faint);max-width:640px;margin:0 auto;font-size:1.05rem;font-family:'Cairo',sans-serif;direction:rtl;line-height:1.9;}
+
+        /* MAC dissector */
+        .mac-display{display:flex;align-items:stretch;gap:2px;direction:ltr;margin:1rem 0;flex-wrap:wrap;}
+        .mac-oct{display:flex;flex-direction:column;align-items:center;flex:1;min-width:60px;border-radius:8px;overflow:hidden;}
+        .mac-oct .val{padding:0.5rem;font-family:'Fira Code',monospace;font-weight:900;font-size:1rem;text-align:center;width:100%;}
+        .mac-oct .lbl{font-size:0.6rem;padding:0.2rem;text-align:center;width:100%;}
+        .mac-sep{display:flex;align-items:center;color:#475569;font-size:1.2rem;font-family:'Fira Code';padding:0 1px;}
+
+        /* Ethernet frame interactive */
+        .frame-display{display:flex;flex-direction:row;border-radius:10px;overflow:hidden;margin:1.5rem 0;direction:ltr;min-height:60px;}
+        .frame-field{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:0.5rem 0.3rem;text-align:center;cursor:pointer;transition:all 0.3s;border-right:1px solid rgba(0,0,0,0.2);}
+        .frame-field:last-child{border-right:none;}
+        .frame-field .ff-name{font-family:'Fira Code',monospace;font-size:0.65rem;font-weight:700;color:rgba(255,255,255,0.9);}
+        .frame-field .ff-size{font-size:0.55rem;color:rgba(255,255,255,0.5);margin-top:0.15rem;}
+        .frame-field:hover{filter:brightness(1.3);}
+
+        .lesson-bottom-nav{display:flex;justify-content:space-between;align-items:center;gap:1rem;padding:2rem 0;border-top:1px solid var(--border-subtle);margin-top:3rem;}
+        .lesson-bottom-nav a{display:flex;align-items:center;gap:0.5rem;padding:0.75rem 1.5rem;border-radius:12px;background:rgba(255,255,255,0.04);border:1px solid var(--border-subtle);transition:all 0.3s ease;font-weight:600;font-size:0.9rem;}
+        .lesson-bottom-nav a:hover{background:rgba(245,158,11,0.1);border-color:rgba(245,158,11,0.3);transform:translateY(-2px);}
+    </style>
+</head>
+<body>
+    <nav class="lesson-nav-bar">
+        <div class="nav-inner">
+            <a href="../index.html" class="nav-brand">
+                <div class="back-btn"><i class="fas fa-arrow-left"></i></div>
+                <span>MAC<span style="color:#F59E0B;">Addr</span></span>
+            </a>
+        </div>
+    </nav>
+    <div class="progress-bar-container"><div class="progress-bar-fill" id="reading-progress" style="background:linear-gradient(90deg,#F59E0B,#FBBF24);"></div></div>
+
+    <header class="lesson-hero">
+        <div class="glow-orb glow-orb-1"></div><div class="glow-orb glow-orb-2"></div>
+        <div style="position:relative;z-index:1;">
+            <div class="lesson-badge" data-aos="fade-down"><span class="dot"></span>UNIT 4 • Lesson 2</div>
+            <h1 data-aos="fade-up" data-aos-delay="150">MAC Addresses &amp; <span class="text-g">Ethernet</span></h1>
+            <div class="subtitle" data-aos="fade-up" data-aos-delay="300">عناوين MAC والإيثرنت</div>
+            <p class="desc" data-aos="fade-up" data-aos-delay="450">كل كارت شبكة مصنوع في العالم عنده عنوان 48-bit فريد. مليار جهاز — ومفيش اتنين زي بعض. كيف؟</p>
+        </div>
+    </header>
+
+    <!-- MAC Structure -->
+    <section class="lesson-section">
+        <div class="section-header" data-aos="fade-up">
+            <h2><i class="fas fa-id-card" style="color:#F59E0B;margin-left:0.5rem;"></i> تشريح الـ MAC Address</h2>
+            <p class="en-sub">48 bits = OUI (24 bits) + NIC (24 bits)</p>
+        </div>
+        <div class="glass-card" style="padding:1.8rem;" data-aos="fade-up">
+            <div class="rtl-block" style="margin-bottom:1.5rem;">
+                <p style="color:#E2E8F0;font-size:1rem;line-height:1.9;">الـ MAC Address = 48 bit مقسومة لجزئين: أول 3 bytes (OUI) للشركة المصنعة، والـ 3 bytes الثانية (NIC) للكارت نفسه.</p>
+            </div>
+            <!-- Interactive MAC dissector -->
+            <div class="rtl-block" style="margin-bottom:0.5rem;font-size:0.85rem;color:#94A3B8;">اكتب MAC Address (مثال: AA:BB:CC:11:22:33) وشوف تقسيمه:</div>
+            <div style="display:flex;gap:0.75rem;flex-wrap:wrap;margin-bottom:1rem;">
+                <input id="mac-in" type="text" value="00:1A:2B:3C:4D:5E" style="flex:1;min-width:180px;background:rgba(0,0,0,0.3);border:1px solid rgba(245,158,11,0.3);border-radius:8px;color:#FBBF24;font-family:'Fira Code',monospace;font-size:0.9rem;padding:0.4rem 0.8rem;outline:none;">
+                <button onclick="dissectMAC()" style="padding:0.4rem 1rem;border-radius:8px;background:rgba(245,158,11,0.15);border:1px solid rgba(245,158,11,0.3);color:#FBBF24;font-family:'Cairo',sans-serif;cursor:pointer;">تحليل</button>
+            </div>
+            <div class="mac-display" id="mac-viz"></div>
+            <div id="mac-info" class="info-box" style="margin-top:0.75rem;display:none;">
+                <div id="mac-info-content" class="rtl-block" style="font-size:0.88rem;"></div>
+            </div>
+
+            <div style="margin-top:1.5rem;">
+                <div class="rtl-block" style="font-size:0.88rem;color:#CBD5E1;margin-bottom:0.75rem;"><strong>Bit خاصة في أول Byte:</strong></div>
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.75rem;">
+                    <div style="background:rgba(245,158,11,0.06);border:1px solid rgba(245,158,11,0.15);border-radius:10px;padding:0.75rem;">
+                        <div style="font-family:'Fira Code';direction:ltr;color:#FBBF24;font-weight:700;font-size:0.82rem;">Bit 0 (LSB): Unicast/Multicast</div>
+                        <div class="rtl-block" style="font-size:0.78rem;color:#94A3B8;margin-top:0.3rem;">0 = Unicast (عنوان جهاز واحد). 1 = Multicast (مجموعة).</div>
+                    </div>
+                    <div style="background:rgba(245,158,11,0.06);border:1px solid rgba(245,158,11,0.15);border-radius:10px;padding:0.75rem;">
+                        <div style="font-family:'Fira Code';direction:ltr;color:#FBBF24;font-weight:700;font-size:0.82rem;">Bit 1: Global/Local</div>
+                        <div class="rtl-block" style="font-size:0.78rem;color:#94A3B8;margin-top:0.3rem;">0 = OUI (من IEEE). 1 = Locally Administered (مخصص يدوياً).</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Ethernet Frame -->
+    <section class="lesson-section alt-bg">
+        <div class="section-inner">
+            <div class="section-header" data-aos="fade-up">
+                <h2><i class="fas fa-envelope-open" style="color:#FBBF24;margin-left:0.5rem;"></i> بنية الـ Ethernet Frame</h2>
+                <p class="en-sub">IEEE 802.3 — Click Any Field</p>
+            </div>
+            <div class="glass-card" style="padding:1.8rem;" data-aos="fade-up">
+                <div class="frame-display" id="eth-frame">
+                    <div class="frame-field" style="background:rgba(100,116,139,0.4);flex:0.8;" onclick="showField('preamble')"><div class="ff-name">Preamble</div><div class="ff-size">7B</div></div>
+                    <div class="frame-field" style="background:rgba(100,116,139,0.3);flex:0.4;" onclick="showField('sfd')"><div class="ff-name">SFD</div><div class="ff-size">1B</div></div>
+                    <div class="frame-field" style="background:rgba(16,185,129,0.4);flex:1;" onclick="showField('dst')"><div class="ff-name">Dst MAC</div><div class="ff-size">6B</div></div>
+                    <div class="frame-field" style="background:rgba(59,130,246,0.4);flex:1;" onclick="showField('src')"><div class="ff-name">Src MAC</div><div class="ff-size">6B</div></div>
+                    <div class="frame-field" style="background:rgba(245,158,11,0.4);flex:0.5;" onclick="showField('etype')"><div class="ff-name">EType</div><div class="ff-size">2B</div></div>
+                    <div class="frame-field" style="background:rgba(139,92,246,0.4);flex:3;" onclick="showField('payload')"><div class="ff-name">Payload</div><div class="ff-size">46–1500B</div></div>
+                    <div class="frame-field" style="background:rgba(239,68,68,0.4);flex:0.6;" onclick="showField('fcs')"><div class="ff-name">FCS</div><div class="ff-size">4B</div></div>
+                </div>
+                <div id="frame-detail" class="info-box" style="display:none;margin-top:0.75rem;">
+                    <div class="rtl-block" id="frame-detail-content" style="font-size:0.88rem;"></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CSMA/CD -->
+    <section class="lesson-section">
+        <div class="section-header" data-aos="fade-up">
+            <h2><i class="fas fa-traffic-light" style="color:#34D399;margin-left:0.5rem;"></i> CSMA/CD — نظام تنظيم الوصول</h2>
+            <p class="en-sub">Carrier Sense Multiple Access / Collision Detection</p>
+        </div>
+        <div class="glass-card" style="padding:1.8rem;" data-aos="fade-up">
+            <div class="rtl-block" style="margin-bottom:1.5rem;color:#CBD5E1;font-size:0.98rem;line-height:1.8;">
+                <p>في شبكات الـ Ethernet القديمة (Hub بدل Switch) — كل الأجهزة بتشارك نفس الـ Cable. لو اتنين بعتوا في نفس الوقت = <strong style="color:#EF4444;">Collision</strong>. الـ CSMA/CD البروتوكول اللي بيديرها:</p>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:0.6rem;">
+                <div style="display:flex;gap:0.75rem;padding:0.75rem;background:rgba(34,211,238,0.05);border:1px solid rgba(34,211,238,0.15);border-radius:10px;">
+                    <div style="color:#22D3EE;font-weight:900;width:22px;flex-shrink:0;font-family:'Fira Code';">CS</div>
+                    <div class="rtl-block" style="font-size:0.88rem;"><strong style="color:#22D3EE;">Carrier Sense:</strong> استمع للـ Medium — مفيش إشارة = فاضي = تقدر تبعت</div>
+                </div>
+                <div style="display:flex;gap:0.75rem;padding:0.75rem;background:rgba(245,158,11,0.05);border:1px solid rgba(245,158,11,0.15);border-radius:10px;">
+                    <div style="color:#FBBF24;font-weight:900;width:22px;flex-shrink:0;font-family:'Fira Code';">MA</div>
+                    <div class="rtl-block" style="font-size:0.88rem;"><strong style="color:#FBBF24;">Multiple Access:</strong> أكتر من جهاز بيحاول في نفس الوقت على نفس الـ Wire</div>
+                </div>
+                <div style="display:flex;gap:0.75rem;padding:0.75rem;background:rgba(239,68,68,0.05);border:1px solid rgba(239,68,68,0.15);border-radius:10px;">
+                    <div style="color:#F87171;font-weight:900;width:22px;flex-shrink:0;font-family:'Fira Code';">CD</div>
+                    <div class="rtl-block" style="font-size:0.88rem;"><strong style="color:#F87171;">Collision Detection:</strong> لو Collision → بعت Jam Signal → كل الكل وقفوا → Random Backoff → حاولوا تاني</div>
+                </div>
+            </div>
+            <div class="note" style="margin-top:1rem;">
+                <div class="rtl-block">💡 الـ Switch ألغى الـ Collision Domain لكل Port — CSMA/CD بقى تاريخياً للـ Hub. Full Duplex مع الـ Switch = مفيش Collision.</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- OUI Lookup info -->
+    <section class="lesson-section alt-bg">
+        <div class="section-inner">
+            <div class="section-header" data-aos="fade-up">
+                <h2><i class="fas fa-building" style="color:#FBBF24;margin-left:0.5rem;"></i> OUI — بصمة الشركة المصنعة</h2>
+                <p class="en-sub">Organizationally Unique Identifier — First 3 Bytes</p>
+            </div>
+            <div class="glass-card" style="padding:1.5rem;" data-aos="fade-up" style="overflow-x:auto;">
+                <table class="comparison-table">
+                    <thead><tr><th>OUI</th><th>الشركة</th><th>أمثلة المنتجات</th></tr></thead>
+                    <tbody>
+                        <tr><td style="font-family:'Fira Code';direction:ltr;color:#FBBF24;">00:1A:11</td><td>Google</td><td class="rtl-block">Chromecast، مشيك شبكة Google</td></tr>
+                        <tr><td style="font-family:'Fira Code';direction:ltr;color:#FBBF24;">00:50:56</td><td>VMware</td><td class="rtl-block">Virtual NICs في VMware</td></tr>
+                        <tr><td style="font-family:'Fira Code';direction:ltr;color:#FBBF24;">34:BA:9A</td><td>Apple</td><td class="rtl-block">iPhone، MacBook</td></tr>
+                        <tr><td style="font-family:'Fira Code';direction:ltr;color:#FBBF24;">D4:61:9D</td><td>Huawei</td><td class="rtl-block">Routers، Switches، Modems مصر</td></tr>
+                        <tr><td style="font-family:'Fira Code';direction:ltr;color:#FBBF24;">FF:FF:FF</td><td style="color:#F87171;">Broadcast</td><td class="rtl-block" style="color:#F87171;">ليس لشركة — يصل لكل الأجهزة</td></tr>
+                    </tbody>
+                </table>
+                <div class="rtl-block" style="margin-top:0.75rem;font-size:0.82rem;color:#94A3B8;">💡 ممكن تـ Lookup الـ OUI عن أي MAC على: macvendors.com</div>
+            </div>
+        </div>
+    </section>
+
+    <section class="lesson-section" id="quiz">
+        <div class="section-header" data-aos="fade-up">
+            <h2><i class="fas fa-brain" style="color:#F59E0B;margin-left:0.5rem;"></i> اختبر نفسك</h2>
+        </div>
+        <div class="quiz-container" data-aos="fade-up">
+            <div class="quiz-question" id="q1">
+                <h4>MAC Address من إيه عبارة؟</h4>
+                <div class="quiz-options">
+                    <div class="quiz-option" onclick="ans(this,'q1',false)">32 bit — IP + Port</div>
+                    <div class="quiz-option" onclick="ans(this,'q1',true)">48 bit — OUI (3 bytes) + NIC (3 bytes)</div>
+                    <div class="quiz-option" onclick="ans(this,'q1',false)">64 bit — كله للـ NIC</div>
+                    <div class="quiz-option" onclick="ans(this,'q1',false)">128 bit — IPv6</div>
+                </div>
+                <div class="quiz-feedback" id="fb-q1"></div>
+            </div>
+            <div class="quiz-question" id="q2">
+                <h4>Ethernet Frame بيحتاج CSMA/CD — امتى؟</h4>
+                <div class="quiz-options">
+                    <div class="quiz-option" onclick="ans(this,'q2',true)">مع الـ Hub في Half Duplex (Shared Medium)</div>
+                    <div class="quiz-option" onclick="ans(this,'q2',false)">مع الـ Switch دايماً</div>
+                    <div class="quiz-option" onclick="ans(this,'q2',false)">مع الـ Router</div>
+                    <div class="quiz-option" onclick="ans(this,'q2',false)">مع الـ Wireless فقط</div>
+                </div>
+                <div class="quiz-feedback" id="fb-q2"></div>
+            </div>
+        </div>
+    </section>
+
+    <section class="lesson-section">
+        <div class="lesson-bottom-nav">
+            <a href="framing_error.html"><i class="fas fa-arrow-left"></i><span>Framing &amp; Error</span></a>
+            <div style="text-align:center;color:var(--text-faint);font-size:0.85rem;">Unit 4 • Lesson 2</div>
+            <a href="switching_vlans.html"><span>Switches &amp; VLANs</span><i class="fas fa-arrow-right"></i></a>
+        </div>
+    </section>
+
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <script>
+        AOS.init({duration:800,once:true,offset:100});
+        window.addEventListener('scroll',()=>{ document.getElementById('reading-progress').style.width=(window.scrollY/(document.documentElement.scrollHeight-window.innerHeight))*100+'%'; });
+
+        const ouiDB={'00:1A:2B':'Cisco Systems','AA:BB:CC':'Intel Corporation','34:BA:9A':'Apple Inc.','00:50:56':'VMware Inc.','D4:61:9D':'Huawei Technologies','B4:FB:E4':'Samsung Electronics'};
+
+        function dissectMAC(){
+            const raw=document.getElementById('mac-in').value.trim().toUpperCase();
+            const viz=document.getElementById('mac-viz');
+            viz.innerHTML='';
+            const octs=raw.split(/[:\-\.]/);
+            if(octs.length!==6||octs.some(o=>o.length!==2||isNaN(parseInt(o,16)))){ alert('صيغة MAC غلط! مثال: AA:BB:CC:11:22:33'); return; }
+            const ouiKey=`${octs[0]}:${octs[1]}:${octs[2]}`;
+            const vendor=ouiDB[ouiKey]||'Unknown Vendor';
+            octs.forEach((o,i)=>{
+                const div=document.createElement('div'); div.className='mac-oct';
+                const isOUI=i<3;
+                const color=isOUI?'#FBBF24':'#60A5FA';
+                const bg=isOUI?'rgba(245,158,11,0.15)':'rgba(59,130,246,0.15)';
+                div.innerHTML=`<div class="val" style="background:${bg};color:${color};">${o}</div><div class="lbl" style="background:rgba(0,0,0,0.2);color:${color};font-size:0.55rem;">${isOUI?'OUI':'NIC'}</div>`;
+                viz.appendChild(div);
+                if(i<5){ const sep=document.createElement('div'); sep.className='mac-sep'; sep.textContent=':'; viz.appendChild(sep); }
+            });
+            const info=document.getElementById('mac-info');
+            info.style.display='block';
+            document.getElementById('mac-info-content').innerHTML=`
+                <strong style="color:#FBBF24;">OUI (${ouiKey}):</strong> ${vendor}<br>
+                <strong style="color:#60A5FA;">NIC (${octs[3]}:${octs[4]}:${octs[5]}):</strong> الرقم الخاص بالكارت — من الشركة المصنعة<br>
+                <strong>Broadcast؟</strong> ${raw==='FF:FF:FF:FF:FF:FF'?'✅ نعم — يوصل لكل الأجهزة':'❌ لا — Unicast'}<br>
+                <strong>Multicast؟</strong> ${parseInt(octs[0],16)&1?'✅ نعم (LSB=1)':'❌ لا (LSB=0)'}
+            `;
+        }
+        dissectMAC();
+
+        const fieldDetails={
+            preamble:'<strong>Preamble (7 bytes):</strong> 10101010×7 — تزامن الإيقاع مع المستقبل قبل الـ Frame.',
+            sfd:'<strong>SFD - Start Frame Delimiter (1 byte):</strong> 10101011 — إشارة "بداية الـ Frame الآن!"',
+            dst:'<strong>Destination MAC (6 bytes):</strong> MAC الجهاز المستقبل. FF:FF:FF:FF:FF:FF = Broadcast.',
+            src:'<strong>Source MAC (6 bytes):</strong> MAC المرسل — يُحفظ في MAC Table الـ Switch.',
+            etype:'<strong>EtherType (2 bytes):</strong> 0x0800=IPv4، 0x0806=ARP، 0x86DD=IPv6.',
+            payload:'<strong>Payload (46–1500 bytes):</strong> البيانات الفعلية (IP Packet). الحد الأدنى 46 bytes (padding لو أقل).',
+            fcs:'<strong>FCS - CRC-32 (4 bytes):</strong> بيكتشف أخطاء النقل. لو CRC غلط → الـ Frame بيتحذف.'
+        };
+        function showField(f){ const box=document.getElementById('frame-detail'); box.style.display='block'; document.getElementById('frame-detail-content').innerHTML=fieldDetails[f]; }
+
+        const fb={
+            q1:{c:'✅ صح! MAC = 48 bit. أول 24 bit = OUI (الشركة) + ثاني 24 bit = NIC (الكارت).',w:'❌ غلط! MAC = 48 bit (6 bytes). IP = 32 bit. IPv6 = 128 bit.'},
+            q2:{c:'✅ صح! CSMA/CD للـ Hub لأن كله Shared Medium وممكن Collision. الـ Switch = Full Duplex = مفيش Collision.',w:'❌ غلط! CSMA/CD للـ Hub القديم (Half Duplex Shared Medium). الـ Switch عنده Full Duplex مع كل Port.'}
+        };
+        function ans(el,qid,correct){ const q=document.getElementById(qid); if(q.dataset.answered)return; q.dataset.answered='true'; q.querySelectorAll('.quiz-option').forEach(o=>o.style.pointerEvents='none'); el.classList.add(correct?'correct':'wrong'); const f=document.getElementById('fb-'+qid); f.textContent=correct?fb[qid].c:fb[qid].w; f.className='quiz-feedback show '+(correct?'correct-fb':'wrong-fb'); }
+    </script>
+</body>
+</html>

@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FTP & SSH — نقل الملفات والوصول الآمن | Network Mastery</title>
+    <meta name="description" content="FTP Active vs Passive, SFTP, SSH authentication, key-based auth, port forwarding.">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&family=Inter:wght@400;500;600;700;800&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    <link href="../css/global-net.css" rel="stylesheet">
+    <style>
+        body{background:#020617;color:#E2E8F0;font-family:'Inter',sans-serif;}
+        .lesson-nav-bar{position:fixed;top:0;left:0;right:0;z-index:100;background:rgba(2,6,23,0.88);backdrop-filter:blur(20px);border-bottom:1px solid rgba(255,255,255,0.06);height:64px;display:flex;align-items:center;padding:0 1.5rem;}
+        .nav-inner{max-width:1280px;margin:0 auto;width:100%;display:flex;align-items:center;justify-content:space-between;}
+        .nav-brand{display:flex;align-items:center;gap:0.75rem;font-weight:700;}
+        .back-btn{width:36px;height:36px;border-radius:10px;background:linear-gradient(135deg,#F97316,#EA580C);display:flex;align-items:center;justify-content:center;color:white;font-size:0.85rem;transition:transform 0.3s;}
+        .back-btn:hover{transform:scale(1.1);}
+        .lesson-hero{position:relative;padding:8rem 1.5rem 5rem;text-align:center;overflow:hidden;}
+        .glow-orb{position:absolute;border-radius:50%;filter:blur(128px);pointer-events:none;}
+        .glow-orb-1{width:500px;height:500px;top:-10%;right:-5%;background:rgba(249,115,22,0.12);}
+        .glow-orb-2{width:400px;height:400px;bottom:-20%;left:-10%;background:rgba(16,185,129,0.06);}
+        .lesson-badge{display:inline-flex;align-items:center;gap:0.5rem;padding:0.35rem 1rem;border-radius:50px;background:rgba(30,41,59,0.6);border:1px solid rgba(255,255,255,0.08);font-family:'Fira Code',monospace;font-size:0.78rem;color:#FB923C;margin-bottom:1.5rem;}
+        .dot{width:6px;height:6px;border-radius:50%;background:#F97316;animation:pulse-dot 2s ease infinite;}
+        .lesson-hero h1{font-size:clamp(2.5rem,5vw,4rem);font-weight:800;margin-bottom:1rem;}
+        .text-g{background:linear-gradient(135deg,#F97316,#34D399);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;}
+        .subtitle{font-family:'Cairo',sans-serif;font-size:1.6rem;font-weight:700;color:var(--text-muted);direction:rtl;margin-bottom:1.5rem;}
+        .desc{color:var(--text-faint);max-width:640px;margin:0 auto;font-size:1.05rem;font-family:'Cairo',sans-serif;direction:rtl;line-height:1.9;}
+        .lesson-bottom-nav{display:flex;justify-content:space-between;align-items:center;gap:1rem;padding:2rem 0;border-top:1px solid var(--border-subtle);margin-top:3rem;}
+        .lesson-bottom-nav a{display:flex;align-items:center;gap:0.5rem;padding:0.75rem 1.5rem;border-radius:12px;background:rgba(255,255,255,0.04);border:1px solid var(--border-subtle);transition:all 0.3s ease;font-weight:600;font-size:0.9rem;}
+        .lesson-bottom-nav a:hover{background:rgba(249,115,22,0.1);border-color:rgba(249,115,22,0.3);transform:translateY(-2px);}
+        /* SSH terminal sim */
+        .ssh-term{background:#0D1117;border:1px solid rgba(16,185,129,0.3);border-radius:10px;padding:1rem;font-family:'Fira Code',monospace;font-size:0.78rem;direction:ltr;min-height:120px;}
+        .ssh-line{color:#34D399;margin-bottom:0.1rem;}
+        .ssh-line.cmd{color:#60A5FA;}
+        .ssh-line.out{color:#CBD5E1;}
+        .ssh-line.err{color:#F87171;}
+        .ssh-cursor{display:inline-block;width:8px;height:14px;background:#34D399;animation:blink 1s step-end infinite;vertical-align:text-bottom;}
+        @keyframes blink{0%,100%{opacity:1}50%{opacity:0}}
+    </style>
+</head>
+<body>
+    <nav class="lesson-nav-bar">
+        <div class="nav-inner">
+            <a href="../index.html" class="nav-brand">
+                <div class="back-btn"><i class="fas fa-arrow-left"></i></div>
+                <span>FTP<span style="color:#F97316;">&SSH</span></span>
+            </a>
+        </div>
+    </nav>
+    <div class="progress-bar-container"><div class="progress-bar-fill" id="reading-progress" style="background:linear-gradient(90deg,#F97316,#34D399);"></div></div>
+
+    <header class="lesson-hero">
+        <div class="glow-orb glow-orb-1"></div><div class="glow-orb glow-orb-2"></div>
+        <div style="position:relative;z-index:1;">
+            <div class="lesson-badge" data-aos="fade-down"><span class="dot"></span>UNIT 7 • Lesson 4</div>
+            <h1 data-aos="fade-up" data-aos-delay="150">FTP &amp; <span class="text-g">SSH</span></h1>
+            <div class="subtitle" data-aos="fade-up" data-aos-delay="300">نقل الملفات والوصول الآمن للسيرفرات</div>
+            <p class="desc" data-aos="fade-up" data-aos-delay="450">كل DevOps وSysAdmin بيستخدم SSH بشكل يومي. وكل deploy لـ ملفات على Server بيمر بـ SFTP أو SCP.</p>
+        </div>
+    </header>
+
+    <!-- FTP Active vs Passive -->
+    <section class="lesson-section">
+        <div class="section-header" data-aos="fade-up">
+            <h2><i class="fas fa-folder-open" style="color:#FB923C;margin-left:0.5rem;"></i> FTP — Active ضد Passive</h2>
+            <p class="en-sub">Two Modes — One Broken Behind NAT</p>
+        </div>
+        <div class="glass-card" style="padding:1.8rem;" data-aos="fade-up">
+            <div class="cost-compare">
+                <div class="cost-card" style="border-color:rgba(239,68,68,0.3);">
+                    <h5 style="color:#F87171;">⚠️ Active FTP</h5>
+                    <div class="cost-item" style="direction:ltr;font-family:'Fira Code';font-size:0.78rem;">Client: PORT 52000</div>
+                    <div class="cost-item" style="direction:ltr;font-family:'Fira Code';font-size:0.78rem;">Server connects TO Client:52000</div>
+                    <div class="cost-item">❌ بيفشل وراء NAT/Firewall</div>
+                    <div class="cost-item">❌ الـ Firewall بيبلوك Connection الجاي</div>
+                    <div class="cost-item">📌 Port 21 (Control), 20 (Data)</div>
+                </div>
+                <div class="cost-card" style="border-color:rgba(16,185,129,0.3);">
+                    <h5 style="color:#34D399;">✅ Passive FTP</h5>
+                    <div class="cost-item" style="direction:ltr;font-family:'Fira Code';font-size:0.78rem;">Client: PASV</div>
+                    <div class="cost-item" style="direction:ltr;font-family:'Fira Code';font-size:0.78rem;">Server: "Connect me on port 55000"</div>
+                    <div class="cost-item">✅ بيشتغل وراء NAT</div>
+                    <div class="cost-item">✅ Client هو اللي بيفتح الـ Connection</div>
+                    <div class="cost-item">📌 الأشيع — مستخدم في FTPS</div>
+                </div>
+            </div>
+            <div class="warning-box" style="margin-top:1rem;">
+                <div class="rtl-block" style="font-size:0.88rem;">⚠️ FTP بيبعت username وpassword وبيانات كلها <strong>Plain Text</strong> — استخدم <strong style="color:#34D399;">FTPS (FTP + TLS)</strong> أو <strong style="color:#34D399;">SFTP (SSH File Transfer Protocol)</strong> دايماً!</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- SSH Section -->
+    <section class="lesson-section alt-bg">
+        <div class="section-inner">
+            <div class="section-header" data-aos="fade-up">
+                <h2><i class="fas fa-key" style="color:#34D399;margin-left:0.5rem;"></i> SSH — الباب الذكي</h2>
+                <p class="en-sub">Secure Shell — Port 22 — Encrypted Everything</p>
+            </div>
+            <div class="glass-card" style="padding:1.8rem;" data-aos="fade-up">
+                <div class="rtl-block" style="margin-bottom:1.5rem;color:#CBD5E1;font-size:0.98rem;line-height:1.8;">
+                    <p>SSH بيوفر: <strong style="color:#34D399;">Shell مشفرة</strong> + <strong style="color:#34D399;">Port Forwarding</strong> + <strong style="color:#34D399;">File Transfer (SCP/SFTP)</strong>. كل حاجة مشفرة — حتى Username وPassword.</p>
+                </div>
+                <!-- SSH Key Auth -->
+                <div style="margin-bottom:1.5rem;">
+                    <div class="rtl-block" style="font-size:0.9rem;color:#E2E8F0;font-weight:700;margin-bottom:0.75rem;">🔑 Key-Based Authentication (أأمن وأريح)</div>
+                    <div style="display:flex;flex-direction:column;gap:0.4rem;">
+                        <div style="padding:0.5rem;background:rgba(59,130,246,0.06);border:1px solid rgba(59,130,246,0.15);border-radius:7px;direction:ltr;font-family:'Fira Code';font-size:0.78rem;">
+                            <span style="color:#60A5FA;">1.</span> <span style="color:#94A3B8;">Generate key pair:</span> <span style="color:#E2E8F0;">ssh-keygen -t ed25519 -C "ahmed@laptop"</span>
+                        </div>
+                        <div style="padding:0.5rem;background:rgba(16,185,129,0.06);border:1px solid rgba(16,185,129,0.15);border-radius:7px;direction:ltr;font-family:'Fira Code';font-size:0.78rem;">
+                            <span style="color:#34D399;">2.</span> <span style="color:#94A3B8;">Copy public key to server:</span> <span style="color:#E2E8F0;">ssh-copy-id user@server</span>
+                        </div>
+                        <div style="padding:0.5rem;background:rgba(245,158,11,0.06);border:1px solid rgba(245,158,11,0.15);border-radius:7px;direction:ltr;font-family:'Fira Code';font-size:0.78rem;">
+                            <span style="color:#FBBF24;">3.</span> <span style="color:#94A3B8;">Connect without password:</span> <span style="color:#E2E8F0;">ssh user@server.com</span>
+                        </div>
+                    </div>
+                </div>
+                <!-- SSH Terminal Demo -->
+                <div class="ssh-term" id="ssh-out">
+                    <div class="ssh-line">ahmed@laptop:~$ <span class="ssh-cursor"></span></div>
+                </div>
+                <div style="display:flex;gap:0.5rem;flex-wrap:wrap;margin-top:0.5rem;">
+                    <button onclick="sshCmd('connect')" style="padding:0.3rem 0.75rem;border-radius:7px;background:rgba(16,185,129,0.15);border:1px solid rgba(16,185,129,0.3);color:#34D399;font-family:'Fira Code';cursor:pointer;font-size:0.75rem;">ssh server</button>
+                    <button onclick="sshCmd('ls')" style="padding:0.3rem 0.75rem;border-radius:7px;background:rgba(59,130,246,0.15);border:1px solid rgba(59,130,246,0.3);color:#60A5FA;font-family:'Fira Code';cursor:pointer;font-size:0.75rem;">ls -la</button>
+                    <button onclick="sshCmd('scp')" style="padding:0.3rem 0.75rem;border-radius:7px;background:rgba(245,158,11,0.15);border:1px solid rgba(245,158,11,0.3);color:#FBBF24;font-family:'Fira Code';cursor:pointer;font-size:0.75rem;">scp file</button>
+                    <button onclick="sshCmd('tunnel')" style="padding:0.3rem 0.75rem;border-radius:7px;background:rgba(139,92,246,0.15);border:1px solid rgba(139,92,246,0.3);color:#A78BFA;font-family:'Fira Code';cursor:pointer;font-size:0.75rem;">ssh tunnel</button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="lesson-section" id="quiz">
+        <div class="section-header" data-aos="fade-up">
+            <h2><i class="fas fa-brain" style="color:#F97316;margin-left:0.5rem;"></i> اختبر نفسك</h2>
+        </div>
+        <div class="quiz-container" data-aos="fade-up">
+            <div class="quiz-question" id="q1">
+                <h4>ليه Passive FTP أفضل من Active وراء NAT؟</h4>
+                <div class="quiz-options">
+                    <div class="quiz-option" onclick="ans(this,'q1',false)">أسرع</div>
+                    <div class="quiz-option" onclick="ans(this,'q1',true)">لأن الـ Client هو اللي بيفتح Data Connection — مش الـ Server (اللي بيتبلوك بالـ Firewall)</div>
+                    <div class="quiz-option" onclick="ans(this,'q1',false)">أكثر تشفيراً</div>
+                    <div class="quiz-option" onclick="ans(this,'q1',false)">بيستخدم Port ثابت دايماً</div>
+                </div>
+                <div class="quiz-feedback" id="fb-q1"></div>
+            </div>
+            <div class="quiz-question" id="q2">
+                <h4>SFTP ≠ FTPS — إيه الفرق؟</h4>
+                <div class="quiz-options">
+                    <div class="quiz-option" onclick="ans(this,'q2',false)">نفس الشيء — مجرد اسم مختلف</div>
+                    <div class="quiz-option" onclick="ans(this,'q2',true)">SFTP = FTP فوق SSH (Port 22). FTPS = FTP + TLS (Port 990/21)</div>
+                    <div class="quiz-option" onclick="ans(this,'q2',false)">SFTP أقدم</div>
+                    <div class="quiz-option" onclick="ans(this,'q2',false)">FTPS بيستخدم SSH</div>
+                </div>
+                <div class="quiz-feedback" id="fb-q2"></div>
+            </div>
+        </div>
+    </section>
+
+    <section class="lesson-section">
+        <div class="lesson-bottom-nav">
+            <a href="email_protocols.html"><i class="fas fa-arrow-left"></i><span>Email</span></a>
+            <div style="text-align:center;color:var(--text-faint);font-size:0.85rem;">Unit 7 • Lesson 4</div>
+            <a href="dhcp_snmp.html"><span>DHCP &amp; SNMP</span><i class="fas fa-arrow-right"></i></a>
+        </div>
+    </section>
+
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <script>
+        AOS.init({duration:800,once:true,offset:100});
+        window.addEventListener('scroll',()=>{ document.getElementById('reading-progress').style.width=(window.scrollY/(document.documentElement.scrollHeight-window.innerHeight))*100+'%'; });
+
+        const cmds={
+            connect:{lines:[{c:'cmd',t:'ahmed@laptop:~$ ssh ahmed@192.168.1.100'},{c:'out',t:'The authenticity of host (192.168.1.100) can\'t be established.'},{c:'out',t:'ED25519 key fingerprint is SHA256:abc123...'},{c:'out',t:'Are you sure you want to continue? (yes/no): yes'},{c:'out',t:'Warning: Permanently added \'192.168.1.100\' to known hosts.'},{c:'out',t:'Last login: Wed Apr 23 05:30 2026 from 192.168.1.50'},{c:'ssh',t:'ahmed@server:~$ '}]},
+            ls:{lines:[{c:'ssh',t:'ahmed@server:~$ ls -la'},{c:'out',t:'total 48'},{c:'out',t:'drwxr-xr-x 5 ahmed ahmed 4096 Apr 23 05:30 .'},{c:'out',t:'-rw-r--r-- 1 ahmed ahmed 8192 Apr 22 10:20 app.py'},{c:'out',t:'-rw------- 1 ahmed ahmed 3072 Apr 20 09:15 .ssh/authorized_keys'},{c:'ssh',t:'ahmed@server:~$ '}]},
+            scp:{lines:[{c:'cmd',t:'ahmed@laptop:~$ scp ./dist/app.zip ahmed@server:/var/www/'},{c:'out',t:'app.zip                    100%  2.3MB   4.5MB/s   00:01'},{c:'out',t:'Transfer complete.'},{c:'cmd',t:'ahmed@laptop:~$ '}]},
+            tunnel:{lines:[{c:'cmd',t:'ahmed@laptop:~$ ssh -L 5432:dbserver:5432 ahmed@bastion'},{c:'out',t:'# Forwarding localhost:5432 → dbserver:5432 through bastion'},{c:'out',t:'# Now connect pgAdmin to localhost:5432 — goes through SSH tunnel!'},{c:'ssh',t:'ahmed@bastion:~$ '}]}
+        };
+        function sshCmd(k){ const t=document.getElementById('ssh-out'); t.innerHTML=''; cmds[k].lines.forEach((l,i)=>{ setTimeout(()=>{ const d=document.createElement('div'); d.className='ssh-line '+(l.c==='cmd'||l.c==='ssh'?'cmd':'out'); d.textContent=l.t+(i===cmds[k].lines.length-1&&l.c==='ssh'?'':' '); if(i===cmds[k].lines.length-1&&l.c==='ssh'){ const cur=document.createElement('span'); cur.className='ssh-cursor'; d.appendChild(cur); } t.appendChild(d); },i*200); }); }
+
+        const fb={
+            q1:{c:'✅ صح! Passive: Client يفتح Data connection للـ Server (من Client لـ Server). Active: Server يفتح للـ Client — بيتبلوك بالـ Firewall.',w:'❌ غلط! Passive أفضل لأن الـ Client هو اللي بيبدأ الـ Data Connection — خلاف Active اللي Server بيبدأها وبيتبلوك بالـ NAT/Firewall.'},
+            q2:{c:'✅ صح! SFTP = FTP over SSH (بروتوكول مختلف تماماً). FTPS = FTP + TLS (مجرد تشفير فوق FTP التقليدي).',w:'❌ غلط! SFTP = SSH File Transfer Protocol (ليه علاقة بـ FTP من ناحية الاسم بس بروتوكول مختلف). FTPS = FTP + TLS.'}
+        };
+        function ans(el,qid,correct){ const q=document.getElementById(qid); if(q.dataset.answered)return; q.dataset.answered='true'; q.querySelectorAll('.quiz-option').forEach(o=>o.style.pointerEvents='none'); el.classList.add(correct?'correct':'wrong'); const f=document.getElementById('fb-'+qid); f.textContent=correct?fb[qid].c:fb[qid].w; f.className='quiz-feedback show '+(correct?'correct-fb':'wrong-fb'); }
+    </script>
+</body>
+</html>

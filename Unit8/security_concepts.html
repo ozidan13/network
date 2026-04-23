@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Security Concepts — مفاهيم الأمن | Network Mastery</title>
+    <meta name="description" content="CIA Triad, threat landscape, attack types, defense strategies — network security foundations.">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&family=Inter:wght@400;500;600;700;800&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    <link href="../css/global-net.css" rel="stylesheet">
+    <style>
+        body{background:#020617;color:#E2E8F0;font-family:'Inter',sans-serif;}
+        .lesson-nav-bar{position:fixed;top:0;left:0;right:0;z-index:100;background:rgba(2,6,23,0.88);backdrop-filter:blur(20px);border-bottom:1px solid rgba(255,255,255,0.06);height:64px;display:flex;align-items:center;padding:0 1.5rem;}
+        .nav-inner{max-width:1280px;margin:0 auto;width:100%;display:flex;align-items:center;justify-content:space-between;}
+        .nav-brand{display:flex;align-items:center;gap:0.75rem;font-weight:700;}
+        .back-btn{width:36px;height:36px;border-radius:10px;background:linear-gradient(135deg,#EC4899,#DB2777);display:flex;align-items:center;justify-content:center;color:white;font-size:0.85rem;transition:transform 0.3s;}
+        .back-btn:hover{transform:scale(1.1);}
+        .lesson-hero{position:relative;padding:8rem 1.5rem 5rem;text-align:center;overflow:hidden;}
+        .glow-orb{position:absolute;border-radius:50%;filter:blur(128px);pointer-events:none;}
+        .glow-orb-1{width:500px;height:500px;top:-10%;right:-5%;background:rgba(236,72,153,0.12);}
+        .glow-orb-2{width:400px;height:400px;bottom:-20%;left:-10%;background:rgba(219,39,119,0.06);}
+        .lesson-badge{display:inline-flex;align-items:center;gap:0.5rem;padding:0.35rem 1rem;border-radius:50px;background:rgba(30,41,59,0.6);border:1px solid rgba(255,255,255,0.08);font-family:'Fira Code',monospace;font-size:0.78rem;color:#F472B6;margin-bottom:1.5rem;}
+        .dot{width:6px;height:6px;border-radius:50%;background:#EC4899;animation:pulse-dot 2s ease infinite;}
+        .lesson-hero h1{font-size:clamp(2.5rem,5vw,4rem);font-weight:800;margin-bottom:1rem;}
+        .text-g{background:linear-gradient(135deg,#EC4899,#F472B6);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;}
+        .subtitle{font-family:'Cairo',sans-serif;font-size:1.6rem;font-weight:700;color:var(--text-muted);direction:rtl;margin-bottom:1.5rem;}
+        .desc{color:var(--text-faint);max-width:640px;margin:0 auto;font-size:1.05rem;font-family:'Cairo',sans-serif;direction:rtl;line-height:1.9;}
+        .lesson-bottom-nav{display:flex;justify-content:space-between;align-items:center;gap:1rem;padding:2rem 0;border-top:1px solid var(--border-subtle);margin-top:3rem;}
+        .lesson-bottom-nav a{display:flex;align-items:center;gap:0.5rem;padding:0.75rem 1.5rem;border-radius:12px;background:rgba(255,255,255,0.04);border:1px solid var(--border-subtle);transition:all 0.3s ease;font-weight:600;font-size:0.9rem;}
+        .lesson-bottom-nav a:hover{background:rgba(236,72,153,0.1);border-color:rgba(236,72,153,0.3);transform:translateY(-2px);}
+        /* CIA Triad */
+        .cia-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;margin:1rem 0;}
+        .cia-card{border-radius:14px;padding:1.5rem;text-align:center;}
+        .cia-icon{font-size:2.5rem;margin-bottom:0.75rem;}
+        .cia-title{font-weight:900;font-size:1.1rem;margin-bottom:0.5rem;}
+        .cia-desc{font-family:'Cairo',sans-serif;direction:rtl;font-size:0.85rem;color:var(--text-muted);line-height:1.7;}
+        /* Attack simulator */
+        .attack-card{border-radius:12px;padding:1rem;cursor:pointer;transition:all 0.3s;border:1px solid var(--border-subtle);}
+        .attack-card:hover{transform:translateY(-3px);}
+        .attack-card.active{border-width:2px;}
+    </style>
+</head>
+<body>
+    <nav class="lesson-nav-bar">
+        <div class="nav-inner">
+            <a href="../index.html" class="nav-brand">
+                <div class="back-btn"><i class="fas fa-arrow-left"></i></div>
+                <span>Sec<span style="color:#EC4899;">Concepts</span></span>
+            </a>
+        </div>
+    </nav>
+    <div class="progress-bar-container"><div class="progress-bar-fill" id="reading-progress" style="background:linear-gradient(90deg,#EC4899,#F472B6);"></div></div>
+
+    <header class="lesson-hero">
+        <div class="glow-orb glow-orb-1"></div><div class="glow-orb glow-orb-2"></div>
+        <div style="position:relative;z-index:1;">
+            <div class="lesson-badge" data-aos="fade-down"><span class="dot"></span>UNIT 8 • Lesson 1</div>
+            <h1 data-aos="fade-up" data-aos-delay="150">Security <span class="text-g">Concepts</span></h1>
+            <div class="subtitle" data-aos="fade-up" data-aos-delay="300">ثالوث الأمن والتهديدات</div>
+            <p class="desc" data-aos="fade-up" data-aos-delay="450">في 2023 — متوسط تكلفة Data Breach = 4.45 مليون دولار. الأمن مش option — هو أساس. وكل هجوم بيهاجم واحدة من ثلاث: Confidentiality، Integrity، Availability.</p>
+        </div>
+    </header>
+
+    <!-- CIA Triad -->
+    <section class="lesson-section">
+        <div class="section-header" data-aos="fade-up">
+            <h2><i class="fas fa-triangle-exclamation" style="color:#EC4899;margin-left:0.5rem;"></i> ثالوث CIA</h2>
+            <p class="en-sub">The Foundation of All Security Decisions</p>
+        </div>
+        <div class="cia-grid" data-aos="fade-up">
+            <div class="cia-card" style="background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.2);">
+                <div class="cia-icon">🔒</div>
+                <div class="cia-title" style="color:#F87171;">Confidentiality</div>
+                <div class="cia-desc">البيانات لا تُرى إلا لمن يستحق. التشفير هو الضمان. هجوم: Eavesdropping، Sniffing.</div>
+            </div>
+            <div class="cia-card" style="background:rgba(245,158,11,0.08);border:1px solid rgba(245,158,11,0.2);">
+                <div class="cia-icon">✅</div>
+                <div class="cia-title" style="color:#FBBF24;">Integrity</div>
+                <div class="cia-desc">البيانات لم تتغير. Hash و Digital Signature هما الضمان. هجوم: MITM، Tampering.</div>
+            </div>
+            <div class="cia-card" style="background:rgba(16,185,129,0.08);border:1px solid rgba(16,185,129,0.2);">
+                <div class="cia-icon">⚡</div>
+                <div class="cia-title" style="color:#34D399;">Availability</div>
+                <div class="cia-desc">الخدمة متاحة وقت الحاجة. Redundancy وDDoS Protection هما الضمان. هجوم: DoS، DDoS.</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Attack Types -->
+    <section class="lesson-section alt-bg">
+        <div class="section-inner">
+            <div class="section-header" data-aos="fade-up">
+                <h2><i class="fas fa-skull-crossbones" style="color:#F472B6;margin-left:0.5rem;"></i> أنواع الهجمات</h2>
+                <p class="en-sub">Click an Attack to See Details</p>
+            </div>
+            <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:0.6rem;margin-bottom:1rem;" data-aos="fade-up">
+                <div class="attack-card" onclick="showAttack('dos')" style="background:rgba(239,68,68,0.06);border-color:rgba(239,68,68,0.15);">
+                    <div style="font-size:1.5rem;margin-bottom:0.3rem;">💥</div>
+                    <div style="color:#F87171;font-weight:700;font-size:0.85rem;font-family:'Fira Code';direction:ltr;">DoS/DDoS</div>
+                    <div class="rtl-block" style="font-size:0.72rem;color:#64748B;">استنزاف الموارد</div>
+                </div>
+                <div class="attack-card" onclick="showAttack('mitm')" style="background:rgba(245,158,11,0.06);border-color:rgba(245,158,11,0.15);">
+                    <div style="font-size:1.5rem;margin-bottom:0.3rem;">🕵️</div>
+                    <div style="color:#FBBF24;font-weight:700;font-size:0.85rem;font-family:'Fira Code';direction:ltr;">MITM</div>
+                    <div class="rtl-block" style="font-size:0.72rem;color:#64748B;">التنصت بالمنتصف</div>
+                </div>
+                <div class="attack-card" onclick="showAttack('phishing')" style="background:rgba(249,115,22,0.06);border-color:rgba(249,115,22,0.15);">
+                    <div style="font-size:1.5rem;margin-bottom:0.3rem;">🎣</div>
+                    <div style="color:#FB923C;font-weight:700;font-size:0.85rem;font-family:'Fira Code';direction:ltr;">Phishing</div>
+                    <div class="rtl-block" style="font-size:0.72rem;color:#64748B;">الخداع الاجتماعي</div>
+                </div>
+                <div class="attack-card" onclick="showAttack('sqli')" style="background:rgba(139,92,246,0.06);border-color:rgba(139,92,246,0.15);">
+                    <div style="font-size:1.5rem;margin-bottom:0.3rem;">💉</div>
+                    <div style="color:#A78BFA;font-weight:700;font-size:0.85rem;font-family:'Fira Code';direction:ltr;">SQL Injection</div>
+                    <div class="rtl-block" style="font-size:0.72rem;color:#64748B;">اختراق قواعد البيانات</div>
+                </div>
+                <div class="attack-card" onclick="showAttack('arp')" style="background:rgba(34,211,238,0.06);border-color:rgba(34,211,238,0.15);">
+                    <div style="font-size:1.5rem;margin-bottom:0.3rem;">📡</div>
+                    <div style="color:#22D3EE;font-weight:700;font-size:0.85rem;font-family:'Fira Code';direction:ltr;">ARP Spoofing</div>
+                    <div class="rtl-block" style="font-size:0.72rem;color:#64748B;">تزوير جدول ARP</div>
+                </div>
+                <div class="attack-card" onclick="showAttack('ransomware')" style="background:rgba(236,72,153,0.06);border-color:rgba(236,72,153,0.15);">
+                    <div style="font-size:1.5rem;margin-bottom:0.3rem;">🔐</div>
+                    <div style="color:#F472B6;font-weight:700;font-size:0.85rem;font-family:'Fira Code';direction:ltr;">Ransomware</div>
+                    <div class="rtl-block" style="font-size:0.72rem;color:#64748B;">تشفير لطلب الفدية</div>
+                </div>
+            </div>
+            <div id="attack-detail" class="info-box" style="display:none;" data-aos="fade-up">
+                <div id="attack-detail-content"></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Defense in Depth -->
+    <section class="lesson-section">
+        <div class="section-header" data-aos="fade-up">
+            <h2><i class="fas fa-shield" style="color:#34D399;margin-left:0.5rem;"></i> Defense in Depth</h2>
+            <p class="en-sub">Multiple Layers of Security — Not Just One Wall</p>
+        </div>
+        <div class="glass-card" style="padding:1.8rem;" data-aos="fade-up">
+            <div style="position:relative;padding:1rem;">
+                <div style="display:flex;flex-direction:column;gap:0.5rem;">
+                    <div style="padding:0.75rem;background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.2);border-radius:10px;display:flex;align-items:center;gap:1rem;">
+                        <span style="font-size:1.2rem;">🌐</span>
+                        <div><div style="color:#F87171;font-weight:700;font-size:0.85rem;font-family:'Fira Code';direction:ltr;">Perimeter: Firewall, IDS/IPS, DMZ</div><div class="rtl-block" style="font-size:0.78rem;color:#64748B;">أول خط دفاع — ضد الهجمات الخارجية</div></div>
+                    </div>
+                    <div style="padding:0.75rem;background:rgba(245,158,11,0.08);border:1px solid rgba(245,158,11,0.2);border-radius:10px;display:flex;align-items:center;gap:1rem;">
+                        <span style="font-size:1.2rem;">🔀</span>
+                        <div><div style="color:#FBBF24;font-weight:700;font-size:0.85rem;font-family:'Fira Code';direction:ltr;">Network: VLANs, ACLs, NAC</div><div class="rtl-block" style="font-size:0.78rem;color:#64748B;">تقسيم الشبكة — Lateral Movement منع</div></div>
+                    </div>
+                    <div style="padding:0.75rem;background:rgba(16,185,129,0.08);border:1px solid rgba(16,185,129,0.2);border-radius:10px;display:flex;align-items:center;gap:1rem;">
+                        <span style="font-size:1.2rem;">💻</span>
+                        <div><div style="color:#34D399;font-weight:700;font-size:0.85rem;font-family:'Fira Code';direction:ltr;">Endpoint: AV, EDR, Patch Management</div><div class="rtl-block" style="font-size:0.78rem;color:#64748B;">حماية الأجهزة نفسها</div></div>
+                    </div>
+                    <div style="padding:0.75rem;background:rgba(139,92,246,0.08);border:1px solid rgba(139,92,246,0.2);border-radius:10px;display:flex;align-items:center;gap:1rem;">
+                        <span style="font-size:1.2rem;">🔑</span>
+                        <div><div style="color:#A78BFA;font-weight:700;font-size:0.85rem;font-family:'Fira Code';direction:ltr;">Application: Auth, Encryption, WAF</div><div class="rtl-block" style="font-size:0.78rem;color:#64748B;">حماية التطبيقات والبيانات</div></div>
+                    </div>
+                    <div style="padding:0.75rem;background:rgba(236,72,153,0.08);border:1px solid rgba(236,72,153,0.2);border-radius:10px;display:flex;align-items:center;gap:1rem;">
+                        <span style="font-size:1.2rem;">👤</span>
+                        <div><div style="color:#F472B6;font-weight:700;font-size:0.85rem;font-family:'Fira Code';direction:ltr;">Human: Training, MFA, Policies</div><div class="rtl-block" style="font-size:0.78rem;color:#64748B;">البشر هم الطبقة الأضعف — التدريب الأهم</div></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="lesson-section alt-bg" id="quiz">
+        <div class="section-inner">
+            <div class="section-header" data-aos="fade-up">
+                <h2><i class="fas fa-brain" style="color:#EC4899;margin-left:0.5rem;"></i> اختبر نفسك</h2>
+            </div>
+            <div class="quiz-container" data-aos="fade-up">
+                <div class="quiz-question" id="q1">
+                    <h4>DDoS بيهاجم أنهي عنصر في ثالوث CIA؟</h4>
+                    <div class="quiz-options">
+                        <div class="quiz-option" onclick="ans(this,'q1',false)">Confidentiality</div>
+                        <div class="quiz-option" onclick="ans(this,'q1',false)">Integrity</div>
+                        <div class="quiz-option" onclick="ans(this,'q1',true)">Availability</div>
+                        <div class="quiz-option" onclick="ans(this,'q1',false)">Authentication</div>
+                    </div>
+                    <div class="quiz-feedback" id="fb-q1"></div>
+                </div>
+                <div class="quiz-question" id="q2">
+                    <h4>MITM بيهاجم إيه في CIA Triad؟</h4>
+                    <div class="quiz-options">
+                        <div class="quiz-option" onclick="ans(this,'q2',true)">Confidentiality + Integrity (بيقرأ ويعدّل)</div>
+                        <div class="quiz-option" onclick="ans(this,'q2',false)">Availability فقط</div>
+                        <div class="quiz-option" onclick="ans(this,'q2',false)">Integrity فقط</div>
+                        <div class="quiz-option" onclick="ans(this,'q2',false)">لا يهاجم أي عنصر من CIA</div>
+                    </div>
+                    <div class="quiz-feedback" id="fb-q2"></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="lesson-section">
+        <div class="lesson-bottom-nav">
+            <a href="../Unit7/dhcp_snmp.html"><i class="fas fa-arrow-left"></i><span>Unit 7 Done</span></a>
+            <div style="text-align:center;color:var(--text-faint);font-size:0.85rem;">Unit 8 • Lesson 1</div>
+            <a href="cryptography.html"><span>Cryptography</span><i class="fas fa-arrow-right"></i></a>
+        </div>
+    </section>
+
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <script>
+        AOS.init({duration:800,once:true,offset:100});
+        window.addEventListener('scroll',()=>{ document.getElementById('reading-progress').style.width=(window.scrollY/(document.documentElement.scrollHeight-window.innerHeight))*100+'%'; });
+
+        const attacks={
+            dos:{color:'#F87171',content:'<strong style="color:#F87171;">DoS / DDoS</strong><br>DoS: جهاز واحد يغرق الـ Server. DDoS: آلاف الأجهزة (Botnet) في نفس الوقت.<br><strong>CIA:</strong> Availability 💥<br><strong>الدفاع:</strong> Rate Limiting، CDN، Anycast، Black-Hole Routing.'},
+            mitm:{color:'#FBBF24',content:'<strong style="color:#FBBF24;">Man-in-the-Middle (MITM)</strong><br>المهاجم بيوقف بين الـ Client والـ Server — يقرأ ويعدّل البيانات. ARP Spoofing أشيع طريقة.<br><strong>CIA:</strong> Confidentiality + Integrity<br><strong>الدفاع:</strong> TLS، Certificate Pinning، HTTPS Everywhere.'},
+            phishing:{color:'#FB923C',content:'<strong style="color:#FB923C;">Phishing</strong><br>إيميل أو موقع مزيف يستهدف السلوك البشري لسرقة credentials.<br><strong>CIA:</strong> Confidentiality<br><strong>الدفاع:</strong> MFA، Security Awareness Training، Email Filtering، DMARC.'},
+            sqli:{color:'#A78BFA',content:'<strong style="color:#A78BFA;">SQL Injection</strong><br>مهاجم بيحشر SQL code في Input لعمل SELECT * أو DROP TABLE.<br><strong>CIA:</strong> Confidentiality + Integrity<br><strong>الدفاع:</strong> Prepared Statements، Parameterized Queries، WAF.'},
+            arp:{color:'#22D3EE',content:'<strong style="color:#22D3EE;">ARP Spoofing</strong><br>بيبعت ARP Replies مزيفة عشان يربط MAC بتاعه بـ IP تاني (Router مثلاً) → MITM على الـ LAN.<br><strong>CIA:</strong> Confidentiality + Integrity<br><strong>الدفاع:</strong> Dynamic ARP Inspection (DAI)، Port Security.'},
+            ransomware:{color:'#F472B6',content:'<strong style="color:#F472B6;">Ransomware</strong><br>malware بيشفر كل ملفات الجهاز أو الشبكة ويطلب فدية لإرجاعها. اشهر هجوم: WannaCry 2017.<br><strong>CIA:</strong> Availability + Confidentiality<br><strong>الدفاع:</strong> Offline Backups، EDR، Patch Management، Least Privilege.'}
+        };
+        function showAttack(k){ const d=document.getElementById('attack-detail'); d.style.display='block'; document.getElementById('attack-detail-content').innerHTML=attacks[k].content; document.querySelectorAll('.attack-card').forEach(c=>c.classList.remove('active')); }
+
+        const fb={
+            q1:{c:'✅ صح! DDoS = Denial of Service = يتعطل بالـ Availability. الهدف جعل الخدمة غير متاحة.',w:'❌ غلط! DDoS يهاجم Availability بـ Flooding المورد حتى ينهار.'},
+            q2:{c:'✅ صح! MITM يقرأ (Confidentiality) ويعدّل (Integrity) البيانات في نفس الوقت.',w:'❌ غلط! MITM يهاجم Confidentiality (يقرأ) وIntegrity (يعدّل). ليش Availability.'}
+        };
+        function ans(el,qid,correct){ const q=document.getElementById(qid); if(q.dataset.answered)return; q.dataset.answered='true'; q.querySelectorAll('.quiz-option').forEach(o=>o.style.pointerEvents='none'); el.classList.add(correct?'correct':'wrong'); const f=document.getElementById('fb-'+qid); f.textContent=correct?fb[qid].c:fb[qid].w; f.className='quiz-feedback show '+(correct?'correct-fb':'wrong-fb'); }
+    </script>
+</body>
+</html>

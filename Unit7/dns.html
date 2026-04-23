@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DNS Deep Dive — ترجمة الإنترنت | Network Mastery</title>
+    <meta name="description" content="كيف الـ DNS يحوّل google.com لـ IP. Recursive, Iterative, Caching.">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&family=Inter:wght@400;500;600;700;800&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    <link href="../css/global-net.css" rel="stylesheet">
+    <style>
+        body{background:#020617;color:#E2E8F0;font-family:'Inter',sans-serif;}
+        .lesson-nav-bar{position:fixed;top:0;left:0;right:0;z-index:100;background:rgba(2,6,23,0.88);backdrop-filter:blur(20px);border-bottom:1px solid rgba(255,255,255,0.06);height:64px;display:flex;align-items:center;padding:0 1.5rem;}
+        .nav-inner{max-width:1280px;margin:0 auto;width:100%;display:flex;align-items:center;justify-content:space-between;}
+        .nav-brand{display:flex;align-items:center;gap:0.75rem;font-weight:700;}
+        .back-btn{width:36px;height:36px;border-radius:10px;background:linear-gradient(135deg,#8B5CF6,#6D28D9);display:flex;align-items:center;justify-content:center;color:white;font-size:0.85rem;transition:transform 0.3s;}
+        .back-btn:hover{transform:scale(1.1);}
+        .lesson-hero{position:relative;padding:8rem 1.5rem 5rem;text-align:center;overflow:hidden;}
+        .glow-orb{position:absolute;border-radius:50%;filter:blur(128px);pointer-events:none;}
+        .glow-orb-1{width:500px;height:500px;top:-10%;right:-5%;background:rgba(139,92,246,0.12);}
+        .glow-orb-2{width:400px;height:400px;bottom:-20%;left:-10%;background:rgba(167,139,250,0.06);}
+        .lesson-badge{display:inline-flex;align-items:center;gap:0.5rem;padding:0.35rem 1rem;border-radius:50px;background:rgba(30,41,59,0.6);border:1px solid rgba(255,255,255,0.08);font-family:'Fira Code',monospace;font-size:0.78rem;color:#A78BFA;margin-bottom:1.5rem;}
+        .dot{width:6px;height:6px;border-radius:50%;background:#8B5CF6;animation:pulse-dot 2s ease infinite;}
+        .lesson-hero h1{font-size:clamp(2.5rem,5vw,4rem);font-weight:800;margin-bottom:1rem;}
+        .text-g{background:linear-gradient(135deg,#8B5CF6,#A78BFA);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;}
+        .subtitle{font-family:'Cairo',sans-serif;font-size:1.6rem;font-weight:700;color:var(--text-muted);direction:rtl;margin-bottom:1.5rem;}
+        .desc{color:var(--text-faint);max-width:640px;margin:0 auto;font-size:1.05rem;font-family:'Cairo',sans-serif;direction:rtl;line-height:1.9;}
+        .lesson-bottom-nav{display:flex;justify-content:space-between;align-items:center;gap:1rem;padding:2rem 0;border-top:1px solid var(--border-subtle);margin-top:3rem;}
+        .lesson-bottom-nav a{display:flex;align-items:center;gap:0.5rem;padding:0.75rem 1.5rem;border-radius:12px;background:rgba(255,255,255,0.04);border:1px solid var(--border-subtle);transition:all 0.3s ease;font-weight:600;font-size:0.9rem;}
+        .lesson-bottom-nav a:hover{background:rgba(139,92,246,0.1);border-color:rgba(139,92,246,0.3);transform:translateY(-2px);}
+        /* DNS Steps */
+        .dns-step{display:flex;align-items:flex-start;gap:1rem;padding:0.9rem 1rem;border-left:3px solid;border-radius:0 10px 10px 0;margin-bottom:0.5rem;transition:all 0.3s;}
+        .dns-step:hover{padding-left:1.3rem;}
+        .dns-num{font-family:'Fira Code',monospace;font-weight:900;font-size:0.95rem;flex-shrink:0;width:24px;}
+        /* DNS record types */
+        .record-cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:0.75rem;margin:1rem 0;}
+        .record-card{background:rgba(15,23,42,0.7);border:1px solid var(--border-subtle);border-radius:12px;padding:1rem;transition:all 0.3s;}
+        .record-card:hover{transform:translateY(-2px);border-color:rgba(167,139,250,0.3);}
+        .rt{font-family:'Fira Code',monospace;font-weight:900;font-size:1rem;direction:ltr;margin-bottom:0.25rem;}
+        .rd{font-family:'Cairo',sans-serif;direction:rtl;font-size:0.8rem;color:var(--text-muted);line-height:1.6;}
+    </style>
+</head>
+<body>
+    <nav class="lesson-nav-bar">
+        <div class="nav-inner">
+            <a href="../index.html" class="nav-brand">
+                <div class="back-btn"><i class="fas fa-arrow-left"></i></div>
+                <span>DNS <span style="color:#8B5CF6;">Deep</span></span>
+            </a>
+        </div>
+    </nav>
+    <div class="progress-bar-container"><div class="progress-bar-fill" id="reading-progress" style="background:linear-gradient(90deg,#8B5CF6,#A78BFA);"></div></div>
+
+    <header class="lesson-hero">
+        <div class="glow-orb glow-orb-1"></div><div class="glow-orb glow-orb-2"></div>
+        <div style="position:relative;z-index:1;">
+            <div class="lesson-badge" data-aos="fade-down"><span class="dot"></span>UNIT 7 • Lesson 1</div>
+            <h1 data-aos="fade-up" data-aos-delay="150">DNS <span class="text-g">Deep</span> Dive</h1>
+            <div class="subtitle" data-aos="fade-up" data-aos-delay="300">دفتر هاتف الإنترنت</div>
+            <p class="desc" data-aos="fade-up" data-aos-delay="450">كل مرة بتكتب google.com — الكمبيوتر بيسأل "إيه الـ IP؟". هذا السؤال الصغير بيمر على 4 Servers في أقل من 100ms.</p>
+        </div>
+    </header>
+
+    <!-- DNS Resolution Journey -->
+    <section class="lesson-section">
+        <div class="section-header" data-aos="fade-up">
+            <h2><i class="fas fa-map-location-dot" style="color:#8B5CF6;margin-left:0.5rem;"></i> رحلة الـ DNS Query</h2>
+            <p class="en-sub">From Browser to IP — 8 Steps in &lt;100ms</p>
+        </div>
+        <div class="glass-card" style="padding:1.8rem;" data-aos="fade-up">
+            <div class="rtl-block" style="margin-bottom:1.5rem;color:#CBD5E1;font-size:0.95rem;line-height:1.8;">
+                <p>كتبت <strong style="color:#A78BFA;">www.google.com</strong> في المتصفح. الـ DNS Resolver بيعمل الرحلة دي:</p>
+            </div>
+            <div class="dns-step" style="border-color:#60A5FA;background:rgba(59,130,246,0.05);">
+                <span class="dns-num" style="color:#60A5FA;">1</span>
+                <div class="rtl-block" style="font-size:0.88rem;">يشوف في <strong style="color:#60A5FA;">Browser Cache</strong> — هل حفظ الـ IP قبل كده؟ التحقق من DNS record TTL</div>
+            </div>
+            <div class="dns-step" style="border-color:#34D399;background:rgba(16,185,129,0.05);">
+                <span class="dns-num" style="color:#34D399;">2</span>
+                <div class="rtl-block" style="font-size:0.88rem;"><strong style="color:#34D399;">OS Cache</strong> — يسأل الـ OS Cache (يشمل hosts file)</div>
+            </div>
+            <div class="dns-step" style="border-color:#FBBF24;background:rgba(245,158,11,0.05);">
+                <span class="dns-num" style="color:#FBBF24;">3</span>
+                <div class="rtl-block" style="font-size:0.88rem;"><strong style="color:#FBBF24;">Recursive Resolver</strong> — يسأل DNS Server بتاع الـ ISP (أو 8.8.8.8 Google)</div>
+            </div>
+            <div class="dns-step" style="border-color:#F472B6;background:rgba(236,72,153,0.05);">
+                <span class="dns-num" style="color:#F472B6;">4</span>
+                <div class="rtl-block" style="font-size:0.88rem;"><strong style="color:#F472B6;">Root Server</strong> — ما يعرفش google.com بس يعرف من مسؤول عن <strong>.com</strong></div>
+            </div>
+            <div class="dns-step" style="border-color:#A78BFA;background:rgba(139,92,246,0.05);">
+                <span class="dns-num" style="color:#A78BFA;">5</span>
+                <div class="rtl-block" style="font-size:0.88rem;"><strong style="color:#A78BFA;">TLD Server (.com)</strong> — يعرف من مسؤول عن <strong>google.com</strong></div>
+            </div>
+            <div class="dns-step" style="border-color:#22D3EE;background:rgba(6,182,212,0.05);">
+                <span class="dns-num" style="color:#22D3EE;">6</span>
+                <div class="rtl-block" style="font-size:0.88rem;"><strong style="color:#22D3EE;">Authoritative NS لـ google.com</strong> — يرد بـ IP الفعلي: 142.250.185.78</div>
+            </div>
+            <div class="dns-step" style="border-color:#34D399;background:rgba(16,185,129,0.08);">
+                <span class="dns-num" style="color:#34D399;">7</span>
+                <div class="rtl-block" style="font-size:0.88rem;">الـ Resolver بيرجع الـ IP للـ Browser ويحفظه في Cache (لحد ما الـ TTL ينتهي)</div>
+            </div>
+            <div class="dns-step" style="border-color:#FBBF24;background:rgba(245,158,11,0.08);">
+                <span class="dns-num" style="color:#FBBF24;">8</span>
+                <div class="rtl-block" style="font-size:0.88rem;">المتصفح بيتصل بـ 142.250.185.78:443 ويفتح Google ✅</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- DNS Record Types -->
+    <section class="lesson-section alt-bg">
+        <div class="section-inner">
+            <div class="section-header" data-aos="fade-up">
+                <h2><i class="fas fa-file-alt" style="color:#A78BFA;margin-left:0.5rem;"></i> DNS Record Types</h2>
+                <p class="en-sub">The Building Blocks of Every Domain</p>
+            </div>
+            <div class="record-cards" data-aos="fade-up">
+                <div class="record-card"><div class="rt" style="color:#60A5FA;">A</div><div class="rd">اسم → IPv4. الأساسي. google.com → 142.250.x.x</div></div>
+                <div class="record-card"><div class="rt" style="color:#A78BFA;">AAAA</div><div class="rd">اسم → IPv6. للقادم من الإنترنت.</div></div>
+                <div class="record-card"><div class="rt" style="color:#34D399;">CNAME</div><div class="rd">اسم → اسم آخر (alias). www → apex domain.</div></div>
+                <div class="record-card"><div class="rt" style="color:#FBBF24;">MX</div><div class="rd">Mail eXchange. يحدد Server بريد الدومين.</div></div>
+                <div class="record-card"><div class="rt" style="color:#F472B6;">NS</div><div class="rd">Name Server. من هو الـ Authoritative DNS؟</div></div>
+                <div class="record-card"><div class="rt" style="color:#22D3EE;">TXT</div><div class="rd">نص حر. للـ SPF، DKIM، التحقق من الدومين.</div></div>
+                <div class="record-card"><div class="rt" style="color:#F87171;">SOA</div><div class="rd">Start of Authority. بيانات الـ Zone الأساسية.</div></div>
+                <div class="record-card"><div class="rt" style="color:#94A3B8;">PTR</div><div class="rd">Reverse DNS. IP → اسم. للـ Email verification.</div></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- DNS Security -->
+    <section class="lesson-section">
+        <div class="section-header" data-aos="fade-up">
+            <h2><i class="fas fa-shield-halved" style="color:#EF4444;margin-left:0.5rem;"></i> هجمات الـ DNS</h2>
+            <p class="en-sub">DNS Spoofing, Cache Poisoning, DoH</p>
+        </div>
+        <div class="glass-card" style="padding:1.8rem;" data-aos="fade-up">
+            <div class="problem-grid" style="margin:0;">
+                <div class="solution-card" style="border-color:rgba(239,68,68,0.2);">
+                    <div class="icon" style="background:rgba(239,68,68,0.1);color:#F87171;">☠️</div>
+                    <h4 style="color:#F87171;font-size:0.9rem;">DNS Spoofing</h4>
+                    <p class="rtl-block" style="font-size:0.82rem;">المهاجم بيرد بـ IP مزيف قبل الـ Resolver الحقيقي → بتفتح موقع وهمي.</p>
+                </div>
+                <div class="solution-card" style="border-color:rgba(239,68,68,0.2);">
+                    <div class="icon" style="background:rgba(239,68,68,0.1);color:#F87171;">💉</div>
+                    <h4 style="color:#F87171;font-size:0.9rem;">Cache Poisoning</h4>
+                    <p class="rtl-block" style="font-size:0.82rem;">حشر IP مزيف في Cache الـ DNS Server → كل المستخدمين يُوجَّهون للموقع الوهمي.</p>
+                </div>
+                <div class="solution-card" style="border-color:rgba(16,185,129,0.2);">
+                    <div class="icon" style="background:rgba(16,185,129,0.1);color:#34D399;">🔒</div>
+                    <h4 style="color:#34D399;font-size:0.9rem;">DNSSEC</h4>
+                    <p class="rtl-block" style="font-size:0.82rem;">توقيع رقمي على DNS Records — المستقبل يتحقق من صحة الرد.</p>
+                </div>
+                <div class="solution-card" style="border-color:rgba(139,92,246,0.2);">
+                    <div class="icon" style="background:rgba(139,92,246,0.1);color:#A78BFA;">🛡️</div>
+                    <h4 style="color:#A78BFA;font-size:0.9rem;">DoH / DoT</h4>
+                    <p class="rtl-block" style="font-size:0.82rem;">DNS over HTTPS/TLS — الاستفسارات مشفرة. ISP ما يقدرش يشوف الدومينات.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="lesson-section alt-bg" id="quiz">
+        <div class="section-inner">
+            <div class="section-header" data-aos="fade-up">
+                <h2><i class="fas fa-brain" style="color:#8B5CF6;margin-left:0.5rem;"></i> اختبر نفسك</h2>
+            </div>
+            <div class="quiz-container" data-aos="fade-up">
+                <div class="quiz-question" id="q1">
+                    <h4>أيهم يحدد Server البريد لـ domain؟</h4>
+                    <div class="quiz-options">
+                        <div class="quiz-option" onclick="ans(this,'q1',false)">A Record</div>
+                        <div class="quiz-option" onclick="ans(this,'q1',false)">CNAME</div>
+                        <div class="quiz-option" onclick="ans(this,'q1',true)">MX Record</div>
+                        <div class="quiz-option" onclick="ans(this,'q1',false)">TXT</div>
+                    </div>
+                    <div class="quiz-feedback" id="fb-q1"></div>
+                </div>
+                <div class="quiz-question" id="q2">
+                    <h4>الـ Root DNS Server بيعمل إيه لما بتسأله عن google.com؟</h4>
+                    <div class="quiz-options">
+                        <div class="quiz-option" onclick="ans(this,'q2',false)">يرجع IP مباشرة</div>
+                        <div class="quiz-option" onclick="ans(this,'q2',true)">يقولك مين مسؤول عن .com (TLD Server)</div>
+                        <div class="quiz-option" onclick="ans(this,'q2',false)">يحفظ في Cache</div>
+                        <div class="quiz-option" onclick="ans(this,'q2',false)">يرفض لأنه ما يعرفش</div>
+                    </div>
+                    <div class="quiz-feedback" id="fb-q2"></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="lesson-section">
+        <div class="lesson-bottom-nav">
+            <a href="../Unit6/udp_ports.html"><i class="fas fa-arrow-left"></i><span>UDP &amp; Ports</span></a>
+            <div style="text-align:center;color:var(--text-faint);font-size:0.85rem;">Unit 7 • Lesson 1</div>
+            <a href="http_https.html"><span>HTTP &amp; HTTPS</span><i class="fas fa-arrow-right"></i></a>
+        </div>
+    </section>
+
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <script>
+        AOS.init({duration:800,once:true,offset:100});
+        window.addEventListener('scroll',()=>{ document.getElementById('reading-progress').style.width=(window.scrollY/(document.documentElement.scrollHeight-window.innerHeight))*100+'%'; });
+        const fb={
+            q1:{c:'✅ صح! MX (Mail eXchange) = يحدد Server البريد للـ Domain.',w:'❌ غلط! MX Record هو اللي بيحدد Server البريد. A Record = IPv4، CNAME = Alias.'},
+            q2:{c:'✅ صح! Root Server ما يعرفش google.com ولكن يعرف من مسؤول عن .com (TLD Servers).',w:'❌ غلط! Root Server يفوّض للـ TLD Server المسؤول عن الـ extension (.com, .net, .org). مش بيرجع IP مباشرة.'}
+        };
+        function ans(el,qid,correct){ const q=document.getElementById(qid); if(q.dataset.answered)return; q.dataset.answered='true'; q.querySelectorAll('.quiz-option').forEach(o=>o.style.pointerEvents='none'); el.classList.add(correct?'correct':'wrong'); const f=document.getElementById('fb-'+qid); f.textContent=correct?fb[qid].c:fb[qid].w; f.className='quiz-feedback show '+(correct?'correct-fb':'wrong-fb'); }
+    </script>
+</body>
+</html>

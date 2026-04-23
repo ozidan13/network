@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Routing Protocols — بروتوكولات التوجيه | Network Mastery</title>
+    <meta name="description" content="RIP, OSPF, EIGRP, BGP — Distance Vector vs Link State, Dijkstra step-by-step.">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&family=Inter:wght@400;500;600;700;800&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    <link href="../css/global-net.css" rel="stylesheet">
+    <style>
+        body{background:#020617;color:#E2E8F0;font-family:'Inter',sans-serif;}
+        .lesson-nav-bar{position:fixed;top:0;left:0;right:0;z-index:100;background:rgba(2,6,23,0.88);backdrop-filter:blur(20px);border-bottom:1px solid rgba(255,255,255,0.06);height:64px;display:flex;align-items:center;padding:0 1.5rem;}
+        .nav-inner{max-width:1280px;margin:0 auto;width:100%;display:flex;align-items:center;justify-content:space-between;}
+        .nav-brand{display:flex;align-items:center;gap:0.75rem;font-weight:700;}
+        .back-btn{width:36px;height:36px;border-radius:10px;background:linear-gradient(135deg,#10B981,#059669);display:flex;align-items:center;justify-content:center;color:white;font-size:0.85rem;transition:transform 0.3s;}
+        .back-btn:hover{transform:scale(1.1);}
+        .lesson-hero{position:relative;padding:8rem 1.5rem 5rem;text-align:center;overflow:hidden;}
+        .glow-orb{position:absolute;border-radius:50%;filter:blur(128px);pointer-events:none;}
+        .glow-orb-1{width:500px;height:500px;top:-10%;right:-5%;background:rgba(16,185,129,0.12);}
+        .glow-orb-2{width:400px;height:400px;bottom:-20%;left:-10%;background:rgba(5,150,105,0.06);}
+        .lesson-badge{display:inline-flex;align-items:center;gap:0.5rem;padding:0.35rem 1rem;border-radius:50px;background:rgba(30,41,59,0.6);border:1px solid rgba(255,255,255,0.08);font-family:'Fira Code',monospace;font-size:0.78rem;color:#34D399;margin-bottom:1.5rem;}
+        .dot{width:6px;height:6px;border-radius:50%;background:#10B981;animation:pulse-dot 2s ease infinite;}
+        .lesson-hero h1{font-size:clamp(2.5rem,5vw,4rem);font-weight:800;margin-bottom:1rem;}
+        .text-g{background:linear-gradient(135deg,#10B981,#34D399);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;}
+        .subtitle{font-family:'Cairo',sans-serif;font-size:1.6rem;font-weight:700;color:var(--text-muted);direction:rtl;margin-bottom:1.5rem;}
+        .desc{color:var(--text-faint);max-width:640px;margin:0 auto;font-size:1.05rem;font-family:'Cairo',sans-serif;direction:rtl;line-height:1.9;}
+        .lesson-bottom-nav{display:flex;justify-content:space-between;align-items:center;gap:1rem;padding:2rem 0;border-top:1px solid var(--border-subtle);margin-top:3rem;}
+        .lesson-bottom-nav a{display:flex;align-items:center;gap:0.5rem;padding:0.75rem 1.5rem;border-radius:12px;background:rgba(255,255,255,0.04);border:1px solid var(--border-subtle);transition:all 0.3s ease;font-weight:600;font-size:0.9rem;}
+        .lesson-bottom-nav a:hover{background:rgba(16,185,129,0.1);border-color:rgba(16,185,129,0.3);transform:translateY(-2px);}
+        /* Dijkstra table */
+        .dijk-table{width:100%;border-collapse:collapse;font-size:0.8rem;direction:ltr;margin:1rem 0;}
+        .dijk-table th{background:rgba(16,185,129,0.1);color:#34D399;padding:0.4rem 0.6rem;border:1px solid rgba(16,185,129,0.15);font-family:'Fira Code';}
+        .dijk-table td{padding:0.4rem 0.6rem;border:1px solid var(--border-subtle);font-family:'Fira Code';font-size:0.75rem;}
+        .dijk-table .visited{background:rgba(16,185,129,0.08);color:#34D399;}
+        .dijk-table .current{background:rgba(245,158,11,0.15);color:#FBBF24;}
+    </style>
+</head>
+<body>
+    <nav class="lesson-nav-bar">
+        <div class="nav-inner">
+            <a href="../index.html" class="nav-brand">
+                <div class="back-btn"><i class="fas fa-arrow-left"></i></div>
+                <span>Routing<span style="color:#10B981;">Proto</span></span>
+            </a>
+        </div>
+    </nav>
+    <div class="progress-bar-container"><div class="progress-bar-fill" id="reading-progress" style="background:linear-gradient(90deg,#10B981,#34D399);"></div></div>
+
+    <header class="lesson-hero">
+        <div class="glow-orb glow-orb-1"></div><div class="glow-orb glow-orb-2"></div>
+        <div style="position:relative;z-index:1;">
+            <div class="lesson-badge" data-aos="fade-down"><span class="dot"></span>UNIT 5 • Lesson 5</div>
+            <h1 data-aos="fade-up" data-aos-delay="150">Routing <span class="text-g">Protocols</span></h1>
+            <div class="subtitle" data-aos="fade-up" data-aos-delay="300">بروتوكولات التوجيه الديناميكي</div>
+            <p class="desc" data-aos="fade-up" data-aos-delay="450">BGP بيدير 900,000+ route على الإنترنت. OSPF بيبني خريطة كاملة للشبكة. كل بروتوكول له فلسفته في إيجاد أفضل مسار.</p>
+        </div>
+    </header>
+
+    <!-- Types Overview -->
+    <section class="lesson-section">
+        <div class="section-header" data-aos="fade-up">
+            <h2><i class="fas fa-sitemap" style="color:#10B981;margin-left:0.5rem;"></i> Distance Vector ضد Link State</h2>
+            <p class="en-sub">Two Fundamentally Different Approaches to Routing</p>
+        </div>
+        <div class="cost-compare" data-aos="fade-up">
+            <div class="cost-card before" style="border-color:rgba(245,158,11,0.3);">
+                <h5 style="color:#FBBF24;">📍 Distance Vector</h5>
+                <div class="cost-item">كل Router يعرف المسافة بس (Hops/Metric)</div>
+                <div class="cost-item">بيبعت نسخة من Routing Table لجيرانه</div>
+                <div class="cost-item">❌ Convergence بطيء</div>
+                <div class="cost-item">❌ Routing Loops ممكنة</div>
+                <div class="cost-item">📌 RIP, EIGRP (Hybrid)</div>
+                <div class="cost-item" style="font-style:italic;color:#64748B;">الأمثولة: "اسأل جارك الطريق"</div>
+            </div>
+            <div class="cost-card after" style="border-color:rgba(16,185,129,0.3);">
+                <h5 style="color:#34D399;">🗺️ Link State</h5>
+                <div class="cost-item">كل Router عنده خريطة كاملة للشبكة</div>
+                <div class="cost-item">بيبعت LSA (Link State Advertisement) للكل</div>
+                <div class="cost-item">✅ Convergence سريع جداً</div>
+                <div class="cost-item">✅ لا Routing Loops</div>
+                <div class="cost-item">📌 OSPF, IS-IS</div>
+                <div class="cost-item" style="font-style:italic;color:#64748B;">الأمثولة: "عندك خريطة Google Maps"</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Protocol Details -->
+    <section class="lesson-section alt-bg">
+        <div class="section-inner">
+            <div class="section-header" data-aos="fade-up">
+                <h2><i class="fas fa-list-check" style="color:#34D399;margin-left:0.5rem;"></i> البروتوكولات بالتفصيل</h2>
+            </div>
+            <div data-aos="fade-up" style="overflow-x:auto;">
+                <table class="comparison-table">
+                    <thead><tr><th>Protocol</th><th>Type</th><th>Metric</th><th>Algorithm</th><th>Admin Dist.</th><th>الاستخدام</th></tr></thead>
+                    <tbody>
+                        <tr><td style="font-family:'Fira Code';color:#FBBF24;">RIPv2</td><td class="rtl-block">Distance Vector</td><td style="direction:ltr;font-family:'Fira Code';">Hop Count (max 15)</td><td style="font-family:'Fira Code';direction:ltr;">Bellman-Ford</td><td style="font-family:'Fira Code';">120</td><td class="rtl-block">شبكات صغيرة جداً (تاريخي)</td></tr>
+                        <tr><td style="font-family:'Fira Code';color:#34D399;">OSPF</td><td class="rtl-block">Link State</td><td style="direction:ltr;font-family:'Fira Code';">Cost (BW-based)</td><td style="font-family:'Fira Code';direction:ltr;">Dijkstra SPF</td><td style="font-family:'Fira Code';">110</td><td class="rtl-block">الشركات الكبيرة — الأشيع</td></tr>
+                        <tr><td style="font-family:'Fira Code';color:#60A5FA;">EIGRP</td><td class="rtl-block">Hybrid</td><td style="direction:ltr;font-family:'Fira Code';">Bandwidth + Delay</td><td style="font-family:'Fira Code';direction:ltr;">DUAL</td><td style="font-family:'Fira Code';">90</td><td class="rtl-block">بيئات Cisco</td></tr>
+                        <tr><td style="font-family:'Fira Code';color:#F472B6;">BGP</td><td class="rtl-block">Path Vector</td><td style="direction:ltr;font-family:'Fira Code';">AS Path + Policy</td><td style="font-family:'Fira Code';direction:ltr;">Best Path</td><td style="font-family:'Fira Code';">20/200</td><td class="rtl-block">الإنترنت العالمي — ISPs</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </section>
+
+    <!-- Dijkstra Step-by-Step -->
+    <section class="lesson-section">
+        <div class="section-header" data-aos="fade-up">
+            <h2><i class="fas fa-calculator" style="color:#A78BFA;margin-left:0.5rem;"></i> Dijkstra خطوة بخطوة</h2>
+            <p class="en-sub">How OSPF Calculates the Shortest Path</p>
+        </div>
+        <div class="glass-card" style="padding:1.8rem;" data-aos="fade-up">
+            <div class="rtl-block" style="margin-bottom:1rem;color:#CBD5E1;font-size:0.92rem;line-height:1.8;">
+                <p>الشبكة: A → B (cost 4), A → C (cost 2), C → B (cost 1), B → D (cost 3), C → D (cost 8). نحسب أقصر مسار من A.</p>
+            </div>
+            <table class="dijk-table">
+                <thead><tr><th>Step</th><th>Visited</th><th>Node</th><th>A</th><th>B</th><th>C</th><th>D</th></tr></thead>
+                <tbody>
+                    <tr><td>0</td><td>—</td><td class="current">A</td><td>0</td><td>∞</td><td>∞</td><td>∞</td></tr>
+                    <tr><td>1</td><td class="visited">A</td><td class="current">C</td><td class="visited">0</td><td>4</td><td class="current">2</td><td>∞</td></tr>
+                    <tr><td>2</td><td class="visited">A,C</td><td class="current">B</td><td class="visited">0</td><td class="current">3</td><td class="visited">2</td><td>10</td></tr>
+                    <tr><td>3</td><td class="visited">A,C,B</td><td class="current">D</td><td class="visited">0</td><td class="visited">3</td><td class="visited">2</td><td class="current">6</td></tr>
+                </tbody>
+            </table>
+            <div class="info-box" style="margin-top:0.75rem;">
+                <div class="rtl-block" style="font-size:0.88rem;">
+                    <strong>النتيجة:</strong> A→D = cost 6 عبر المسار: A→C (cost 2) → B (cost 3) → D (cost 3). مش A→B→D (4+3=7).
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- BGP special -->
+    <section class="lesson-section alt-bg">
+        <div class="section-inner">
+            <div class="section-header" data-aos="fade-up">
+                <h2><i class="fas fa-globe" style="color:#F472B6;margin-left:0.5rem;"></i> BGP — بروتوكول الإنترنت</h2>
+                <p class="en-sub">The Protocol That Runs the Internet — Between AS</p>
+            </div>
+            <div class="glass-card" style="padding:1.8rem;" data-aos="fade-up">
+                <div class="rtl-block" style="margin-bottom:1rem;color:#CBD5E1;font-size:0.98rem;line-height:1.8;">
+                    <p>الإنترنت مكونش من شبكة واحدة — ده مجموعة من <strong style="color:#F472B6;">Autonomous Systems (AS)</strong>. كل AS (زي Vodafone مصر، Google، Amazon) له رقم ASN. BGP هو اللي بيتكلم بينهم.</p>
+                </div>
+                <div style="background:rgba(0,0,0,0.3);border-radius:10px;padding:1rem;font-family:'Fira Code',monospace;font-size:0.8rem;direction:ltr;">
+                    <div style="color:#94A3B8;margin-bottom:0.25rem;"># BGP Route Example</div>
+                    <div style="color:#E2E8F0;">Network: 8.8.8.0/24</div>
+                    <div style="color:#F472B6;">AS Path: 15169 (Google) ← 6762 (TelecomItalia) ← 8452 (TE)</div>
+                    <div style="color:#34D399;">Next Hop: 10.100.5.1</div>
+                    <div style="color:#FBBF24;">Local Pref: 100</div>
+                </div>
+                <div class="rtl-block" style="margin-top:0.75rem;color:#94A3B8;font-size:0.85rem;">
+                    <p>⭐ BGP بياخد قرارات على أساس <strong>Policy</strong> (سياسة) مش بس المسافة. ممكن Vodafone تقرر تمشي Traffic بناءً على عقود تجارية — مش بس أقل Hops.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="lesson-section" id="quiz">
+        <div class="section-header" data-aos="fade-up">
+            <h2><i class="fas fa-brain" style="color:#10B981;margin-left:0.5rem;"></i> اختبر نفسك</h2>
+        </div>
+        <div class="quiz-container" data-aos="fade-up">
+            <div class="quiz-question" id="q1">
+                <h4>OSPF بيستخدم أنهي Algorithm لإيجاد Shortest Path؟</h4>
+                <div class="quiz-options">
+                    <div class="quiz-option" onclick="ans(this,'q1',false)">Bellman-Ford</div>
+                    <div class="quiz-option" onclick="ans(this,'q1',true)">Dijkstra SPF</div>
+                    <div class="quiz-option" onclick="ans(this,'q1',false)">Floyd-Warshall</div>
+                    <div class="quiz-option" onclick="ans(this,'q1',false)">DUAL</div>
+                </div>
+                <div class="quiz-feedback" id="fb-q1"></div>
+            </div>
+            <div class="quiz-question" id="q2">
+                <h4>RIP Metric بيحسب بإيه وإيه أقصى قيمة؟</h4>
+                <div class="quiz-options">
+                    <div class="quiz-option" onclick="ans(this,'q2',false)">Bandwidth — max 100</div>
+                    <div class="quiz-option" onclick="ans(this,'q2',true)">Hop Count — max 15</div>
+                    <div class="quiz-option" onclick="ans(this,'q2',false)">Cost — max 65535</div>
+                    <div class="quiz-option" onclick="ans(this,'q2',false)">Delay — max 50ms</div>
+                </div>
+                <div class="quiz-feedback" id="fb-q2"></div>
+            </div>
+        </div>
+    </section>
+
+    <section class="lesson-section">
+        <div class="lesson-bottom-nav">
+            <a href="routing_basics.html"><i class="fas fa-arrow-left"></i><span>Routing Basics</span></a>
+            <div style="text-align:center;color:var(--text-faint);font-size:0.85rem;">Unit 5 • Lesson 5</div>
+            <a href="nat_dhcp.html"><span>NAT &amp; DHCP</span><i class="fas fa-arrow-right"></i></a>
+        </div>
+    </section>
+
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <script>
+        AOS.init({duration:800,once:true,offset:100});
+        window.addEventListener('scroll',()=>{ document.getElementById('reading-progress').style.width=(window.scrollY/(document.documentElement.scrollHeight-window.innerHeight))*100+'%'; });
+        const fb={
+            q1:{c:'✅ صح! OSPF = Dijkstra Shortest Path First. بيبني Shortest Path Tree من كل Router كـ Root.',w:'❌ غلط! OSPF = Dijkstra SPF. Bellman-Ford = RIP/EIGRP. DUAL = EIGRP فقط.'},
+            q2:{c:'✅ صح! RIP Metric = Hop Count. Max = 15. الـ Route بـ 16 hops تعتبر Unreachable.',w:'❌ غلط! RIP بيحسب Hop Count max 15. Bandwidth للـ OSPF/EIGRP.'}
+        };
+        function ans(el,qid,correct){ const q=document.getElementById(qid); if(q.dataset.answered)return; q.dataset.answered='true'; q.querySelectorAll('.quiz-option').forEach(o=>o.style.pointerEvents='none'); el.classList.add(correct?'correct':'wrong'); const f=document.getElementById('fb-'+qid); f.textContent=correct?fb[qid].c:fb[qid].w; f.className='quiz-feedback show '+(correct?'correct-fb':'wrong-fb'); }
+    </script>
+</body>
+</html>

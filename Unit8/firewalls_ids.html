@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Firewalls & IDS/IPS — الجدار الناري | Network Mastery</title>
+    <meta name="description" content="Stateful vs stateless firewalls, IDS vs IPS, DMZ architecture, ACL examples.">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&family=Inter:wght@400;500;600;700;800&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    <link href="../css/global-net.css" rel="stylesheet">
+    <style>
+        body{background:#020617;color:#E2E8F0;font-family:'Inter',sans-serif;}
+        .lesson-nav-bar{position:fixed;top:0;left:0;right:0;z-index:100;background:rgba(2,6,23,0.88);backdrop-filter:blur(20px);border-bottom:1px solid rgba(255,255,255,0.06);height:64px;display:flex;align-items:center;padding:0 1.5rem;}
+        .nav-inner{max-width:1280px;margin:0 auto;width:100%;display:flex;align-items:center;justify-content:space-between;}
+        .nav-brand{display:flex;align-items:center;gap:0.75rem;font-weight:700;}
+        .back-btn{width:36px;height:36px;border-radius:10px;background:linear-gradient(135deg,#EC4899,#DB2777);display:flex;align-items:center;justify-content:center;color:white;font-size:0.85rem;transition:transform 0.3s;}
+        .back-btn:hover{transform:scale(1.1);}
+        .lesson-hero{position:relative;padding:8rem 1.5rem 5rem;text-align:center;overflow:hidden;}
+        .glow-orb{position:absolute;border-radius:50%;filter:blur(128px);pointer-events:none;}
+        .glow-orb-1{width:500px;height:500px;top:-10%;right:-5%;background:rgba(236,72,153,0.12);}
+        .lesson-badge{display:inline-flex;align-items:center;gap:0.5rem;padding:0.35rem 1rem;border-radius:50px;background:rgba(30,41,59,0.6);border:1px solid rgba(255,255,255,0.08);font-family:'Fira Code',monospace;font-size:0.78rem;color:#F472B6;margin-bottom:1.5rem;}
+        .dot{width:6px;height:6px;border-radius:50%;background:#EC4899;animation:pulse-dot 2s ease infinite;}
+        .lesson-hero h1{font-size:clamp(2.5rem,5vw,4rem);font-weight:800;margin-bottom:1rem;}
+        .text-g{background:linear-gradient(135deg,#EC4899,#EF4444);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;}
+        .subtitle{font-family:'Cairo',sans-serif;font-size:1.6rem;font-weight:700;color:var(--text-muted);direction:rtl;margin-bottom:1.5rem;}
+        .desc{color:var(--text-faint);max-width:640px;margin:0 auto;font-size:1.05rem;font-family:'Cairo',sans-serif;direction:rtl;line-height:1.9;}
+        .lesson-bottom-nav{display:flex;justify-content:space-between;align-items:center;gap:1rem;padding:2rem 0;border-top:1px solid var(--border-subtle);margin-top:3rem;}
+        .lesson-bottom-nav a{display:flex;align-items:center;gap:0.5rem;padding:0.75rem 1.5rem;border-radius:12px;background:rgba(255,255,255,0.04);border:1px solid var(--border-subtle);transition:all 0.3s ease;font-weight:600;font-size:0.9rem;}
+        .lesson-bottom-nav a:hover{background:rgba(236,72,153,0.1);border-color:rgba(236,72,153,0.3);transform:translateY(-2px);}
+        /* Packet sim */
+        .packet-sim{display:flex;flex-direction:column;gap:0.3rem;}
+        .pkt-row{display:grid;grid-template-columns:140px 80px 80px 80px 1fr 60px;gap:0.5rem;align-items:center;font-family:'Fira Code';font-size:0.72rem;padding:0.35rem 0.5rem;border-radius:7px;direction:ltr;}
+        .pkt-row.header{background:rgba(236,72,153,0.1);color:#F472B6;font-weight:700;}
+        .pkt-row.allow{background:rgba(16,185,129,0.05);border-left:3px solid #34D399;}
+        .pkt-row.deny{background:rgba(239,68,68,0.05);border-left:3px solid #EF4444;}
+        .pkt-row.check{background:rgba(245,158,11,0.05);border-left:3px solid #F59E0B;}
+    </style>
+</head>
+<body>
+    <nav class="lesson-nav-bar"><div class="nav-inner"><a href="../index.html" class="nav-brand"><div class="back-btn"><i class="fas fa-arrow-left"></i></div><span>Firewall<span style="color:#EC4899;">IDS</span></span></a></div></nav>
+    <div class="progress-bar-container"><div class="progress-bar-fill" id="reading-progress" style="background:linear-gradient(90deg,#EC4899,#EF4444);"></div></div>
+
+    <header class="lesson-hero">
+        <div class="glow-orb glow-orb-1"></div>
+        <div style="position:relative;z-index:1;">
+            <div class="lesson-badge" data-aos="fade-down"><span class="dot"></span>UNIT 8 • Lesson 3</div>
+            <h1 data-aos="fade-up" data-aos-delay="150">Firewalls &amp; <span class="text-g">IDS/IPS</span></h1>
+            <div class="subtitle" data-aos="fade-up" data-aos-delay="300">الجدران النارية وأنظمة الكشف</div>
+            <p class="desc" data-aos="fade-up" data-aos-delay="450">Firewall بيفحص كل Packet ويقرر: Permit أو Deny. IDS بيلاقي الهجمات. IPS بيلاقيها ويوقفها. الثلاثة لازم يشتغلوا مع بعض.</p>
+        </div>
+    </header>
+
+    <section class="lesson-section">
+        <div class="section-header" data-aos="fade-up"><h2><i class="fas fa-shield" style="color:#F472B6;margin-left:0.5rem;"></i> أنواع الـ Firewalls</h2></div>
+        <div class="glass-card" style="padding:1.8rem;" data-aos="fade-up">
+            <div style="display:flex;flex-direction:column;gap:0.75rem;">
+                <div style="padding:0.9rem;background:rgba(100,116,139,0.08);border:1px solid rgba(100,116,139,0.2);border-radius:10px;">
+                    <div style="font-family:'Fira Code';color:#94A3B8;font-weight:700;direction:ltr;margin-bottom:0.3rem;">Gen 1: Packet Filtering (Stateless)</div>
+                    <div class="rtl-block" style="font-size:0.85rem;color:#64748B;">بيشوف Header بس (IP, Port, Protocol). مفيش State. رخيص لكن سهل يُخدع.</div>
+                </div>
+                <div style="padding:0.9rem;background:rgba(245,158,11,0.08);border:1px solid rgba(245,158,11,0.2);border-radius:10px;">
+                    <div style="font-family:'Fira Code';color:#FBBF24;font-weight:700;direction:ltr;margin-bottom:0.3rem;">Gen 2: Stateful Inspection</div>
+                    <div class="rtl-block" style="font-size:0.85rem;color:#94A3B8;">بيتتبع الـ Connection State. يعرف لو الـ Packet جزء من Session مسموح به أو لا. الأشيع.</div>
+                </div>
+                <div style="padding:0.9rem;background:rgba(236,72,153,0.08);border:1px solid rgba(236,72,153,0.2);border-radius:10px;">
+                    <div style="font-family:'Fira Code';color:#F472B6;font-weight:700;direction:ltr;margin-bottom:0.3rem;">Gen 3: NGFW (Next-Gen)</div>
+                    <div class="rtl-block" style="font-size:0.85rem;color:#94A3B8;">Application Awareness + User Identity + SSL Inspection + IPS Built-in. Palo Alto, Fortinet, Cisco FTD.</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="lesson-section alt-bg">
+        <div class="section-inner">
+            <div class="section-header" data-aos="fade-up"><h2><i class="fas fa-file-code" style="color:#F472B6;margin-left:0.5rem;"></i> محاكي الـ ACL (Firewall Rules)</h2><p class="en-sub">Watch Packets Being Filtered</p></div>
+            <div class="glass-card" style="padding:1.5rem;" data-aos="fade-up">
+                <div class="rtl-block" style="margin-bottom:0.75rem;font-size:0.85rem;color:#94A3B8;">الـ Rules بتُطبَّق بالترتيب — أول Rule يتطابق يُنفَّذ (First Match):</div>
+                <div style="background:rgba(0,0,0,0.3);border-radius:8px;padding:0.75rem;font-family:'Fira Code';font-size:0.72rem;direction:ltr;margin-bottom:0.75rem;">
+                    <div style="color:#34D399;">permit tcp any host 10.0.0.5 eq 443  <span style="color:#64748B;"># Allow HTTPS to web server</span></div>
+                    <div style="color:#34D399;">permit tcp any host 10.0.0.5 eq 80   <span style="color:#64748B;"># Allow HTTP to web server</span></div>
+                    <div style="color:#FBBF24;">permit tcp 10.0.1.0 0.0.0.255 any eq 22  <span style="color:#64748B;"># Allow SSH from admin subnet</span></div>
+                    <div style="color:#F87171;">deny tcp any any eq 23              <span style="color:#64748B;"># Block Telnet (unencrypted)</span></div>
+                    <div style="color:#F87171;">deny ip any any                     <span style="color:#64748B;"># Implicit deny all</span></div>
+                </div>
+                <div class="packet-sim">
+                    <div class="pkt-row header"><span>Packet</span><span>Src</span><span>Dst</span><span>Port</span><span>Matches Rule</span><span>Action</span></div>
+                    <div class="pkt-row allow"><span>Browser→WebSrv</span><span>1.2.3.4</span><span>10.0.0.5</span><span>443</span><span>Rule 1: permit tcp any host eq 443</span><span style="color:#34D399;">✅ ALLOW</span></div>
+                    <div class="pkt-row deny"><span>Attacker Telnet</span><span>5.6.7.8</span><span>10.0.0.5</span><span>23</span><span>Rule 4: deny tcp any any eq 23</span><span style="color:#F87171;">❌ DENY</span></div>
+                    <div class="pkt-row allow"><span>Admin SSH</span><span>10.0.1.20</span><span>10.0.0.10</span><span>22</span><span>Rule 3: permit tcp 10.0.1.0/24 eq 22</span><span style="color:#34D399;">✅ ALLOW</span></div>
+                    <div class="pkt-row deny"><span>Random UDP</span><span>9.9.9.9</span><span>10.0.0.1</span><span>9999</span><span>Rule 5: deny ip any any (implicit)</span><span style="color:#F87171;">❌ DENY</span></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="lesson-section">
+        <div class="section-header" data-aos="fade-up"><h2><i class="fas fa-eye" style="color:#34D399;margin-left:0.5rem;"></i> IDS ضد IPS</h2><p class="en-sub">Detect Only vs Detect AND Prevent</p></div>
+        <div class="cost-compare" data-aos="fade-up">
+            <div class="cost-card" style="border-color:rgba(245,158,11,0.3);">
+                <h5 style="color:#FBBF24;">👁️ IDS — Intrusion Detection System</h5>
+                <div class="cost-item">يحلل Traffic ويتعرف على Patterns</div>
+                <div class="cost-item">يُنبه Admin عند اكتشاف هجوم</div>
+                <div class="cost-item">لا يوقف الهجوم</div>
+                <div class="cost-item">Out-of-band — نسخة من Traffic</div>
+                <div class="cost-item">✅ لا يأثر على الـ Performance</div>
+            </div>
+            <div class="cost-card" style="border-color:rgba(236,72,153,0.3);">
+                <h5 style="color:#F472B6;">🛡️ IPS — Intrusion Prevention System</h5>
+                <div class="cost-item">يحلل ويوقف الهجوم في الوقت الفعلي</div>
+                <div class="cost-item">Inline — كل Traffic يمر خلاله</div>
+                <div class="cost-item">يعمل Drop/Reset/Block تلقائياً</div>
+                <div class="cost-item">⚠️ قد يحجب Traffic حقيقي (False Positive)</div>
+                <div class="cost-item">📌 Snort، Suricata، Cisco Firepower</div>
+            </div>
+        </div>
+    </section>
+
+    <section class="lesson-section alt-bg" id="quiz">
+        <div class="section-inner">
+            <div class="section-header" data-aos="fade-up"><h2><i class="fas fa-brain" style="color:#EC4899;margin-left:0.5rem;"></i> اختبر نفسك</h2></div>
+            <div class="quiz-container" data-aos="fade-up">
+                <div class="quiz-question" id="q1">
+                    <h4>Stateful Firewall أحسن من Stateless بسبب؟</h4>
+                    <div class="quiz-options">
+                        <div class="quiz-option" onclick="ans(this,'q1',false)">أسرع</div>
+                        <div class="quiz-option" onclick="ans(this,'q1',true)">يتتبع الـ Connection State ويعرف إن الـ Packet مرتبط بـ Session مسموح به</div>
+                        <div class="quiz-option" onclick="ans(this,'q1',false)">أرخص</div>
+                        <div class="quiz-option" onclick="ans(this,'q1',false)">لا يحتاج Rules</div>
+                    </div>
+                    <div class="quiz-feedback" id="fb-q1"></div>
+                </div>
+                <div class="quiz-question" id="q2">
+                    <h4>إيه الخطر من False Positive في الـ IPS؟</h4>
+                    <div class="quiz-options">
+                        <div class="quiz-option" onclick="ans(this,'q2',false)">بيبطئ الإنترنت</div>
+                        <div class="quiz-option" onclick="ans(this,'q2',true)">بيحجب Traffic حقيقي (Legitimate traffic) — يأثر على خدمات الشركة</div>
+                        <div class="quiz-option" onclick="ans(this,'q2',false)">بيخترق الشبكة</div>
+                        <div class="quiz-option" onclick="ans(this,'q2',false)">بيزود القرصنة</div>
+                    </div>
+                    <div class="quiz-feedback" id="fb-q2"></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="lesson-section">
+        <div class="lesson-bottom-nav">
+            <a href="cryptography.html"><i class="fas fa-arrow-left"></i><span>Cryptography</span></a>
+            <div style="text-align:center;color:var(--text-faint);font-size:0.85rem;">Unit 8 • Lesson 3</div>
+            <a href="vpn_tunneling.html"><span>VPN &amp; Tunneling</span><i class="fas fa-arrow-right"></i></a>
+        </div>
+    </section>
+
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <script>
+        AOS.init({duration:800,once:true,offset:100});
+        window.addEventListener('scroll',()=>{ document.getElementById('reading-progress').style.width=(window.scrollY/(document.documentElement.scrollHeight-window.innerHeight))*100+'%'; });
+        const fb={
+            q1:{c:'✅ صح! Stateful = يعرف الـ Connection context. Stateless = بيشوف كل Packet في isolation — سهل يُخدع.',w:'❌ غلط! Stateful أحسن لأنه يتتبع الـ Connection State — يعرف إن الـ Reply Packet جزء من Session مسموح به أم لا.'},
+            q2:{c:'✅ صح! False Positive = IPS حجب Traffic حقيقي مع الهجمات. ده بيعطل الأعمال الفعلية.',w:'❌ False Positive في IPS = حجب Traffic حقيقي بالغلط. بتأثر على availability.'}
+        };
+        function ans(el,qid,correct){ const q=document.getElementById(qid); if(q.dataset.answered)return; q.dataset.answered='true'; q.querySelectorAll('.quiz-option').forEach(o=>o.style.pointerEvents='none'); el.classList.add(correct?'correct':'wrong'); const f=document.getElementById('fb-'+qid); f.textContent=correct?fb[qid].c:fb[qid].w; f.className='quiz-feedback show '+(correct?'correct-fb':'wrong-fb'); }
+    </script>
+</body>
+</html>

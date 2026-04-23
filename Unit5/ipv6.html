@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IPv6 — الجيل السادس | Network Mastery</title>
+    <meta name="description" content="IPv6 128-bit addresses, notation, address types, Dual Stack, Tunneling, transition mechanisms.">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&family=Inter:wght@400;500;600;700;800&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    <link href="../css/global-net.css" rel="stylesheet">
+    <style>
+        body{background:#020617;color:#E2E8F0;font-family:'Inter',sans-serif;}
+        .lesson-nav-bar{position:fixed;top:0;left:0;right:0;z-index:100;background:rgba(2,6,23,0.88);backdrop-filter:blur(20px);border-bottom:1px solid rgba(255,255,255,0.06);height:64px;display:flex;align-items:center;padding:0 1.5rem;}
+        .nav-inner{max-width:1280px;margin:0 auto;width:100%;display:flex;align-items:center;justify-content:space-between;}
+        .nav-brand{display:flex;align-items:center;gap:0.75rem;font-weight:700;}
+        .back-btn{width:36px;height:36px;border-radius:10px;background:linear-gradient(135deg,#10B981,#059669);display:flex;align-items:center;justify-content:center;color:white;font-size:0.85rem;transition:transform 0.3s;}
+        .back-btn:hover{transform:scale(1.1);}
+        .lesson-hero{position:relative;padding:8rem 1.5rem 5rem;text-align:center;overflow:hidden;}
+        .glow-orb{position:absolute;border-radius:50%;filter:blur(128px);pointer-events:none;}
+        .glow-orb-1{width:500px;height:500px;top:-10%;right:-5%;background:rgba(16,185,129,0.12);}
+        .glow-orb-2{width:400px;height:400px;bottom:-20%;left:-10%;background:rgba(139,92,246,0.06);}
+        .lesson-badge{display:inline-flex;align-items:center;gap:0.5rem;padding:0.35rem 1rem;border-radius:50px;background:rgba(30,41,59,0.6);border:1px solid rgba(255,255,255,0.08);font-family:'Fira Code',monospace;font-size:0.78rem;color:#34D399;margin-bottom:1.5rem;}
+        .dot{width:6px;height:6px;border-radius:50%;background:#10B981;animation:pulse-dot 2s ease infinite;}
+        .lesson-hero h1{font-size:clamp(2.5rem,5vw,4rem);font-weight:800;margin-bottom:1rem;}
+        .text-g{background:linear-gradient(135deg,#10B981,#A78BFA);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;}
+        .subtitle{font-family:'Cairo',sans-serif;font-size:1.6rem;font-weight:700;color:var(--text-muted);direction:rtl;margin-bottom:1.5rem;}
+        .desc{color:var(--text-faint);max-width:640px;margin:0 auto;font-size:1.05rem;font-family:'Cairo',sans-serif;direction:rtl;line-height:1.9;}
+
+        /* IPv6 address breakdown */
+        .ipv6-display{display:flex;align-items:center;flex-wrap:wrap;gap:1px;direction:ltr;margin:1rem 0;}
+        .ipv6-group{display:flex;flex-direction:column;align-items:center;flex:1;min-width:70px;border-radius:8px;overflow:hidden;}
+        .ipv6-group .gv{padding:0.4rem 0.3rem;font-family:'Fira Code',monospace;font-weight:900;font-size:0.9rem;text-align:center;width:100%;}
+        .ipv6-group .gl{font-size:0.55rem;padding:0.15rem;text-align:center;width:100%;}
+        .ipv6-sep{color:#475569;font-family:'Fira Code';font-size:1.1rem;display:flex;align-items:center;padding:0 1px;}
+
+        /* Address types */
+        .addr-cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:0.75rem;margin:1rem 0;}
+        .addr-card{background:rgba(15,23,42,0.7);border:1px solid var(--border-subtle);border-radius:12px;padding:1rem;transition:all 0.3s;}
+        .addr-card:hover{transform:translateY(-2px);}
+        .addr-type{font-family:'Fira Code',monospace;font-weight:900;font-size:0.85rem;direction:ltr;margin-bottom:0.25rem;}
+        .addr-prefix{font-family:'Fira Code',monospace;font-size:0.72rem;direction:ltr;color:var(--text-ghost);}
+        .addr-desc{font-family:'Cairo',sans-serif;direction:rtl;font-size:0.78rem;color:var(--text-muted);margin-top:0.25rem;line-height:1.5;}
+
+        .lesson-bottom-nav{display:flex;justify-content:space-between;align-items:center;gap:1rem;padding:2rem 0;border-top:1px solid var(--border-subtle);margin-top:3rem;}
+        .lesson-bottom-nav a{display:flex;align-items:center;gap:0.5rem;padding:0.75rem 1.5rem;border-radius:12px;background:rgba(255,255,255,0.04);border:1px solid var(--border-subtle);transition:all 0.3s ease;font-weight:600;font-size:0.9rem;}
+        .lesson-bottom-nav a:hover{background:rgba(16,185,129,0.1);border-color:rgba(16,185,129,0.3);transform:translateY(-2px);}
+    </style>
+</head>
+<body>
+    <nav class="lesson-nav-bar">
+        <div class="nav-inner">
+            <a href="../index.html" class="nav-brand">
+                <div class="back-btn"><i class="fas fa-arrow-left"></i></div>
+                <span>IPv<span style="color:#10B981;">6</span></span>
+            </a>
+        </div>
+    </nav>
+    <div class="progress-bar-container"><div class="progress-bar-fill" id="reading-progress" style="background:linear-gradient(90deg,#10B981,#A78BFA);"></div></div>
+
+    <header class="lesson-hero">
+        <div class="glow-orb glow-orb-1"></div><div class="glow-orb glow-orb-2"></div>
+        <div style="position:relative;z-index:1;">
+            <div class="lesson-badge" data-aos="fade-down"><span class="dot"></span>UNIT 5 • Lesson 3</div>
+            <h1 data-aos="fade-up" data-aos-delay="150">IP<span class="text-g">v6</span></h1>
+            <div class="subtitle" data-aos="fade-up" data-aos-delay="300">الجيل الجديد من العناوين</div>
+            <p class="desc" data-aos="fade-up" data-aos-delay="450">IPv4 خلص رسمياً في 2011. اللي بيشيل الإنترنت دلوقتي = NAT + IPv6 مع بعض. والمستقبل كله IPv6.</p>
+        </div>
+    </header>
+
+    <!-- Scale comparison -->
+    <section class="lesson-section">
+        <div class="section-header" data-aos="fade-up">
+            <h2><i class="fas fa-infinity" style="color:#10B981;margin-left:0.5rem;"></i> الحجم — رقم لا يُتخيَّل</h2>
+            <p class="en-sub">From 4.3 Billion to 340 Undecillion</p>
+        </div>
+        <div class="glass-card" style="padding:1.8rem;" data-aos="fade-up">
+            <div class="cost-compare">
+                <div class="cost-card" style="border-color:rgba(59,130,246,0.3);">
+                    <h5 style="color:#60A5FA;">IPv4 — 32 bit</h5>
+                    <div class="stat-bomb" style="font-size:1.4rem;color:#60A5FA;">4.3 مليار</div>
+                    <div class="cost-item" style="font-size:0.8rem;">2³² = 4,294,967,296 عنوان</div>
+                    <div class="cost-item">❌ خلصوا رسمياً 2011</div>
+                    <div class="cost-item">🔧 NAT كحل مؤقت</div>
+                </div>
+                <div class="cost-card" style="border-color:rgba(167,139,250,0.3);">
+                    <h5 style="color:#A78BFA;">IPv6 — 128 bit</h5>
+                    <div class="stat-bomb" style="font-size:1.1rem;color:#A78BFA;">340 Undecillion</div>
+                    <div class="cost-item" style="font-size:0.8rem;direction:ltr;">2¹²⁸ = 3.4 × 10³⁸</div>
+                    <div class="cost-item">✅ لكل جهاز عنوان خاص</div>
+                    <div class="cost-item">🚀 بلا NAT، بلا حدود</div>
+                </div>
+            </div>
+            <div class="think-box" style="margin-top:1rem;">
+                <div class="think-label">🌍 COSMIC SCALE</div>
+                <p>لو كل رملة على الأرض (7.5×10¹⁸) أخدت عنوان IPv4 → ما كفى. بـ IPv6 — كل رملة تقدر تاخد 340 مليون عنوان مليار مرة وكمان يفضل!</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- IPv6 Notation -->
+    <section class="lesson-section alt-bg">
+        <div class="section-inner">
+            <div class="section-header" data-aos="fade-up">
+                <h2><i class="fas fa-font" style="color:#A78BFA;margin-left:0.5rem;"></i> كتابة عناوين IPv6</h2>
+                <p class="en-sub">128 bits = 8 groups × 16 bits (Hexadecimal)</p>
+            </div>
+            <div class="glass-card" style="padding:1.8rem;" data-aos="fade-up">
+                <div class="rtl-block" style="margin-bottom:1rem;color:#CBD5E1;font-size:0.92rem;line-height:1.8;">
+                    <p>العنوان الكامل: 8 مجموعات، كل مجموعة 4 hex digits، مفصولة بـ :</p>
+                </div>
+                <!-- Full address display -->
+                <div class="ipv6-display" id="ipv6-viz"></div>
+                <div style="margin-top:1.5rem;">
+                    <div class="rtl-block" style="font-size:0.9rem;color:#CBD5E1;margin-bottom:0.75rem;"><strong>قواعد تبسيط الكتابة:</strong></div>
+                    <div style="background:rgba(0,0,0,0.3);border-radius:10px;padding:1rem;font-family:'Fira Code',monospace;font-size:0.82rem;direction:ltr;">
+                        <div style="margin-bottom:0.5rem;"><span style="color:#94A3B8;"># Full:</span></div>
+                        <div style="color:#E2E8F0;margin-bottom:0.75rem;">2001:0DB8:0000:0000:0000:FF00:0042:8329</div>
+                        <div style="margin-bottom:0.35rem;"><span style="color:#94A3B8;"># Rule 1 — Remove leading zeros:</span></div>
+                        <div style="color:#FBBF24;margin-bottom:0.75rem;">2001:DB8:0:0:0:FF00:42:8329</div>
+                        <div style="margin-bottom:0.35rem;"><span style="color:#94A3B8;"># Rule 2 — :: replaces longest run of 0s (once only):</span></div>
+                        <div style="color:#34D399;">2001:DB8::FF00:42:8329</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Address Types -->
+    <section class="lesson-section">
+        <div class="section-header" data-aos="fade-up">
+            <h2><i class="fas fa-tags" style="color:#34D399;margin-left:0.5rem;"></i> أنواع عناوين IPv6</h2>
+            <p class="en-sub">No More Broadcast — Multicast & Anycast Instead</p>
+        </div>
+        <div class="addr-cards" data-aos="fade-up">
+            <div class="addr-card"><div class="addr-type" style="color:#60A5FA;">Global Unicast</div><div class="addr-prefix">2000::/3</div><div class="addr-desc">عناوين عامة = مثل IPv4 Public. تبدأ بـ 2 أو 3.</div></div>
+            <div class="addr-card"><div class="addr-type" style="color:#34D399;">Link-Local</div><div class="addr-prefix">FE80::/10</div><div class="addr-desc">للتواصل داخل نفس الـ Link فقط. تُعيَّن تلقائياً لكل interface.</div></div>
+            <div class="addr-card"><div class="addr-type" style="color:#A78BFA;">Unique Local</div><div class="addr-prefix">FC00::/7</div><div class="addr-desc">مثل IPv4 Private. للشبكات الداخلية. لا تُوجَّه للإنترنت.</div></div>
+            <div class="addr-card"><div class="addr-type" style="color:#F472B6;">Multicast</div><div class="addr-prefix">FF00::/8</div><div class="addr-desc">لمجموعات من الأجهزة. يحل محل IPv4 Broadcast تماماً.</div></div>
+            <div class="addr-card"><div class="addr-type" style="color:#FBBF24;">Anycast</div><div class="addr-prefix">من نفس Global</div><div class="addr-desc">نفس العنوان على عدة أجهزة — Packet يروح لأقربهم. للـ DNS وCDN.</div></div>
+            <div class="addr-card"><div class="addr-type" style="color:#94A3B8;">Loopback</div><div class="addr-prefix">::1/128</div><div class="addr-desc">مثل 127.0.0.1 في IPv4. الجهاز يتكلم مع نفسه.</div></div>
+        </div>
+    </section>
+
+    <!-- Transition mechanisms -->
+    <section class="lesson-section alt-bg">
+        <div class="section-inner">
+            <div class="section-header" data-aos="fade-up">
+                <h2><i class="fas fa-bridge" style="color:#22D3EE;margin-left:0.5rem;"></i> التحول من IPv4 لـ IPv6</h2>
+                <p class="en-sub">Not Overnight — 3 Transition Mechanisms</p>
+            </div>
+            <div class="problem-grid" data-aos="fade-up">
+                <div class="solution-card" style="border-color:rgba(34,211,238,0.2);">
+                    <div class="icon" style="background:rgba(34,211,238,0.1);color:#22D3EE;">🔀</div>
+                    <h4 style="color:#22D3EE;font-size:0.9rem;">Dual Stack</h4>
+                    <p class="rtl-block" style="font-size:0.82rem;">الجهاز بيشتغل بـ IPv4 وIPv6 في نفس الوقت. التطبيق يختار. الأشيع حالياً.</p>
+                </div>
+                <div class="solution-card" style="border-color:rgba(16,185,129,0.2);">
+                    <div class="icon" style="background:rgba(16,185,129,0.1);color:#34D399;">🚇</div>
+                    <h4 style="color:#34D399;font-size:0.9rem;">Tunneling</h4>
+                    <p class="rtl-block" style="font-size:0.82rem;">تغليف IPv6 Packet جوه IPv4 Packet لعبور شبكة IPv4. 6to4، Teredo.</p>
+                </div>
+                <div class="solution-card" style="border-color:rgba(245,158,11,0.2);">
+                    <div class="icon" style="background:rgba(245,158,11,0.1);color:#FBBF24;">🔄</div>
+                    <h4 style="color:#FBBF24;font-size:0.9rem;">NAT64</h4>
+                    <p class="rtl-block" style="font-size:0.82rem;">Gateway يترجم بين IPv6 وIPv4 — عشان IPv6-only clients يتكلموا مع IPv4 servers.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="lesson-section" id="quiz">
+        <div class="section-header" data-aos="fade-up">
+            <h2><i class="fas fa-brain" style="color:#10B981;margin-left:0.5rem;"></i> اختبر نفسك</h2>
+        </div>
+        <div class="quiz-container" data-aos="fade-up">
+            <div class="quiz-question" id="q1">
+                <h4>عنوان IPv6 بيبدأ بـ FE80 — ده إيه؟</h4>
+                <div class="quiz-options">
+                    <div class="quiz-option" onclick="ans(this,'q1',false)">Global Unicast — عام</div>
+                    <div class="quiz-option" onclick="ans(this,'q1',true)">Link-Local — للتواصل المحلي فقط</div>
+                    <div class="quiz-option" onclick="ans(this,'q1',false)">Multicast</div>
+                    <div class="quiz-option" onclick="ans(this,'q1',false)">Loopback</div>
+                </div>
+                <div class="quiz-feedback" id="fb-q1"></div>
+            </div>
+            <div class="quiz-question" id="q2">
+                <h4>:: في عنوان IPv6 تعني إيه؟</h4>
+                <div class="quiz-options">
+                    <div class="quiz-option" onclick="ans(this,'q2',false)">نهاية العنوان</div>
+                    <div class="quiz-option" onclick="ans(this,'q2',true)">اختصار لأطول تسلسل من مجموعات صفر متتالية</div>
+                    <div class="quiz-option" onclick="ans(this,'q2',false)">فاصل بين الشبكة والـ Host</div>
+                    <div class="quiz-option" onclick="ans(this,'q2',false)">عنوان Broadcast</div>
+                </div>
+                <div class="quiz-feedback" id="fb-q2"></div>
+            </div>
+        </div>
+    </section>
+
+    <section class="lesson-section">
+        <div class="lesson-bottom-nav">
+            <a href="subnetting.html"><i class="fas fa-arrow-left"></i><span>Subnetting</span></a>
+            <div style="text-align:center;color:var(--text-faint);font-size:0.85rem;">Unit 5 • Lesson 3</div>
+            <a href="routing_basics.html"><span>Routing Basics</span><i class="fas fa-arrow-right"></i></a>
+        </div>
+    </section>
+
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <script>
+        AOS.init({duration:800,once:true,offset:100});
+        window.addEventListener('scroll',()=>{ document.getElementById('reading-progress').style.width=(window.scrollY/(document.documentElement.scrollHeight-window.innerHeight))*100+'%'; });
+
+        // IPv6 visual
+        const groups=['2001','0DB8','0000','0000','0000','FF00','0042','8329'];
+        const colors=['#60A5FA','#60A5FA','#94A3B8','#94A3B8','#94A3B8','#A78BFA','#A78BFA','#A78BFA'];
+        const labels=['Global','Routing','Subnet','Subnet','Subnet','Interface','Interface','Interface'];
+        const viz=document.getElementById('ipv6-viz');
+        groups.forEach((g,i)=>{
+            const div=document.createElement('div'); div.className='ipv6-group';
+            div.innerHTML=`<div class="gv" style="background:${colors[i]}22;color:${colors[i]};">${g}</div><div class="gl" style="background:rgba(0,0,0,0.2);color:${colors[i]};">${labels[i]}</div>`;
+            viz.appendChild(div);
+            if(i<7){ const sep=document.createElement('div'); sep.className='ipv6-sep'; sep.textContent=':'; viz.appendChild(sep); }
+        });
+
+        const fb={
+            q1:{c:'✅ صح! FE80::/10 = Link-Local. يُعيَّن تلقائياً لكل interface وبيُستخدم للتواصل المحلي فقط.',w:'❌ FE80::/10 = Link-Local. Global Unicast تبدأ بـ 2000::/3.'},
+            q2:{c:'✅ صح! :: = اختصار لأطول sequence من مجموعات الصفر المتتالية. لا تُستخدم أكتر من مرة في العنوان.',w:'❌ غلط! :: = compressed zeros — اختصار لأطول run من 0000:0000:... المتتالية.'}
+        };
+        function ans(el,qid,correct){ const q=document.getElementById(qid); if(q.dataset.answered)return; q.dataset.answered='true'; q.querySelectorAll('.quiz-option').forEach(o=>o.style.pointerEvents='none'); el.classList.add(correct?'correct':'wrong'); const f=document.getElementById('fb-'+qid); f.textContent=correct?fb[qid].c:fb[qid].w; f.className='quiz-feedback show '+(correct?'correct-fb':'wrong-fb'); }
+    </script>
+</body>
+</html>

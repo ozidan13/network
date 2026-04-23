@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NAT & DHCP — الـ NAT والـ DHCP | Network Mastery</title>
+    <meta name="description" content="NAT Static, Dynamic, PAT, DHCP DORA process, interactive DHCP server simulator.">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&family=Inter:wght@400;500;600;700;800&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    <link href="../css/global-net.css" rel="stylesheet">
+    <style>
+        body{background:#020617;color:#E2E8F0;font-family:'Inter',sans-serif;}
+        .lesson-nav-bar{position:fixed;top:0;left:0;right:0;z-index:100;background:rgba(2,6,23,0.88);backdrop-filter:blur(20px);border-bottom:1px solid rgba(255,255,255,0.06);height:64px;display:flex;align-items:center;padding:0 1.5rem;}
+        .nav-inner{max-width:1280px;margin:0 auto;width:100%;display:flex;align-items:center;justify-content:space-between;}
+        .nav-brand{display:flex;align-items:center;gap:0.75rem;font-weight:700;}
+        .back-btn{width:36px;height:36px;border-radius:10px;background:linear-gradient(135deg,#10B981,#059669);display:flex;align-items:center;justify-content:center;color:white;font-size:0.85rem;transition:transform 0.3s;}
+        .back-btn:hover{transform:scale(1.1);}
+        .lesson-hero{position:relative;padding:8rem 1.5rem 5rem;text-align:center;overflow:hidden;}
+        .glow-orb{position:absolute;border-radius:50%;filter:blur(128px);pointer-events:none;}
+        .glow-orb-1{width:500px;height:500px;top:-10%;right:-5%;background:rgba(16,185,129,0.12);}
+        .glow-orb-2{width:400px;height:400px;bottom:-20%;left:-10%;background:rgba(245,158,11,0.06);}
+        .lesson-badge{display:inline-flex;align-items:center;gap:0.5rem;padding:0.35rem 1rem;border-radius:50px;background:rgba(30,41,59,0.6);border:1px solid rgba(255,255,255,0.08);font-family:'Fira Code',monospace;font-size:0.78rem;color:#34D399;margin-bottom:1.5rem;}
+        .dot{width:6px;height:6px;border-radius:50%;background:#10B981;animation:pulse-dot 2s ease infinite;}
+        .lesson-hero h1{font-size:clamp(2.5rem,5vw,4rem);font-weight:800;margin-bottom:1rem;}
+        .text-g{background:linear-gradient(135deg,#10B981,#FBBF24);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;}
+        .subtitle{font-family:'Cairo',sans-serif;font-size:1.6rem;font-weight:700;color:var(--text-muted);direction:rtl;margin-bottom:1.5rem;}
+        .desc{color:var(--text-faint);max-width:640px;margin:0 auto;font-size:1.05rem;font-family:'Cairo',sans-serif;direction:rtl;line-height:1.9;}
+        .lesson-bottom-nav{display:flex;justify-content:space-between;align-items:center;gap:1rem;padding:2rem 0;border-top:1px solid var(--border-subtle);margin-top:3rem;}
+        .lesson-bottom-nav a{display:flex;align-items:center;gap:0.5rem;padding:0.75rem 1.5rem;border-radius:12px;background:rgba(255,255,255,0.04);border:1px solid var(--border-subtle);transition:all 0.3s ease;font-weight:600;font-size:0.9rem;}
+        .lesson-bottom-nav a:hover{background:rgba(16,185,129,0.1);border-color:rgba(16,185,129,0.3);transform:translateY(-2px);}
+        /* NAT Table */
+        .nat-table{width:100%;border-collapse:collapse;font-size:0.78rem;direction:ltr;}
+        .nat-table th{background:rgba(16,185,129,0.1);color:#34D399;padding:0.4rem 0.6rem;border:1px solid rgba(16,185,129,0.15);font-family:'Fira Code';}
+        .nat-table td{padding:0.4rem 0.6rem;border:1px solid var(--border-subtle);font-family:'Fira Code';font-size:0.72rem;}
+        /* DHCP Steps */
+        .dhcp-step{display:flex;align-items:center;gap:1rem;padding:0.9rem;border-radius:10px;margin-bottom:0.5rem;transition:all 0.3s;}
+        .dhcp-step:hover{transform:translateX(-4px);}
+        .dhcp-badge{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:0.82rem;font-family:'Fira Code';flex-shrink:0;}
+        /* DHCP Sim */
+        .dhcp-device{background:rgba(15,23,42,0.8);border:1px solid var(--border-subtle);border-radius:10px;padding:0.75rem;font-family:'Fira Code',monospace;font-size:0.75rem;direction:ltr;transition:border-color 0.3s;}
+        .dhcp-device.active{border-color:#34D399;}
+    </style>
+</head>
+<body>
+    <nav class="lesson-nav-bar">
+        <div class="nav-inner">
+            <a href="../index.html" class="nav-brand">
+                <div class="back-btn"><i class="fas fa-arrow-left"></i></div>
+                <span>NAT<span style="color:#10B981;">&DHCP</span></span>
+            </a>
+        </div>
+    </nav>
+    <div class="progress-bar-container"><div class="progress-bar-fill" id="reading-progress" style="background:linear-gradient(90deg,#10B981,#FBBF24);"></div></div>
+
+    <header class="lesson-hero">
+        <div class="glow-orb glow-orb-1"></div><div class="glow-orb glow-orb-2"></div>
+        <div style="position:relative;z-index:1;">
+            <div class="lesson-badge" data-aos="fade-down"><span class="dot"></span>UNIT 5 • Lesson 6</div>
+            <h1 data-aos="fade-up" data-aos-delay="150">NAT &amp; <span class="text-g">DHCP</span></h1>
+            <div class="subtitle" data-aos="fade-up" data-aos-delay="300">سحر الـ IP الواحد وتوزيع العناوين</div>
+            <p class="desc" data-aos="fade-up" data-aos-delay="450">بيتك فيه 10 أجهزة — كلهم بيوصلوا الإنترنت بـ IP واحد بس. ده الـ NAT. وكل جهاز بياخد IP تلقائياً بدون ما تعمل أي حاجة — ده الـ DHCP.</p>
+        </div>
+    </header>
+
+    <!-- NAT Types -->
+    <section class="lesson-section">
+        <div class="section-header" data-aos="fade-up">
+            <h2><i class="fas fa-arrows-left-right" style="color:#34D399;margin-left:0.5rem;"></i> أنواع الـ NAT</h2>
+            <p class="en-sub">Static, Dynamic, PAT (Masquerade) — Three Flavors</p>
+        </div>
+        <div class="glass-card" style="padding:1.8rem;" data-aos="fade-up">
+            <div class="problem-grid" style="margin-bottom:1.5rem;">
+                <div style="background:rgba(59,130,246,0.06);border:1px solid rgba(59,130,246,0.15);border-radius:12px;padding:1rem;">
+                    <div style="color:#60A5FA;font-weight:700;font-family:'Fira Code';direction:ltr;margin-bottom:0.4rem;">Static NAT</div>
+                    <div class="rtl-block" style="font-size:0.82rem;color:var(--text-muted);">IP داخلي واحد ↔ IP خارجي واحد (ثابت). للـ Servers اللي محتاجة IP ثابت من الخارج.</div>
+                </div>
+                <div style="background:rgba(245,158,11,0.06);border:1px solid rgba(245,158,11,0.15);border-radius:12px;padding:1rem;">
+                    <div style="color:#FBBF24;font-weight:700;font-family:'Fira Code';direction:ltr;margin-bottom:0.4rem;">Dynamic NAT</div>
+                    <div class="rtl-block" style="font-size:0.82rem;color:var(--text-muted);">Pool من IPs الخارجية — كل جهاز بياخد واحد عند الحاجة. لما ينتهي الـ Pool → Connection failed.</div>
+                </div>
+                <div style="background:rgba(16,185,129,0.06);border:1px solid rgba(16,185,129,0.15);border-radius:12px;padding:1rem;" style="grid-column:span 2;">
+                    <div style="color:#34D399;font-weight:700;font-family:'Fira Code';direction:ltr;margin-bottom:0.4rem;">PAT (Port Address Translation) / NAT Overload</div>
+                    <div class="rtl-block" style="font-size:0.82rem;color:var(--text-muted);">الأشيع! كل الأجهزة الداخلية بيشتركوا في IP خارجي واحد — مع Ports مختلفة للتمييز. الراوتر بيتتبع كل connection بـ (Inside IP:Port ↔ Outside IP:Port).</div>
+                </div>
+            </div>
+            <!-- PAT Table -->
+            <div class="rtl-block" style="font-size:0.85rem;color:#CBD5E1;margin-bottom:0.6rem;"><strong>PAT Translation Table (Router بيتاعك):</strong></div>
+            <div style="overflow-x:auto;">
+                <table class="nat-table">
+                    <thead><tr><th>Inside Local IP:Port</th><th>Inside Global IP:Port</th><th>Outside Addr</th><th>Protocol</th></tr></thead>
+                    <tbody>
+                        <tr><td>192.168.1.2:52341</td><td>203.0.113.1:10001</td><td>8.8.8.8:443</td><td>TCP</td></tr>
+                        <tr><td>192.168.1.3:44322</td><td>203.0.113.1:10002</td><td>8.8.8.8:443</td><td>TCP</td></tr>
+                        <tr><td>192.168.1.5:35111</td><td>203.0.113.1:10003</td><td>1.1.1.1:53</td><td>UDP</td></tr>
+                        <tr><td>192.168.1.2:51000</td><td>203.0.113.1:10004</td><td>142.250.x.x:443</td><td>TCP</td></tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="rtl-block" style="margin-top:0.5rem;font-size:0.78rem;color:#64748B;">IP الخارجي الوحيد: 203.0.113.1 — يخدم 4 connections مختلفة في نفس الوقت بـ Ports مختلفة.</div>
+        </div>
+    </section>
+
+    <!-- DHCP DORA -->
+    <section class="lesson-section alt-bg">
+        <div class="section-inner">
+            <div class="section-header" data-aos="fade-up">
+                <h2><i class="fas fa-hand-holding-heart" style="color:#FBBF24;margin-left:0.5rem;"></i> DHCP — عملية DORA</h2>
+                <p class="en-sub">Discover → Offer → Request → Acknowledge</p>
+            </div>
+            <div class="glass-card" style="padding:1.8rem;" data-aos="fade-up">
+                <div class="dhcp-step" style="background:rgba(59,130,246,0.06);border:1px solid rgba(59,130,246,0.15);">
+                    <div class="dhcp-badge" style="background:rgba(59,130,246,0.2);color:#60A5FA;">D</div>
+                    <div>
+                        <div style="font-weight:700;color:#60A5FA;font-family:'Fira Code';direction:ltr;">DISCOVER</div>
+                        <div class="rtl-block" style="font-size:0.82rem;color:#94A3B8;">العميل بيبعت Broadcast: "محتاج IP — في Server هنا؟" (Src: 0.0.0.0 → Dst: 255.255.255.255)</div>
+                    </div>
+                </div>
+                <div class="dhcp-step" style="background:rgba(16,185,129,0.06);border:1px solid rgba(16,185,129,0.15);">
+                    <div class="dhcp-badge" style="background:rgba(16,185,129,0.2);color:#34D399;">O</div>
+                    <div>
+                        <div style="font-weight:700;color:#34D399;font-family:'Fira Code';direction:ltr;">OFFER</div>
+                        <div class="rtl-block" style="font-size:0.82rem;color:#94A3B8;">الـ Server بيرد: "اتفضل IP: 192.168.1.10 — Lease: 24 ساعة — Gateway: 192.168.1.1"</div>
+                    </div>
+                </div>
+                <div class="dhcp-step" style="background:rgba(245,158,11,0.06);border:1px solid rgba(245,158,11,0.15);">
+                    <div class="dhcp-badge" style="background:rgba(245,158,11,0.2);color:#FBBF24;">R</div>
+                    <div>
+                        <div style="font-weight:700;color:#FBBF24;font-family:'Fira Code';direction:ltr;">REQUEST</div>
+                        <div class="rtl-block" style="font-size:0.82rem;color:#94A3B8;">العميل بيبعت Broadcast: "قبلت العرض من الـ Server ده" (عشان كمان يعلم باقي الـ Servers)</div>
+                    </div>
+                </div>
+                <div class="dhcp-step" style="background:rgba(139,92,246,0.06);border:1px solid rgba(139,92,246,0.15);">
+                    <div class="dhcp-badge" style="background:rgba(139,92,246,0.2);color:#A78BFA;">A</div>
+                    <div>
+                        <div style="font-weight:700;color:#A78BFA;font-family:'Fira Code';direction:ltr;">ACKNOWLEDGE</div>
+                        <div class="rtl-block" style="font-size:0.82rem;color:#94A3B8;">الـ Server: "مظبوط! الـ IP بتاعك لمدة 24h — DNS: 8.8.8.8، Subnet: 255.255.255.0" ✅</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- DHCP Simulator -->
+            <div class="glass-card" style="padding:1.5rem;margin-top:1rem;" data-aos="fade-up">
+                <div class="section-header" style="margin-bottom:0.75rem;"><h3 style="font-size:1rem;"><i class="fas fa-play-circle" style="color:#34D399;margin-left:0.5rem;"></i> محاكي DHCP</h3></div>
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.75rem;margin-bottom:0.75rem;">
+                    <div class="dhcp-device" id="d-client">
+                        <div style="color:#60A5FA;font-weight:700;margin-bottom:0.3rem;">CLIENT PC</div>
+                        <div id="client-ip" style="color:#94A3B8;">IP: —</div>
+                        <div id="client-gw" style="color:#94A3B8;">GW: —</div>
+                        <div id="client-dns" style="color:#94A3B8;">DNS: —</div>
+                    </div>
+                    <div class="dhcp-device" id="d-server">
+                        <div style="color:#34D399;font-weight:700;margin-bottom:0.3rem;">DHCP SERVER</div>
+                        <div style="color:#94A3B8;">Pool: 192.168.1.10-50</div>
+                        <div id="server-leases" style="color:#94A3B8;">Leases: 0</div>
+                    </div>
+                </div>
+                <button onclick="runDHCP()" id="dhcp-btn" style="width:100%;padding:0.5rem;border-radius:8px;background:rgba(16,185,129,0.15);border:1px solid rgba(16,185,129,0.3);color:#34D399;font-family:'Cairo',sans-serif;cursor:pointer;transition:all 0.3s;">▶ تشغيل DORA</button>
+                <div id="dhcp-msg" style="font-family:'Cairo',sans-serif;direction:rtl;font-size:0.82rem;color:#94A3B8;margin-top:0.5rem;min-height:20px;"></div>
+            </div>
+        </div>
+    </section>
+
+    <section class="lesson-section" id="quiz">
+        <div class="section-header" data-aos="fade-up">
+            <h2><i class="fas fa-brain" style="color:#10B981;margin-left:0.5rem;"></i> اختبر نفسك</h2>
+        </div>
+        <div class="quiz-container" data-aos="fade-up">
+            <div class="quiz-question" id="q1">
+                <h4>ليه PAT أشيع من Dynamic NAT؟</h4>
+                <div class="quiz-options">
+                    <div class="quiz-option" onclick="ans(this,'q1',false)">لأنه أسرع</div>
+                    <div class="quiz-option" onclick="ans(this,'q1',true)">لأن PAT بيخلي أي عدد من الأجهزة يشتركوا في IP واحد بدل Pool من IPs</div>
+                    <div class="quiz-option" onclick="ans(this,'q1',false)">لأنه أكثر أماناً</div>
+                    <div class="quiz-option" onclick="ans(this,'q1',false)">لأنه مجاني</div>
+                </div>
+                <div class="quiz-feedback" id="fb-q1"></div>
+            </div>
+            <div class="quiz-question" id="q2">
+                <h4>DHCP Discover بيُبعت كـ؟</h4>
+                <div class="quiz-options">
+                    <div class="quiz-option" onclick="ans(this,'q2',false)">Unicast للـ Server المعروف</div>
+                    <div class="quiz-option" onclick="ans(this,'q2',true)">Broadcast (255.255.255.255) لأن Client ما يعرفش عنوان الـ Server</div>
+                    <div class="quiz-option" onclick="ans(this,'q2',false)">Multicast</div>
+                    <div class="quiz-option" onclick="ans(this,'q2',false)">Loop back</div>
+                </div>
+                <div class="quiz-feedback" id="fb-q2"></div>
+            </div>
+        </div>
+    </section>
+
+    <section class="lesson-section">
+        <div class="glass-card" style="padding:2rem;text-align:center;border-color:rgba(16,185,129,0.3);margin-bottom:2rem;" data-aos="zoom-in">
+            <div style="font-size:3rem;margin-bottom:1rem;">🎓</div>
+            <h3 style="color:#34D399;font-family:'Cairo',sans-serif;">أنهيت الوحدة الخامسة!</h3>
+            <p class="rtl-block" style="color:#CBD5E1;margin:1rem 0;">Network Layer مكتملة: IP، Subnetting، IPv6، Routing، Protocols، NAT & DHCP — دلوقتي التراسبورت!</p>
+            <a href="../Unit6/tcp_udp.html" style="display:inline-flex;align-items:center;gap:0.75rem;padding:0.9rem 2rem;border-radius:14px;background:linear-gradient(135deg,#EF4444,#DC2626);color:white;font-weight:800;transition:all 0.3s;text-decoration:none;">
+                الوحدة السادسة: Transport Layer <i class="fas fa-arrow-right"></i>
+            </a>
+        </div>
+        <div class="lesson-bottom-nav">
+            <a href="routing_protocols.html"><i class="fas fa-arrow-left"></i><span>Routing Protocols</span></a>
+            <div style="text-align:center;color:var(--text-faint);font-size:0.85rem;">Unit 5 Complete ✅</div>
+            <a href="../Unit6/tcp_udp.html"><span>Unit 6 →</span><i class="fas fa-arrow-right"></i></a>
+        </div>
+    </section>
+
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <script>
+        AOS.init({duration:800,once:true,offset:100});
+        window.addEventListener('scroll',()=>{ document.getElementById('reading-progress').style.width=(window.scrollY/(document.documentElement.scrollHeight-window.innerHeight))*100+'%'; });
+
+        let leaseCount=0;
+        function runDHCP(){
+            const btn=document.getElementById('dhcp-btn'); btn.disabled=true; btn.style.opacity='0.5';
+            const steps=[
+                {delay:0,msg:'📡 DISCOVER: Client بيبعت Broadcast (255.255.255.255)...',color:'#60A5FA',client:true},
+                {delay:1200,msg:'🎁 OFFER: Server بيرد بـ IP: 192.168.1.'+(10+leaseCount)+' (Lease: 86400s)',color:'#34D399',server:true},
+                {delay:2400,msg:'✋ REQUEST: Client بيقبل الـ IP ويبلغ باقي الـ Servers...',color:'#FBBF24',client:true},
+                {delay:3600,msg:'✅ ACK: Server يأكد الـ Lease! IP مخصص.',color:'#A78BFA',server:true,done:true}
+            ];
+            steps.forEach(s=>{
+                setTimeout(()=>{
+                    document.getElementById('dhcp-msg').textContent=s.msg;
+                    document.getElementById('dhcp-msg').style.color=s.color;
+                    document.getElementById('d-client').classList.toggle('active',s.client===true);
+                    document.getElementById('d-server').classList.toggle('active',s.server===true);
+                    if(s.done){
+                        leaseCount++;
+                        const ip='192.168.1.'+(9+leaseCount);
+                        document.getElementById('client-ip').textContent='IP: '+ip; document.getElementById('client-ip').style.color='#34D399';
+                        document.getElementById('client-gw').textContent='GW: 192.168.1.1'; document.getElementById('client-gw').style.color='#34D399';
+                        document.getElementById('client-dns').textContent='DNS: 8.8.8.8'; document.getElementById('client-dns').style.color='#34D399';
+                        document.getElementById('server-leases').textContent='Leases: '+leaseCount; document.getElementById('server-leases').style.color='#34D399';
+                        btn.disabled=false; btn.style.opacity='1'; btn.textContent='▶ تكرار لجهاز آخر';
+                    }
+                },s.delay);
+            });
+        }
+
+        const fb={
+            q1:{c:'✅ صح! PAT يشغل آلاف الأجهزة بـ IP خارجي واحد. Dynamic NAT يحتاج Pool من IPs.',w:'❌ غلط! PAT = Port Address Translation — يسمح لأي عدد من الأجهزة باستخدام IP خارجي واحد عبر Ports مختلفة.'},
+            q2:{c:'✅ صح! DHCP Discover = Broadcast عشان الـ Client ما يعرفش عنوان الـ Server.',w:'❌ غلط! DHCP Discover = Broadcast (0.0.0.0 → 255.255.255.255). البداية الـ Client ما عندوش IP أو يعرف الـ Server.'}
+        };
+        function ans(el,qid,correct){ const q=document.getElementById(qid); if(q.dataset.answered)return; q.dataset.answered='true'; q.querySelectorAll('.quiz-option').forEach(o=>o.style.pointerEvents='none'); el.classList.add(correct?'correct':'wrong'); const f=document.getElementById('fb-'+qid); f.textContent=correct?fb[qid].c:fb[qid].w; f.className='quiz-feedback show '+(correct?'correct-fb':'wrong-fb'); }
+    </script>
+</body>
+</html>

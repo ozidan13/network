@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Switches & VLANs | Network Mastery</title>
+    <meta name="description" content="كيف الـ Switch يعمل، الـ MAC Table، وإزاي الـ VLAN بتقسم الشبكة منطقياً.">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&family=Inter:wght@400;500;600;700;800&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    <link href="../css/global-net.css" rel="stylesheet">
+    <style>
+        body{background:#020617;color:#E2E8F0;font-family:'Inter',sans-serif;}
+        .lesson-nav-bar{position:fixed;top:0;left:0;right:0;z-index:100;background:rgba(2,6,23,0.88);backdrop-filter:blur(20px);border-bottom:1px solid rgba(255,255,255,0.06);height:64px;display:flex;align-items:center;padding:0 1.5rem;}
+        .nav-inner{max-width:1280px;margin:0 auto;width:100%;display:flex;align-items:center;justify-content:space-between;}
+        .nav-brand{display:flex;align-items:center;gap:0.75rem;font-weight:700;}
+        .back-btn{width:36px;height:36px;border-radius:10px;background:linear-gradient(135deg,#F59E0B,#D97706);display:flex;align-items:center;justify-content:center;color:white;font-size:0.85rem;transition:transform 0.3s;}
+        .back-btn:hover{transform:scale(1.1);}
+        .lesson-hero{position:relative;padding:8rem 1.5rem 5rem;text-align:center;overflow:hidden;}
+        .glow-orb{position:absolute;border-radius:50%;filter:blur(128px);pointer-events:none;}
+        .glow-orb-1{width:500px;height:500px;top:-10%;right:-5%;background:rgba(245,158,11,0.12);}
+        .glow-orb-2{width:400px;height:400px;bottom:-20%;left:-10%;background:rgba(251,191,36,0.06);}
+        .lesson-badge{display:inline-flex;align-items:center;gap:0.5rem;padding:0.35rem 1rem;border-radius:50px;background:rgba(30,41,59,0.6);border:1px solid rgba(255,255,255,0.08);font-family:'Fira Code',monospace;font-size:0.78rem;color:#FBBF24;margin-bottom:1.5rem;}
+        .dot{width:6px;height:6px;border-radius:50%;background:#F59E0B;animation:pulse-dot 2s ease infinite;}
+        .lesson-hero h1{font-size:clamp(2.5rem,5vw,4rem);font-weight:800;margin-bottom:1rem;}
+        .text-g{background:linear-gradient(135deg,#F59E0B,#FBBF24);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;}
+        .subtitle{font-family:'Cairo',sans-serif;font-size:1.6rem;font-weight:700;color:var(--text-muted);direction:rtl;margin-bottom:1.5rem;}
+        .desc{color:var(--text-faint);max-width:640px;margin:0 auto;font-size:1.05rem;font-family:'Cairo',sans-serif;direction:rtl;line-height:1.9;}
+
+        /* MAC Table */
+        .mac-table{width:100%;border-collapse:collapse;font-size:0.85rem;margin:1rem 0;direction:ltr;}
+        .mac-table th{background:rgba(245,158,11,0.1);color:#FBBF24;padding:0.6rem 0.8rem;text-align:left;border:1px solid rgba(245,158,11,0.2);font-family:'Fira Code',monospace;}
+        .mac-table td{padding:0.6rem 0.8rem;border:1px solid var(--border-subtle);font-family:'Fira Code',monospace;font-size:0.78rem;}
+        .mac-table tr:hover{background:rgba(255,255,255,0.02);}
+        .mac-table tr.highlight td{background:rgba(245,158,11,0.1);color:#FBBF24;}
+
+        /* VLAN Visual */
+        .vlan-viz{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin:1.5rem 0;}
+        .vlan-group{border-radius:14px;padding:1.2rem;}
+        .vlan-group h5{font-family:'Fira Code',monospace;font-size:0.85rem;font-weight:700;margin-bottom:0.75rem;direction:ltr;}
+        .vlan-device{display:flex;align-items:center;gap:0.5rem;padding:0.4rem 0.5rem;border-radius:8px;font-size:0.78rem;margin-bottom:0.3rem;}
+
+        /* Switch vs Hub */
+        .hvs{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin:1.5rem 0;}
+        .hvs-card{border-radius:14px;padding:1.2rem;}
+        .hvs-card h4{font-family:'Fira Code',monospace;font-size:0.95rem;font-weight:900;margin-bottom:0.75rem;direction:ltr;}
+
+        .lesson-bottom-nav{display:flex;justify-content:space-between;align-items:center;gap:1rem;padding:2rem 0;border-top:1px solid var(--border-subtle);margin-top:3rem;}
+        .lesson-bottom-nav a{display:flex;align-items:center;gap:0.5rem;padding:0.75rem 1.5rem;border-radius:12px;background:rgba(255,255,255,0.04);border:1px solid var(--border-subtle);transition:all 0.3s ease;font-weight:600;font-size:0.9rem;}
+        .lesson-bottom-nav a:hover{background:rgba(245,158,11,0.1);border-color:rgba(245,158,11,0.3);transform:translateY(-2px);}
+    </style>
+</head>
+<body>
+    <nav class="lesson-nav-bar">
+        <div class="nav-inner">
+            <a href="../index.html" class="nav-brand">
+                <div class="back-btn"><i class="fas fa-arrow-left"></i></div>
+                <span>Switch<span style="color:#F59E0B;">+VLAN</span></span>
+            </a>
+        </div>
+    </nav>
+    <div class="progress-bar-container"><div class="progress-bar-fill" id="reading-progress" style="background:linear-gradient(90deg,#F59E0B,#FBBF24);"></div></div>
+
+    <header class="lesson-hero">
+        <div class="glow-orb glow-orb-1"></div><div class="glow-orb glow-orb-2"></div>
+        <div style="position:relative;z-index:1;">
+            <div class="lesson-badge" data-aos="fade-down"><span class="dot"></span>UNIT 4 • Lesson 2</div>
+            <h1 data-aos="fade-up" data-aos-delay="150">Switches &amp; <span class="text-g">VLANs</span></h1>
+            <div class="subtitle" data-aos="fade-up" data-aos-delay="300">المحولات والشبكات الافتراضية</div>
+            <p class="desc" data-aos="fade-up" data-aos-delay="450">الـ Switch مش بس Hub ذكي — هو الجهاز اللي بيخلي الشبكة تتنظم وتتأمن. والـ VLAN بيخليك تعمل 10 شبكات من كابل واحد.</p>
+        </div>
+    </header>
+
+    <!-- Switch vs Hub -->
+    <section class="lesson-section">
+        <div class="section-header" data-aos="fade-up">
+            <h2><i class="fas fa-scale-balanced" style="color:#F59E0B;margin-left:0.5rem;"></i> Hub ضد Switch</h2>
+            <p class="en-sub">Why Switches Replaced Hubs Completely</p>
+        </div>
+        <div class="hvs" data-aos="fade-up">
+            <div class="hvs-card" style="background:rgba(239,68,68,0.05);border:1px solid rgba(239,68,68,0.2);">
+                <h4 style="color:#F87171;">🔴 Hub (قديم)</h4>
+                <div class="rtl-block" style="font-size:0.85rem;color:var(--text-muted);">
+                    <div class="cost-item">❌ بيبعت لكل الـ Ports</div>
+                    <div class="cost-item">❌ Half Duplex فقط</div>
+                    <div class="cost-item">❌ كل الأجهزة في Collision Domain واحد</div>
+                    <div class="cost-item">❌ Layer 1 فقط (لا يعرف MAC)</div>
+                    <div class="cost-item">❌ Bandwidth بيتقسم على الكل</div>
+                </div>
+            </div>
+            <div class="hvs-card" style="background:rgba(16,185,129,0.05);border:1px solid rgba(16,185,129,0.2);">
+                <h4 style="color:#34D399;">✅ Switch (الحالي)</h4>
+                <div class="rtl-block" style="font-size:0.85rem;color:var(--text-muted);">
+                    <div class="cost-item">✅ بيبعت للـ Port الصح بس</div>
+                    <div class="cost-item">✅ Full Duplex</div>
+                    <div class="cost-item">✅ كل Port = Collision Domain منفصل</div>
+                    <div class="cost-item">✅ Layer 2 — يحفظ MAC Table</div>
+                    <div class="cost-item">✅ Bandwidth لكل جهاز كامل</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- MAC Address Table -->
+    <section class="lesson-section alt-bg">
+        <div class="section-inner">
+            <div class="section-header" data-aos="fade-up">
+                <h2><i class="fas fa-table" style="color:#FBBF24;margin-left:0.5rem;"></i> الـ MAC Address Table</h2>
+                <p class="en-sub">The Switch's Memory — How It Learns Where Devices Are</p>
+            </div>
+            <div class="glass-card" style="padding:1.8rem;" data-aos="fade-up">
+                <div class="rtl-block" style="margin-bottom:1.5rem;">
+                    <p style="color:#CBD5E1;font-size:0.98rem;line-height:1.8;">الـ Switch بيبني جدول MAC تلقائياً. كل ما وصله Frame — بيحفظ MAC المرسل مع رقم الـ Port اللي جه منه. بالشكل ده — إيه ما جاه تاني هيعرف يبعته للـ Port الصح.</p>
+                </div>
+                <table class="mac-table">
+                    <thead><tr><th>MAC Address</th><th>Port</th><th>VLAN</th><th>Age (sec)</th></tr></thead>
+                    <tbody id="mac-tbody">
+                        <tr><td>AA:BB:CC:11:22:33</td><td>Fa0/1</td><td>10</td><td>45</td></tr>
+                        <tr><td>AA:BB:CC:44:55:66</td><td>Fa0/2</td><td>10</td><td>120</td></tr>
+                        <tr><td>AA:BB:CC:77:88:99</td><td>Fa0/5</td><td>20</td><td>30</td></tr>
+                        <tr class="highlight"><td>AA:BB:CC:AA:BB:CC</td><td>Fa0/8</td><td>20</td><td>5</td></tr>
+                    </tbody>
+                </table>
+                <div class="rtl-block" style="color:#94A3B8;font-size:0.85rem;margin-top:0.75rem;">
+                    <p>⏱️ كل Entry بتنتهي بعد 300 ثانية (5 دقائق) من غير نشاط — Aging Timer. لو الجهاز نشط هتتجدد.</p>
+                </div>
+                <div style="display:flex;gap:0.75rem;flex-wrap:wrap;margin-top:1rem;">
+                    <button onclick="learnMAC()" style="padding:0.5rem 1rem;border-radius:8px;background:rgba(245,158,11,0.15);border:1px solid rgba(245,158,11,0.3);color:#FBBF24;font-family:'Cairo',sans-serif;font-size:0.85rem;cursor:pointer;transition:all 0.3s;">+ تعلّم MAC جديد</button>
+                    <button onclick="floodFrame()" style="padding:0.5rem 1rem;border-radius:8px;background:rgba(59,130,246,0.15);border:1px solid rgba(59,130,246,0.3);color:#60A5FA;font-family:'Cairo',sans-serif;font-size:0.85rem;cursor:pointer;transition:all 0.3s;">Flood Frame (Unknown MAC)</button>
+                </div>
+                <div id="mac-msg" style="margin-top:0.75rem;font-family:'Cairo',sans-serif;direction:rtl;font-size:0.85rem;color:#22D3EE;display:none;"></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- VLANs -->
+    <section class="lesson-section">
+        <div class="section-header" data-aos="fade-up">
+            <h2><i class="fas fa-object-group" style="color:#A78BFA;margin-left:0.5rem;"></i> VLAN — شبكات افتراضية</h2>
+            <p class="en-sub">Virtual LAN — Logical Segmentation on a Physical Network</p>
+        </div>
+        <div class="glass-card" style="padding:1.8rem;" data-aos="fade-up">
+            <div class="rtl-block" style="margin-bottom:1.5rem;">
+                <p style="color:#CBD5E1;font-size:0.98rem;line-height:1.8;">بدون VLANs — كل الأجهزة على الـ Switch في نفس الشبكة. النتيجة: الـ Broadcast بيوصل للكل، والأمان صفر. الـ VLAN بيقسّم الـ Switch لـ "شناشيل افتراضية" مستقلة.</p>
+            </div>
+
+            <!-- VLAN Visual -->
+            <div class="vlan-viz">
+                <div class="vlan-group" style="background:rgba(59,130,246,0.06);border:1px solid rgba(59,130,246,0.2);">
+                    <h5 style="color:#60A5FA;">VLAN 10 — IT Dept</h5>
+                    <div class="vlan-device" style="background:rgba(59,130,246,0.1);color:#93C5FD;"><span>🖥️</span><span style="font-family:'Fira Code';direction:ltr;">PC1 (Port 1)</span></div>
+                    <div class="vlan-device" style="background:rgba(59,130,246,0.1);color:#93C5FD;"><span>🖥️</span><span style="font-family:'Fira Code';direction:ltr;">PC2 (Port 2)</span></div>
+                    <div class="vlan-device" style="background:rgba(59,130,246,0.1);color:#93C5FD;"><span>🖨️</span><span style="font-family:'Fira Code';direction:ltr;">Printer (Port 4)</span></div>
+                </div>
+                <div class="vlan-group" style="background:rgba(16,185,129,0.06);border:1px solid rgba(16,185,129,0.2);">
+                    <h5 style="color:#34D399;">VLAN 20 — HR Dept</h5>
+                    <div class="vlan-device" style="background:rgba(16,185,129,0.1);color:#6EE7B7;"><span>🖥️</span><span style="font-family:'Fira Code';direction:ltr;">PC3 (Port 5)</span></div>
+                    <div class="vlan-device" style="background:rgba(16,185,129,0.1);color:#6EE7B7;"><span>🖥️</span><span style="font-family:'Fira Code';direction:ltr;">PC4 (Port 6)</span></div>
+                    <div class="vlan-device" style="background:rgba(16,185,129,0.1);color:#6EE7B7;"><span>📡</span><span style="font-family:'Fira Code';direction:ltr;">WAP (Port 8)</span></div>
+                </div>
+                <div class="vlan-group" style="background:rgba(245,158,11,0.06);border:1px solid rgba(245,158,11,0.2);">
+                    <h5 style="color:#FBBF24;">VLAN 30 — Finance</h5>
+                    <div class="vlan-device" style="background:rgba(245,158,11,0.1);color:#FDE68A;"><span>🖥️</span><span style="font-family:'Fira Code';direction:ltr;">PC5 (Port 9)</span></div>
+                    <div class="vlan-device" style="background:rgba(245,158,11,0.1);color:#FDE68A;"><span>💾</span><span style="font-family:'Fira Code';direction:ltr;">Server (Port 12)</span></div>
+                </div>
+                <div class="vlan-group" style="background:rgba(139,92,246,0.06);border:1px solid rgba(139,92,246,0.2);">
+                    <h5 style="color:#A78BFA;">Trunk Port</h5>
+                    <div class="vlan-device" style="background:rgba(139,92,246,0.1);color:#C4B5FD;"><span>🔀</span><span class="rtl-block" style="font-size:0.8rem;">Port 24 يحمل كل الـ VLANs للـ Router</span></div>
+                    <div class="rtl-block" style="font-size:0.78rem;color:var(--text-ghost);margin-top:0.5rem;">IEEE 802.1Q Tagging</div>
+                </div>
+            </div>
+
+            <div class="info-box">
+                <div class="rtl-block" style="font-size:0.9rem;">
+                    💡 <strong>Inter-VLAN Routing:</strong> الأجهزة في VLANs مختلفة ما تقدرش تتكلم مع بعض بدون Router (أو Layer 3 Switch). ده مقصود — للأمان.
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Quiz -->
+    <section class="lesson-section alt-bg" id="quiz">
+        <div class="section-inner">
+            <div class="section-header" data-aos="fade-up">
+                <h2><i class="fas fa-brain" style="color:#F59E0B;margin-left:0.5rem;"></i> اختبر نفسك</h2>
+            </div>
+            <div class="quiz-container" data-aos="fade-up">
+                <div class="quiz-question" id="q1">
+                    <h4>الـ Switch بعت Frame لـ MAC مش موجود في جدوله — هيعمل إيه؟</h4>
+                    <div class="quiz-options">
+                        <div class="quiz-option" onclick="ans(this,'q1',false)">يحذفه</div>
+                        <div class="quiz-option" onclick="ans(this,'q1',true)">Flood — يبعته على كل الـ Ports عدا اللي جه منه</div>
+                        <div class="quiz-option" onclick="ans(this,'q1',false)">يبعته لأول Port</div>
+                        <div class="quiz-option" onclick="ans(this,'q1',false)">يطلب ARP</div>
+                    </div>
+                    <div class="quiz-feedback" id="fb-q1"></div>
+                </div>
+                <div class="quiz-question" id="q2">
+                    <h4>PC في VLAN 10 عايز يتكلم مع PC في VLAN 20 — محتاج إيه؟</h4>
+                    <div class="quiz-options">
+                        <div class="quiz-option" onclick="ans(this,'q2',false)">كابل جديد</div>
+                        <div class="quiz-option" onclick="ans(this,'q2',true)">Router أو Layer 3 Switch لعمل Inter-VLAN Routing</div>
+                        <div class="quiz-option" onclick="ans(this,'q2',false)">إضافة MAC للجدول</div>
+                        <div class="quiz-option" onclick="ans(this,'q2',false)">زيادة الـ VLANs</div>
+                    </div>
+                    <div class="quiz-feedback" id="fb-q2"></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="lesson-section">
+        <div class="lesson-bottom-nav">
+            <a href="ethernet_basics.html"><i class="fas fa-arrow-left"></i><span>Ethernet</span></a>
+            <div style="text-align:center;color:var(--text-faint);font-size:0.85rem;">Unit 4 • Lesson 2</div>
+            <a href="error_detection.html"><span>Error Detection</span><i class="fas fa-arrow-right"></i></a>
+        </div>
+    </section>
+
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <script>
+        AOS.init({duration:800,once:true,offset:100});
+        window.addEventListener('scroll',()=>{ document.getElementById('reading-progress').style.width=(window.scrollY/(document.documentElement.scrollHeight-window.innerHeight))*100+'%'; });
+
+        const macs=['DD:EE:FF:11:22:33','11:22:33:44:55:66','FF:EE:DD:CC:BB:AA'];
+        const ports=['Fa0/3','Fa0/10','Fa0/14'];
+        const vlans=['10','20','20'];
+        let macIdx=0;
+        function learnMAC(){
+            if(macIdx>=macs.length){showMsg('ℹ️ الجدول امتلأ — في الواقع الـ Switch عنده سعة أكبر!','#FBBF24');return;}
+            const tb=document.getElementById('mac-tbody');
+            const tr=document.createElement('tr');
+            tr.className='highlight';
+            tr.innerHTML=`<td>${macs[macIdx]}</td><td>${ports[macIdx]}</td><td>${vlans[macIdx]}</td><td>1</td>`;
+            tb.appendChild(tr);
+            showMsg(`✅ الـ Switch تعلّم MAC جديد من Port ${ports[macIdx]} — أضافه للجدول!`,'#34D399');
+            macIdx++;
+        }
+        function floodFrame(){
+            showMsg('📡 MAC مجهول! الـ Switch بـ Flood الـ Frame لكل الـ Ports عدا اللي جه منه — عشان يلاقي الجهاز.','#60A5FA');
+        }
+        function showMsg(msg,color){
+            const m=document.getElementById('mac-msg');
+            m.style.display='block'; m.style.color=color; m.textContent=msg;
+            setTimeout(()=>m.style.display='none',4000);
+        }
+
+        const fb={
+            q1:{c:'✅ صح! Unknown Unicast → Flood. الـ Switch بيبعته لكل الـ Ports — لما الجهاز يرد، بيحفظ MAC-Port في الجدول.',w:'❌ غلط! Flooding = الحل. الـ Switch بيبعته لكل الـ Ports عشان يلاقي الجهاز.'},
+            q2:{c:'✅ صح! الـ VLANs عازلة — محتاج Router أو L3 Switch لـ Inter-VLAN Routing.',w:'❌ غلط! الـ VLANs Design يمنع الاتصال المباشر — محتاج Router أو Layer 3 Switch.'}
+        };
+        function ans(el,qid,correct){ const q=document.getElementById(qid); if(q.dataset.answered)return; q.dataset.answered='true'; q.querySelectorAll('.quiz-option').forEach(o=>o.style.pointerEvents='none'); el.classList.add(correct?'correct':'wrong'); const f=document.getElementById('fb-'+qid); f.textContent=correct?fb[qid].c:fb[qid].w; f.className='quiz-feedback show '+(correct?'correct-fb':'wrong-fb'); }
+    </script>
+</body>
+</html>

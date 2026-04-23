@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VPN & Tunneling — الشبكات الافتراضية الخاصة | Network Mastery</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&family=Inter:wght@400;500;600;700;800&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    <link href="../css/global-net.css" rel="stylesheet">
+    <style>
+        body{background:#020617;color:#E2E8F0;font-family:'Inter',sans-serif;}
+        .lesson-nav-bar{position:fixed;top:0;left:0;right:0;z-index:100;background:rgba(2,6,23,0.88);backdrop-filter:blur(20px);border-bottom:1px solid rgba(255,255,255,0.06);height:64px;display:flex;align-items:center;padding:0 1.5rem;}
+        .nav-inner{max-width:1280px;margin:0 auto;width:100%;display:flex;align-items:center;justify-content:space-between;}
+        .nav-brand{display:flex;align-items:center;gap:0.75rem;font-weight:700;}
+        .back-btn{width:36px;height:36px;border-radius:10px;background:linear-gradient(135deg,#EC4899,#DB2777);display:flex;align-items:center;justify-content:center;color:white;font-size:0.85rem;transition:transform 0.3s;}
+        .lesson-hero{position:relative;padding:8rem 1.5rem 5rem;text-align:center;overflow:hidden;}
+        .glow-orb{position:absolute;border-radius:50%;filter:blur(128px);pointer-events:none;}
+        .glow-orb-1{width:500px;height:500px;top:-10%;right:-5%;background:rgba(236,72,153,0.12);}
+        .lesson-badge{display:inline-flex;align-items:center;gap:0.5rem;padding:0.35rem 1rem;border-radius:50px;background:rgba(30,41,59,0.6);border:1px solid rgba(255,255,255,0.08);font-family:'Fira Code',monospace;font-size:0.78rem;color:#F472B6;margin-bottom:1.5rem;}
+        .dot{width:6px;height:6px;border-radius:50%;background:#EC4899;animation:pulse-dot 2s ease infinite;}
+        .lesson-hero h1{font-size:clamp(2.5rem,5vw,4rem);font-weight:800;margin-bottom:1rem;}
+        .text-g{background:linear-gradient(135deg,#EC4899,#8B5CF6);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;}
+        .subtitle{font-family:'Cairo',sans-serif;font-size:1.6rem;font-weight:700;color:var(--text-muted);direction:rtl;margin-bottom:1.5rem;}
+        .desc{color:var(--text-faint);max-width:640px;margin:0 auto;font-size:1.05rem;font-family:'Cairo',sans-serif;direction:rtl;line-height:1.9;}
+        .lesson-bottom-nav{display:flex;justify-content:space-between;align-items:center;gap:1rem;padding:2rem 0;border-top:1px solid var(--border-subtle);margin-top:3rem;}
+        .lesson-bottom-nav a{display:flex;align-items:center;gap:0.5rem;padding:0.75rem 1.5rem;border-radius:12px;background:rgba(255,255,255,0.04);border:1px solid var(--border-subtle);transition:all 0.3s ease;font-weight:600;font-size:0.9rem;}
+        .lesson-bottom-nav a:hover{background:rgba(236,72,153,0.1);border-color:rgba(236,72,153,0.3);transform:translateY(-2px);}
+    </style>
+</head>
+<body>
+    <nav class="lesson-nav-bar"><div class="nav-inner"><a href="../index.html" class="nav-brand"><div class="back-btn"><i class="fas fa-arrow-left"></i></div><span>VPN<span style="color:#EC4899;">&Tunnel</span></span></a></div></nav>
+    <div class="progress-bar-container"><div class="progress-bar-fill" id="reading-progress" style="background:linear-gradient(90deg,#EC4899,#8B5CF6);"></div></div>
+    <header class="lesson-hero">
+        <div class="glow-orb glow-orb-1"></div>
+        <div style="position:relative;z-index:1;">
+            <div class="lesson-badge" data-aos="fade-down"><span class="dot"></span>UNIT 8 • Lesson 4</div>
+            <h1 data-aos="fade-up" data-aos-delay="150">VPN &amp; <span class="text-g">Tunneling</span></h1>
+            <div class="subtitle" data-aos="fade-up" data-aos-delay="300">الشبكات الافتراضية الخاصة</div>
+            <p class="desc" data-aos="fade-up" data-aos-delay="450">VPN بيخلق "نفق" مشفر عبر الإنترنت العام. موظف في البيت بيتصل بـ VPN → زي ما هو جالس في مكتبه بالظبط.</p>
+        </div>
+    </header>
+
+    <section class="lesson-section">
+        <div class="section-header" data-aos="fade-up"><h2><i class="fas fa-lock" style="color:#F472B6;margin-left:0.5rem;"></i> كيف VPN بيشتغل</h2><p class="en-sub">Encapsulation Inside an Encrypted Tunnel</p></div>
+        <div class="glass-card" style="padding:1.8rem;" data-aos="fade-up">
+            <div style="direction:ltr;font-family:'Fira Code';font-size:0.78rem;background:rgba(0,0,0,0.3);border-radius:10px;padding:1rem;margin-bottom:1rem;">
+                <div style="color:#94A3B8;">Original Packet:</div>
+                <div style="margin:0.3rem 0;padding:0.4rem;background:rgba(59,130,246,0.1);border-radius:6px;color:#60A5FA;">[ IP Header: 10.0.0.1→192.168.5.10 | TCP:80 | Data: GET /secret ]</div>
+                <div style="color:#94A3B8;margin-top:0.5rem;">After VPN Encapsulation:</div>
+                <div style="margin:0.3rem 0;padding:0.4rem;background:rgba(236,72,153,0.1);border-radius:6px;color:#F472B6;">[ Outer IP: 1.2.3.4→5.6.7.8 | ESP Header | 🔒 ENCRYPTED: [ Inner IP+TCP+Data ] ]</div>
+            </div>
+            <div class="rtl-block" style="color:#CBD5E1;font-size:0.95rem;line-height:1.8;"><p>الـ ISP بيشوف بس الـ Outer IP (VPN Server IP) + بيانات مشفرة. ما يعرفش مين بتكلم أو إيه بقوله.</p></div>
+        </div>
+    </section>
+
+    <section class="lesson-section alt-bg">
+        <div class="section-inner">
+            <div class="section-header" data-aos="fade-up"><h2><i class="fas fa-code-branch" style="color:#8B5CF6;margin-left:0.5rem;"></i> أنواع VPN</h2></div>
+            <div class="problem-grid" data-aos="fade-up">
+                <div class="solution-card" style="border-color:rgba(59,130,246,0.2);"><div class="icon" style="background:rgba(59,130,246,0.1);color:#60A5FA;">🏢</div><h4 style="color:#60A5FA;font-size:0.9rem;">Site-to-Site VPN</h4><p class="rtl-block" style="font-size:0.82rem;">ربط فرعين شركة ببعض. Router↔Router. دايم متصل. مثل MPLS لكن فوق الإنترنت.</p></div>
+                <div class="solution-card" style="border-color:rgba(16,185,129,0.2);"><div class="icon" style="background:rgba(16,185,129,0.1);color:#34D399;">💻</div><h4 style="color:#34D399;font-size:0.9rem;">Remote Access VPN</h4><p class="rtl-block" style="font-size:0.82rem;">موظف من البيت يتصل بـ VPN Client. يستقبل IP داخلية. Cisco AnyConnect، OpenVPN.</p></div>
+                <div class="solution-card" style="border-color:rgba(245,158,11,0.2);"><div class="icon" style="background:rgba(245,158,11,0.1);color:#FBBF24;">🌐</div><h4 style="color:#FBBF24;font-size:0.9rem;">SSL/TLS VPN</h4><p class="rtl-block" style="font-size:0.82rem;">يشتغل على Port 443. مش بيتحجب. للوصول عبر Browser بدون Client مثبّت.</p></div>
+            </div>
+        </div>
+    </section>
+
+    <section class="lesson-section">
+        <div class="section-header" data-aos="fade-up"><h2><i class="fas fa-list" style="color:#34D399;margin-left:0.5rem;"></i> بروتوكولات VPN</h2></div>
+        <div class="glass-card" style="padding:1.5rem;" data-aos="fade-up" style="overflow-x:auto;">
+            <table class="comparison-table">
+                <thead><tr><th>Protocol</th><th>Port</th><th>التشفير</th><th>الأداء</th><th>الاستخدام</th></tr></thead>
+                <tbody>
+                    <tr><td style="font-family:'Fira Code';color:#F87171;">PPTP</td><td style="font-family:'Fira Code';">1723/TCP</td><td class="rtl-block" style="color:#F87171;">ضعيف (MPPE)</td><td>سريع</td><td class="rtl-block" style="color:#F87171;">⚠️ قديم ومكسور</td></tr>
+                    <tr><td style="font-family:'Fira Code';color:#FBBF24;">L2TP/IPSec</td><td style="font-family:'Fira Code';">1701+500</td><td class="rtl-block">AES-256</td><td>متوسط</td><td class="rtl-block">شائع — Windows built-in</td></tr>
+                    <tr><td style="font-family:'Fira Code';color:#34D399;">OpenVPN</td><td style="font-family:'Fira Code';">UDP 1194</td><td class="rtl-block">AES-256-GCM</td><td>جيد</td><td class="rtl-block">✅ الأشيع والأأمن</td></tr>
+                    <tr><td style="font-family:'Fira Code';color:#60A5FA;">WireGuard</td><td style="font-family:'Fira Code';">UDP 51820</td><td class="rtl-block">ChaCha20</td><td>ممتاز</td><td class="rtl-block">✅ الجيل الجديد — سريع جداً</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <section class="lesson-section alt-bg" id="quiz">
+        <div class="section-inner">
+            <div class="section-header" data-aos="fade-up"><h2><i class="fas fa-brain" style="color:#EC4899;margin-left:0.5rem;"></i> اختبر نفسك</h2></div>
+            <div class="quiz-container" data-aos="fade-up">
+                <div class="quiz-question" id="q1"><h4>WireGuard أحسن من OpenVPN بسبب؟</h4>
+                    <div class="quiz-options">
+                        <div class="quiz-option" onclick="ans(this,'q1',false)">أقدم وأكثر دعماً</div>
+                        <div class="quiz-option" onclick="ans(this,'q1',true)">أسرع وأبسط كود (أقل Attack Surface) مع تشفير حديث (ChaCha20)</div>
+                        <div class="quiz-option" onclick="ans(this,'q1',false)">مجاني فقط</div>
+                        <div class="quiz-option" onclick="ans(this,'q1',false)">بيدعم TCP فقط</div>
+                    </div><div class="quiz-feedback" id="fb-q1"></div>
+                </div>
+            </div>
+        </div>
+    </section>
+    <section class="lesson-section">
+        <div class="lesson-bottom-nav">
+            <a href="firewalls_ids.html"><i class="fas fa-arrow-left"></i><span>Firewalls</span></a>
+            <div style="text-align:center;color:var(--text-faint);font-size:0.85rem;">Unit 8 • Lesson 4</div>
+            <a href="ethical_hacking.html"><span>Ethical Hacking</span><i class="fas fa-arrow-right"></i></a>
+        </div>
+    </section>
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <script>
+        AOS.init({duration:800,once:true,offset:100});
+        window.addEventListener('scroll',()=>{ document.getElementById('reading-progress').style.width=(window.scrollY/(document.documentElement.scrollHeight-window.innerHeight))*100+'%'; });
+        function ans(el,qid,correct){ const q=document.getElementById(qid); if(q.dataset.answered)return; q.dataset.answered='true'; q.querySelectorAll('.quiz-option').forEach(o=>o.style.pointerEvents='none'); el.classList.add(correct?'correct':'wrong'); const fb=document.getElementById('fb-'+qid); fb.textContent=correct?'✅ صح! WireGuard = 4000 سطر كود vs OpenVPN 70,000 سطر. أبسط = أأمن + أسرع (ChaCha20 بدل AES).':'❌ غلط! WireGuard أحسن لأنه أسرع وأبسط وتشفيره أحدث.'; fb.className='quiz-feedback show '+(correct?'correct-fb':'wrong-fb'); }
+    </script>
+</body>
+</html>

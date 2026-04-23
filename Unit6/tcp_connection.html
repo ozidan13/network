@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TCP Connection — 3-Way Handshake | Network Mastery</title>
+    <meta name="description" content="TCP connection lifecycle: 3-Way Handshake, data transfer, 4-way FIN, TCP states.">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&family=Inter:wght@400;500;600;700;800&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    <link href="../css/global-net.css" rel="stylesheet">
+    <style>
+        body{background:#020617;color:#E2E8F0;font-family:'Inter',sans-serif;}
+        .lesson-nav-bar{position:fixed;top:0;left:0;right:0;z-index:100;background:rgba(2,6,23,0.88);backdrop-filter:blur(20px);border-bottom:1px solid rgba(255,255,255,0.06);height:64px;display:flex;align-items:center;padding:0 1.5rem;}
+        .nav-inner{max-width:1280px;margin:0 auto;width:100%;display:flex;align-items:center;justify-content:space-between;}
+        .nav-brand{display:flex;align-items:center;gap:0.75rem;font-weight:700;}
+        .back-btn{width:36px;height:36px;border-radius:10px;background:linear-gradient(135deg,#EF4444,#DC2626);display:flex;align-items:center;justify-content:center;color:white;font-size:0.85rem;transition:transform 0.3s;}
+        .back-btn:hover{transform:scale(1.1);}
+        .lesson-hero{position:relative;padding:8rem 1.5rem 5rem;text-align:center;overflow:hidden;}
+        .glow-orb{position:absolute;border-radius:50%;filter:blur(128px);pointer-events:none;}
+        .glow-orb-1{width:500px;height:500px;top:-10%;right:-5%;background:rgba(239,68,68,0.12);}
+        .glow-orb-2{width:400px;height:400px;bottom:-20%;left:-10%;background:rgba(248,113,113,0.06);}
+        .lesson-badge{display:inline-flex;align-items:center;gap:0.5rem;padding:0.35rem 1rem;border-radius:50px;background:rgba(30,41,59,0.6);border:1px solid rgba(255,255,255,0.08);font-family:'Fira Code',monospace;font-size:0.78rem;color:#F87171;margin-bottom:1.5rem;}
+        .dot{width:6px;height:6px;border-radius:50%;background:#EF4444;animation:pulse-dot 2s ease infinite;}
+        .lesson-hero h1{font-size:clamp(2.5rem,5vw,4rem);font-weight:800;margin-bottom:1rem;}
+        .text-g{background:linear-gradient(135deg,#EF4444,#F87171);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;}
+        .subtitle{font-family:'Cairo',sans-serif;font-size:1.6rem;font-weight:700;color:var(--text-muted);direction:rtl;margin-bottom:1.5rem;}
+        .desc{color:var(--text-faint);max-width:640px;margin:0 auto;font-size:1.05rem;font-family:'Cairo',sans-serif;direction:rtl;line-height:1.9;}
+        .lesson-bottom-nav{display:flex;justify-content:space-between;align-items:center;gap:1rem;padding:2rem 0;border-top:1px solid var(--border-subtle);margin-top:3rem;}
+        .lesson-bottom-nav a{display:flex;align-items:center;gap:0.5rem;padding:0.75rem 1.5rem;border-radius:12px;background:rgba(255,255,255,0.04);border:1px solid var(--border-subtle);transition:all 0.3s ease;font-weight:600;font-size:0.9rem;}
+        .lesson-bottom-nav a:hover{background:rgba(239,68,68,0.1);border-color:rgba(239,68,68,0.3);transform:translateY(-2px);}
+        /* Timeline animator */
+        .tcp-timeline{display:grid;grid-template-columns:1fr 80px 1fr;gap:0;direction:ltr;}
+        .tl-side{font-family:'Fira Code',monospace;font-size:0.75rem;}
+        .tl-center{position:relative;}
+        .tl-line{width:1px;background:rgba(255,255,255,0.08);margin:0 auto;min-height:4px;}
+        .tl-arrow{display:flex;align-items:center;margin:3px 0;height:24px;}
+        .tl-arrow.c2s{justify-content:flex-end;padding-right:4px;}
+        .tl-arrow.s2c{justify-content:flex-start;padding-left:4px;}
+        .tl-label{font-size:0.7rem;padding:1px 5px;border-radius:4px;font-family:'Fira Code',monospace;}
+        /* State machine */
+        .state-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:0.5rem;margin:1rem 0;}
+        .state-card{border-radius:10px;padding:0.65rem;text-align:center;}
+        .state-name{font-family:'Fira Code',monospace;font-size:0.72rem;font-weight:700;direction:ltr;}
+        .state-desc{font-family:'Cairo',sans-serif;direction:rtl;font-size:0.65rem;color:var(--text-muted);margin-top:0.2rem;line-height:1.4;}
+    </style>
+</head>
+<body>
+    <nav class="lesson-nav-bar">
+        <div class="nav-inner">
+            <a href="../index.html" class="nav-brand">
+                <div class="back-btn"><i class="fas fa-arrow-left"></i></div>
+                <span>TCP<span style="color:#EF4444;">Conn</span></span>
+            </a>
+        </div>
+    </nav>
+    <div class="progress-bar-container"><div class="progress-bar-fill" id="reading-progress" style="background:linear-gradient(90deg,#EF4444,#F87171);"></div></div>
+
+    <header class="lesson-hero">
+        <div class="glow-orb glow-orb-1"></div><div class="glow-orb glow-orb-2"></div>
+        <div style="position:relative;z-index:1;">
+            <div class="lesson-badge" data-aos="fade-down"><span class="dot"></span>UNIT 6 • Lesson 2</div>
+            <h1 data-aos="fade-up" data-aos-delay="150">TCP <span class="text-g">Connection</span></h1>
+            <div class="subtitle" data-aos="fade-up" data-aos-delay="300">دورة حياة الاتصال الكاملة</div>
+            <p class="desc" data-aos="fade-up" data-aos-delay="450">قبل ما تفتح google.com — اتنعمل 3-Way Handshake في أقل من 10ms. وبعد ما خلصت — 4 messages لإغلاق الاتصال بشكل نظيف.</p>
+        </div>
+    </header>
+
+    <!-- Full Connection Lifecycle -->
+    <section class="lesson-section">
+        <div class="section-header" data-aos="fade-up">
+            <h2><i class="fas fa-timeline" style="color:#EF4444;margin-left:0.5rem;"></i> دورة حياة TCP الكاملة</h2>
+            <p class="en-sub">Setup → Data Transfer → Teardown</p>
+        </div>
+        <div class="glass-card" style="padding:1.8rem;" data-aos="fade-up">
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;text-align:center;margin-bottom:1rem;">
+                <div style="background:rgba(239,68,68,0.15);border-radius:10px;padding:0.75rem;color:#F87171;font-weight:900;font-family:'Fira Code';">CLIENT</div>
+                <div style="background:rgba(16,185,129,0.15);border-radius:10px;padding:0.75rem;color:#34D399;font-weight:900;font-family:'Fira Code';">SERVER</div>
+            </div>
+            <!-- 3-Way Handshake -->
+            <div style="text-align:center;font-size:0.7rem;color:#94A3B8;font-family:'Fira Code';direction:ltr;margin-bottom:0.3rem;">[ CONNECTION ESTABLISHMENT — 3-Way Handshake ]</div>
+            <div id="tcp-timeline" style="direction:ltr;font-family:'Fira Code';font-size:0.75rem;"></div>
+            <button onclick="animateTCP()" style="margin-top:0.75rem;padding:0.5rem 1.2rem;border-radius:8px;background:rgba(239,68,68,0.15);border:1px solid rgba(239,68,68,0.3);color:#F87171;font-family:'Cairo';cursor:pointer;">▶ تشغيل Animation</button>
+        </div>
+    </section>
+
+    <!-- TCP States -->
+    <section class="lesson-section alt-bg">
+        <div class="section-inner">
+            <div class="section-header" data-aos="fade-up">
+                <h2><i class="fas fa-traffic-light" style="color:#F87171;margin-left:0.5rem;"></i> حالات TCP (State Machine)</h2>
+                <p class="en-sub">11 States — From CLOSED to ESTABLISHED</p>
+            </div>
+            <div class="state-grid" data-aos="fade-up">
+                <div class="state-card" style="background:rgba(100,116,139,0.1);border:1px solid rgba(100,116,139,0.2);"><div class="state-name" style="color:#94A3B8;">CLOSED</div><div class="state-desc">لا اتصال. البداية والنهاية.</div></div>
+                <div class="state-card" style="background:rgba(59,130,246,0.08);border:1px solid rgba(59,130,246,0.2);"><div class="state-name" style="color:#60A5FA;">LISTEN</div><div class="state-desc">Server ينتظر SYN.</div></div>
+                <div class="state-card" style="background:rgba(245,158,11,0.08);border:1px solid rgba(245,158,11,0.2);"><div class="state-name" style="color:#FBBF24;">SYN_SENT</div><div class="state-desc">Client بعت SYN ينتظر SYN-ACK.</div></div>
+                <div class="state-card" style="background:rgba(245,158,11,0.08);border:1px solid rgba(245,158,11,0.2);"><div class="state-name" style="color:#FBBF24;">SYN_RECV</div><div class="state-desc">Server استقبل SYN وبعت SYN-ACK.</div></div>
+                <div class="state-card" style="background:rgba(16,185,129,0.1);border:1px solid rgba(16,185,129,0.3);"><div class="state-name" style="color:#34D399;">ESTABLISHED</div><div class="state-desc">✅ اتصال ناجح. Data تتدفق.</div></div>
+                <div class="state-card" style="background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.2);"><div class="state-name" style="color:#F87171;">FIN_WAIT_1/2</div><div class="state-desc">Client بعت FIN ينتظر إغلاق.</div></div>
+                <div class="state-card" style="background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.2);"><div class="state-name" style="color:#F87171;">CLOSE_WAIT</div><div class="state-desc">Server استقبل FIN — جاهز يغلق.</div></div>
+                <div class="state-card" style="background:rgba(139,92,246,0.08);border:1px solid rgba(139,92,246,0.2);"><div class="state-name" style="color:#A78BFA;">TIME_WAIT</div><div class="state-desc">ينتظر 2×MSL قبل CLOSED حقيقي.</div></div>
+            </div>
+            <div class="info-box" style="margin-top:0.5rem;">
+                <div class="rtl-block" style="font-size:0.88rem;">💡 <strong>TIME_WAIT</strong> = 2 × MSL (Maximum Segment Lifetime = 120s) = ينتظر 4 دقائق. عشان يضمن كل الـ Packets الضائعة ماتأثرتش على اتصال جديد.</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 4-way teardown -->
+    <section class="lesson-section">
+        <div class="section-header" data-aos="fade-up">
+            <h2><i class="fas fa-door-closed" style="color:#94A3B8;margin-left:0.5rem;"></i> إغلاق الاتصال — 4-Way FIN</h2>
+            <p class="en-sub">Graceful Connection Termination</p>
+        </div>
+        <div class="glass-card" style="padding:1.8rem;" data-aos="fade-up">
+            <div style="direction:ltr;font-family:'Fira Code';font-size:0.8rem;">
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;text-align:center;margin-bottom:0.75rem;">
+                    <div style="color:#F87171;font-weight:900;">CLIENT (Active Close)</div>
+                    <div style="color:#34D399;font-weight:900;">SERVER (Passive Close)</div>
+                </div>
+                <div style="display:flex;align-items:center;margin:0.5rem 0;">
+                    <div style="flex:1;text-align:right;color:#F87171;">FIN (seq=X)</div>
+                    <div style="flex:2;position:relative;height:20px;"><div style="position:absolute;top:50%;width:100%;height:2px;background:rgba(239,68,68,0.3);"></div><div style="position:absolute;right:0;top:50%;transform:translateY(-50%);color:#F87171;">▶</div></div>
+                    <div style="flex:1;color:#94A3B8;font-size:0.7rem;">FIN_WAIT_1</div>
+                </div>
+                <div style="display:flex;align-items:center;margin:0.5rem 0;">
+                    <div style="flex:1;color:#94A3B8;font-size:0.7rem;">FIN_WAIT_2</div>
+                    <div style="flex:2;position:relative;height:20px;"><div style="position:absolute;top:50%;width:100%;height:2px;background:rgba(16,185,129,0.3);"></div><div style="position:absolute;left:0;top:50%;transform:translateY(-50%);color:#34D399;">◀</div></div>
+                    <div style="flex:1;text-align:left;color:#34D399;">ACK (X+1) → CLOSE_WAIT</div>
+                </div>
+                <div style="display:flex;align-items:center;margin:0.5rem 0;">
+                    <div style="flex:1;color:#94A3B8;font-size:0.7rem;text-align:right;">ينتظر…</div>
+                    <div style="flex:2;position:relative;height:20px;"><div style="position:absolute;top:50%;width:100%;height:2px;background:rgba(16,185,129,0.3);"></div><div style="position:absolute;left:0;top:50%;transform:translateY(-50%);color:#34D399;">◀</div></div>
+                    <div style="flex:1;text-align:left;color:#34D399;">FIN (seq=Y) → LAST_ACK</div>
+                </div>
+                <div style="display:flex;align-items:center;margin:0.5rem 0;">
+                    <div style="flex:1;text-align:right;color:#A78BFA;">ACK (Y+1) → TIME_WAIT</div>
+                    <div style="flex:2;position:relative;height:20px;"><div style="position:absolute;top:50%;width:100%;height:2px;background:rgba(139,92,246,0.3);"></div><div style="position:absolute;right:0;top:50%;transform:translateY(-50%);color:#A78BFA;">▶</div></div>
+                    <div style="flex:1;text-align:left;color:#94A3B8;font-size:0.7rem;">CLOSED ✅</div>
+                </div>
+            </div>
+            <div class="note" style="margin-top:0.75rem;">
+                <div class="rtl-block" style="font-size:0.82rem;">📌 الـ FIN 4-Way مش ضروري — الـ Server ممكن يبعت FIN+ACK مع بعض لو ما عندوش data تانية يبعتها. يبقى Half-Close أو 3-Way teardown.</div>
+            </div>
+        </div>
+    </section>
+
+    <section class="lesson-section alt-bg" id="quiz">
+        <div class="section-inner">
+            <div class="section-header" data-aos="fade-up">
+                <h2><i class="fas fa-brain" style="color:#EF4444;margin-left:0.5rem;"></i> اختبر نفسك</h2>
+            </div>
+            <div class="quiz-container" data-aos="fade-up">
+                <div class="quiz-question" id="q1">
+                    <h4>ليه TCP بيستخدم TIME_WAIT بعد إغلاق الاتصال؟</h4>
+                    <div class="quiz-options">
+                        <div class="quiz-option" onclick="ans(this,'q1',false)">لحفظ الـ Routing Table</div>
+                        <div class="quiz-option" onclick="ans(this,'q1',true)">لضمان إن الـ ACK الأخير وصل وما فيش Packets ضائعة تأثر على اتصال جديد</div>
+                        <div class="quiz-option" onclick="ans(this,'q1',false)">لتحرير الـ Port تلقائياً</div>
+                        <div class="quiz-option" onclick="ans(this,'q1',false)">لتمكين Reconnect تلقائي</div>
+                    </div>
+                    <div class="quiz-feedback" id="fb-q1"></div>
+                </div>
+                <div class="quiz-question" id="q2">
+                    <h4>Server بيبدأ بيستنى SYN لما يكون في حالة؟</h4>
+                    <div class="quiz-options">
+                        <div class="quiz-option" onclick="ans(this,'q2',false)">CLOSED</div>
+                        <div class="quiz-option" onclick="ans(this,'q2',true)">LISTEN</div>
+                        <div class="quiz-option" onclick="ans(this,'q2',false)">SYN_RECV</div>
+                        <div class="quiz-option" onclick="ans(this,'q2',false)">ESTABLISHED</div>
+                    </div>
+                    <div class="quiz-feedback" id="fb-q2"></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="lesson-section">
+        <div class="lesson-bottom-nav">
+            <a href="tcp_udp.html"><i class="fas fa-arrow-left"></i><span>TCP vs UDP</span></a>
+            <div style="text-align:center;color:var(--text-faint);font-size:0.85rem;">Unit 6 • Lesson 2</div>
+            <a href="flow_congestion.html"><span>Flow &amp; Congestion</span><i class="fas fa-arrow-right"></i></a>
+        </div>
+    </section>
+
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <script>
+        AOS.init({duration:800,once:true,offset:100});
+        window.addEventListener('scroll',()=>{ document.getElementById('reading-progress').style.width=(window.scrollY/(document.documentElement.scrollHeight-window.innerHeight))*100+'%'; });
+
+        const msgs=[
+            {label:'SYN (seq=1000)',dir:'c2s',color:'#F87171'},
+            {label:'SYN-ACK (seq=5000,ack=1001)',dir:'s2c',color:'#34D399'},
+            {label:'ACK (ack=5001)',dir:'c2s',color:'#F87171'},
+            {label:'DATA (HTTP GET)',dir:'c2s',color:'#FBBF24'},
+            {label:'DATA (200 OK + HTML)',dir:'s2c',color:'#FBBF24'},
+            {label:'ACK',dir:'c2s',color:'#60A5FA'},
+            {label:'FIN+ACK',dir:'c2s',color:'#94A3B8'},
+            {label:'ACK + FIN',dir:'s2c',color:'#94A3B8'},
+            {label:'ACK (CLOSED)',dir:'c2s',color:'#94A3B8'},
+        ];
+        const tl=document.getElementById('tcp-timeline');
+        function animateTCP(){
+            tl.innerHTML='';
+            msgs.forEach((m,i)=>{
+                setTimeout(()=>{
+                    const row=document.createElement('div');
+                    row.style.cssText='display:flex;align-items:center;margin:3px 0;direction:ltr;';
+                    const isC2S=m.dir==='c2s';
+                    row.innerHTML=`
+                        <div style="flex:1;text-align:${isC2S?'right':'left'};padding-right:${isC2S?'8px':'0'};padding-left:${isC2S?'0':'8px'};">
+                            ${isC2S?`<span style="font-size:0.7rem;padding:2px 6px;border-radius:4px;background:${m.color}22;color:${m.color};font-family:'Fira Code';">${m.label}</span>`:''}
+                        </div>
+                        <div style="flex:0 0 40px;position:relative;text-align:center;font-size:1rem;color:${m.color};">${isC2S?'→':'←'}</div>
+                        <div style="flex:1;text-align:${isC2S?'left':'right'};padding-left:${isC2S?'8px':'0'};padding-right:${isC2S?'0':'8px'};">
+                            ${!isC2S?`<span style="font-size:0.7rem;padding:2px 6px;border-radius:4px;background:${m.color}22;color:${m.color};font-family:'Fira Code';">${m.label}</span>`:''}
+                        </div>
+                    `;
+                    row.style.opacity='0'; row.style.transition='opacity 0.4s';
+                    tl.appendChild(row);
+                    setTimeout(()=>row.style.opacity='1',50);
+                },i*600);
+            });
+        }
+        animateTCP();
+
+        const fb={
+            q1:{c:'✅ صح! TIME_WAIT (2×MSL ≈ 4 دقائق) بيضمن إن الـ ACK الأخير للـ FIN وصل — وإن كل Packets قديمة ماتأثرتش على Connection جديد على نفس الـ Port.',w:'❌ غلط! TIME_WAIT لضمان وصول الـ ACK الأخير وإن لا يوجد Delayed Packets قديمة تأثر على Connection جديد.'},
+            q2:{c:'✅ صح! Server في LISTEN = يقبل SYN. برنامج زي nginx بيعمل socket.listen() وبيدخل الـ LISTEN state.',w:'❌ غلط! Server لازم يكون في LISTEN عشان يستقبل SYN جديد. CLOSED = مغلق خالص.'}
+        };
+        function ans(el,qid,correct){ const q=document.getElementById(qid); if(q.dataset.answered)return; q.dataset.answered='true'; q.querySelectorAll('.quiz-option').forEach(o=>o.style.pointerEvents='none'); el.classList.add(correct?'correct':'wrong'); const f=document.getElementById('fb-'+qid); f.textContent=correct?fb[qid].c:fb[qid].w; f.className='quiz-feedback show '+(correct?'correct-fb':'wrong-fb'); }
+    </script>
+</body>
+</html>

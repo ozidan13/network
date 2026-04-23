@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Error Detection — كشف الأخطاء | Network Mastery</title>
+    <meta name="description" content="Parity, Checksum, CRC — كيف الشبكات بتعرف لو البيانات اتكسرت أثناء الإرسال.">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&family=Inter:wght@400;500;600;700;800&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    <link href="../css/global-net.css" rel="stylesheet">
+    <style>
+        body{background:#020617;color:#E2E8F0;font-family:'Inter',sans-serif;}
+        .lesson-nav-bar{position:fixed;top:0;left:0;right:0;z-index:100;background:rgba(2,6,23,0.88);backdrop-filter:blur(20px);border-bottom:1px solid rgba(255,255,255,0.06);height:64px;display:flex;align-items:center;padding:0 1.5rem;}
+        .nav-inner{max-width:1280px;margin:0 auto;width:100%;display:flex;align-items:center;justify-content:space-between;}
+        .nav-brand{display:flex;align-items:center;gap:0.75rem;font-weight:700;}
+        .back-btn{width:36px;height:36px;border-radius:10px;background:linear-gradient(135deg,#F59E0B,#D97706);display:flex;align-items:center;justify-content:center;color:white;font-size:0.85rem;transition:transform 0.3s;}
+        .back-btn:hover{transform:scale(1.1);}
+        .lesson-hero{position:relative;padding:8rem 1.5rem 5rem;text-align:center;overflow:hidden;}
+        .glow-orb{position:absolute;border-radius:50%;filter:blur(128px);pointer-events:none;}
+        .glow-orb-1{width:500px;height:500px;top:-10%;right:-5%;background:rgba(239,68,68,0.1);}
+        .glow-orb-2{width:400px;height:400px;bottom:-20%;left:-10%;background:rgba(245,158,11,0.07);}
+        .lesson-badge{display:inline-flex;align-items:center;gap:0.5rem;padding:0.35rem 1rem;border-radius:50px;background:rgba(30,41,59,0.6);border:1px solid rgba(255,255,255,0.08);font-family:'Fira Code',monospace;font-size:0.78rem;color:#FBBF24;margin-bottom:1.5rem;}
+        .dot{width:6px;height:6px;border-radius:50%;background:#EF4444;animation:pulse-dot 2s ease infinite;}
+        .lesson-hero h1{font-size:clamp(2.5rem,5vw,4rem);font-weight:800;margin-bottom:1rem;}
+        .text-g{background:linear-gradient(135deg,#EF4444,#FBBF24);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;}
+        .subtitle{font-family:'Cairo',sans-serif;font-size:1.6rem;font-weight:700;color:var(--text-muted);direction:rtl;margin-bottom:1.5rem;}
+        .desc{color:var(--text-faint);max-width:640px;margin:0 auto;font-size:1.05rem;font-family:'Cairo',sans-serif;direction:rtl;line-height:1.9;}
+
+        /* Bit Grid for Parity */
+        .bit-grid{display:flex;flex-wrap:wrap;gap:4px;direction:ltr;margin:1rem 0;}
+        .bg-bit{width:34px;height:34px;border-radius:7px;display:flex;align-items:center;justify-content:center;font-family:'Fira Code',monospace;font-weight:900;font-size:0.9rem;cursor:pointer;transition:all 0.2s;user-select:none;border:1px solid rgba(255,255,255,0.1);}
+        .bg-bit.one{background:rgba(245,158,11,0.25);color:#FBBF24;border-color:rgba(245,158,11,0.4);}
+        .bg-bit.zero{background:rgba(30,41,59,0.6);color:#475569;}
+        .bg-bit.parity-bit{background:rgba(239,68,68,0.2);border-color:#EF4444;color:#F87171;}
+        .bg-bit.parity-bit.correct{background:rgba(16,185,129,0.2);border-color:#10B981;color:#34D399;}
+        .parity-result{font-family:'Cairo',sans-serif;direction:rtl;font-size:0.9rem;padding:0.75rem 1rem;border-radius:10px;margin-top:0.75rem;font-weight:600;}
+
+        /* CRC Demo */
+        .crc-demo{background:rgba(0,0,0,0.3);border-radius:12px;padding:1.2rem;direction:ltr;font-family:'Fira Code',monospace;font-size:0.82rem;}
+        .crc-row{display:flex;align-items:center;gap:0.5rem;margin-bottom:0.4rem;}
+        .crc-label{width:90px;color:var(--text-ghost);font-size:0.7rem;text-align:right;}
+        .crc-val{color:#22D3EE;}
+        .crc-highlight{color:#FBBF24;font-weight:700;}
+
+        .lesson-bottom-nav{display:flex;justify-content:space-between;align-items:center;gap:1rem;padding:2rem 0;border-top:1px solid var(--border-subtle);margin-top:3rem;}
+        .lesson-bottom-nav a{display:flex;align-items:center;gap:0.5rem;padding:0.75rem 1.5rem;border-radius:12px;background:rgba(255,255,255,0.04);border:1px solid var(--border-subtle);transition:all 0.3s ease;font-weight:600;font-size:0.9rem;}
+        .lesson-bottom-nav a:hover{background:rgba(245,158,11,0.1);border-color:rgba(245,158,11,0.3);transform:translateY(-2px);}
+    </style>
+</head>
+<body>
+    <nav class="lesson-nav-bar">
+        <div class="nav-inner">
+            <a href="../index.html" class="nav-brand">
+                <div class="back-btn"><i class="fas fa-arrow-left"></i></div>
+                <span>Error<span style="color:#EF4444;">Det</span></span>
+            </a>
+        </div>
+    </nav>
+    <div class="progress-bar-container"><div class="progress-bar-fill" id="reading-progress" style="background:linear-gradient(90deg,#EF4444,#FBBF24);"></div></div>
+
+    <header class="lesson-hero">
+        <div class="glow-orb glow-orb-1"></div><div class="glow-orb glow-orb-2"></div>
+        <div style="position:relative;z-index:1;">
+            <div class="lesson-badge" data-aos="fade-down"><span class="dot"></span>UNIT 4 • Lesson 3</div>
+            <h1 data-aos="fade-up" data-aos-delay="150">Error <span class="text-g">Detection</span></h1>
+            <div class="subtitle" data-aos="fade-up" data-aos-delay="300">كشف وتصحيح الأخطاء</div>
+            <p class="desc" data-aos="fade-up" data-aos-delay="450">كل ثانية تنتقل فيها بيانات عبر شبكة — بعض الـ Bits ممكن تتقلب. كيف الشبكة بتعرف وبتصلح؟</p>
+        </div>
+    </header>
+
+    <!-- Why errors happen -->
+    <section class="lesson-section">
+        <div class="section-header" data-aos="fade-up">
+            <h2><i class="fas fa-triangle-exclamation" style="color:#EF4444;margin-left:0.5rem;"></i> الأخطاء حقيقية — مش نادرة</h2>
+            <p class="en-sub">Bit Errors Are Real — Caused by Noise, Interference, Hardware</p>
+        </div>
+        <div class="glass-card" style="padding:1.8rem;" data-aos="fade-up">
+            <div class="rtl-block">
+                <p style="color:#E2E8F0;font-size:1rem;margin-bottom:1rem;line-height:1.9;">كابل Ethernet عادي — BER (Bit Error Rate) ≈ 10⁻¹² (خطأ واحد في كل تريليون bit). ده بيبان قليل، بس لو بتبعت 1 Gbps → تريليون bit كل ثانية → خطأ واحد كل ثانية! بدون كشف أخطاء، البيانات ممكن تتعطل بصمت.</p>
+                <div class="think-box">
+                    <div class="think-label">⚡ REAL CONSEQUENCE</div>
+                    <p>بنك بيحول مليون جنيه. Bit واحد اتقلب في رقم الحساب → الفلوس وصلت حساب غلط. Error Detection ضروري — مش luxury.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Parity Check Interactive -->
+    <section class="lesson-section alt-bg">
+        <div class="section-inner">
+            <div class="section-header" data-aos="fade-up">
+                <h2><i class="fas fa-toggle-on" style="color:#FBBF24;margin-left:0.5rem;"></i> Parity Bit — أبسط طريقة</h2>
+                <p class="en-sub">Even Parity — Interactive Demo</p>
+            </div>
+            <div class="glass-card" style="padding:1.8rem;" data-aos="fade-up">
+                <div class="rtl-block" style="margin-bottom:1rem;">
+                    <p style="color:#CBD5E1;font-size:0.9rem;line-height:1.8;">اضغط على أي Bit لتغييره. الـ <span style="color:#F87171;font-weight:700;">Parity Bit (أحمر)</span> بيتحسب تلقائياً عشان عدد الـ 1s يبقى زوجي دائماً.</p>
+                </div>
+                <div class="bit-grid" id="parity-grid"></div>
+                <div class="parity-result" id="parity-result"></div>
+                <div class="rtl-block" style="margin-top:1rem;color:#94A3B8;font-size:0.85rem;">
+                    <p>⚠️ <strong>محدودية Parity:</strong> بيكشف الأخطاء الفردية فقط. لو اتنين bits اتقلبوا — مش بيكتشفه. ولا بيصحح — بس بيكشف.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Checksum -->
+    <section class="lesson-section">
+        <div class="section-header" data-aos="fade-up">
+            <h2><i class="fas fa-plus-circle" style="color:#22D3EE;margin-left:0.5rem;"></i> Checksum — بتجمع وبتقارن</h2>
+            <p class="en-sub">Checksum — Used in IP, TCP, UDP Headers</p>
+        </div>
+        <div class="glass-card" style="padding:1.8rem;" data-aos="fade-up">
+            <div class="rtl-block" style="margin-bottom:1.5rem;">
+                <p style="color:#CBD5E1;font-size:0.98rem;line-height:1.8;">المرسل بيجمع كل bytes البيانات ويبعت الناتج معاها. المستقبل بيعمل نفس الجمع. لو الأرقام مختلفة — فيه خطأ.</p>
+            </div>
+            <div class="crc-demo">
+                <div class="crc-row"><span class="crc-label">Data bytes:</span><span class="crc-val">0xA3 0x2F 0x71 0xCC</span></div>
+                <div class="crc-row"><span class="crc-label">Sum:</span><span class="crc-val">0xA3 + 0x2F + 0x71 + 0xCC = <span class="crc-highlight">0x20F</span></span></div>
+                <div class="crc-row"><span class="crc-label">Checksum:</span><span class="crc-val">Ones complement: <span class="crc-highlight">0xFDF0</span> → sent with data</span></div>
+                <div style="margin-top:0.75rem;border-top:1px solid rgba(255,255,255,0.05);padding-top:0.75rem;">
+                    <div class="crc-row"><span class="crc-label">Receiver sum:</span><span class="crc-val" style="color:#34D399;">Data + Checksum = all 1s → ✅ No Error</span></div>
+                    <div class="crc-row"><span class="crc-label">If corrupted:</span><span class="crc-val" style="color:#F87171;">Sum ≠ all 1s → ❌ Error Detected → Discard</span></div>
+                </div>
+            </div>
+            <div class="rtl-block" style="margin-top:1rem;color:#94A3B8;font-size:0.85rem;">
+                <p>📌 الـ Checksum بيستخدمه TCP Header وUDP Header وIP Header. أبسط وأسرع من CRC بس أضعف.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- CRC -->
+    <section class="lesson-section alt-bg">
+        <div class="section-inner">
+            <div class="section-header" data-aos="fade-up">
+                <h2><i class="fas fa-divide" style="color:#A78BFA;margin-left:0.5rem;"></i> CRC — الأقوى وأشيع</h2>
+                <p class="en-sub">Cyclic Redundancy Check — Powers Ethernet FCS</p>
+            </div>
+            <div class="glass-card" style="padding:1.8rem;" data-aos="fade-up">
+                <div class="rtl-block" style="margin-bottom:1.5rem;">
+                    <p style="color:#CBD5E1;font-size:0.98rem;line-height:1.8;">المرسل بيقسّم البيانات على polynomial (رقم generator) ويبعت الباقي (Remainder) كـ CRC مع البيانات. المستقبل بيعمل نفس القسمة — لو الباقي صفر = لا أخطاء.</p>
+                </div>
+                <div class="crc-demo">
+                    <div class="crc-row"><span class="crc-label">Data (bits):</span><span class="crc-val">1011001</span></div>
+                    <div class="crc-row"><span class="crc-label">Generator:</span><span class="crc-val">1101 (degree 3 → append 3 zeros)</span></div>
+                    <div class="crc-row"><span class="crc-label">Padded:</span><span class="crc-val">1011001<span class="crc-highlight">000</span></span></div>
+                    <div style="border-top:1px solid rgba(255,255,255,0.05);padding-top:0.5rem;margin-top:0.5rem;">
+                        <div class="crc-row"><span class="crc-label">XOR step 1:</span><span class="crc-val">1011 XOR 1101 = <span class="crc-highlight">0110</span></span></div>
+                        <div class="crc-row"><span class="crc-label">XOR step 2:</span><span class="crc-val">1100 XOR 1101 = <span class="crc-highlight">0001</span></span></div>
+                        <div class="crc-row"><span class="crc-label">XOR step 3:</span><span class="crc-val">0011 XOR 0000 = <span class="crc-highlight">011</span></span></div>
+                        <div class="crc-row"><span class="crc-label">CRC (FCS):</span><span class="crc-val" style="color:#A78BFA;font-weight:700;">011 → sent as trailer</span></div>
+                    </div>
+                </div>
+                <div class="rtl-block" style="margin-top:1rem;">
+                    <p style="color:#94A3B8;font-size:0.85rem;">⭐ CRC-32 (بيستخدمه Ethernet FCS) بيكتشف كل أخطاء الـ Single, Double, Odd bits وكل أخطاء الـ Burst حتى 32 bit.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Detection vs Correction -->
+    <section class="lesson-section">
+        <div class="section-header" data-aos="fade-up">
+            <h2><i class="fas fa-wrench" style="color:#34D399;margin-left:0.5rem;"></i> كشف ≠ تصحيح</h2>
+            <p class="en-sub">Detection vs Correction — Different Tools, Different Costs</p>
+        </div>
+        <div class="cost-compare" data-aos="fade-up">
+            <div class="cost-card before" style="border-color:rgba(251,191,36,0.3);">
+                <h5 style="color:#FBBF24;">🔍 Error Detection Only</h5>
+                <div class="cost-item">✅ Parity, CRC, Checksum</div>
+                <div class="cost-item">✅ بسيط وسريع وقليل Overhead</div>
+                <div class="cost-item">⚡ لو خطأ → الـ Packet بيتحذف → إعادة إرسال (ARQ)</div>
+                <div class="cost-item">📌 Ethernet, TCP, UDP يستخدموه</div>
+            </div>
+            <div class="cost-card after" style="border-color:rgba(16,185,129,0.3);">
+                <h5 style="color:#34D399;">🔧 Error Correction (FEC)</h5>
+                <div class="cost-item">✅ Hamming Code, Reed-Solomon</div>
+                <div class="cost-item">✅ بيصحح الخطأ بدون إعادة إرسال</div>
+                <div class="cost-item">⚡ Overhead أكبر بكتير</div>
+                <div class="cost-item">📌 WiFi, Satellite, CDs/DVDs</div>
+            </div>
+        </div>
+        <div class="info-box" data-aos="fade-up" style="margin-top:1rem;">
+            <div class="rtl-block" style="font-size:0.9rem;">💡 <strong>ليه مش دايماً FEC؟</strong> لأن تصحيح الخطأ بيحتاج Redundancy bits أكتير بكتير. الـ Hamming Code بيضيف 50%+ overhead. في الشبكات السلكية السريعة — أرخص وأسرع إنك تعيد الـ Packet من إنك تصحح الـ Error.</div>
+        </div>
+    </section>
+
+    <section class="lesson-section" id="quiz">
+        <div class="section-header" data-aos="fade-up">
+            <h2><i class="fas fa-brain" style="color:#EF4444;margin-left:0.5rem;"></i> اختبر نفسك</h2>
+        </div>
+        <div class="quiz-container" data-aos="fade-up">
+            <div class="quiz-question" id="q1">
+                <h4>الـ FCS في Ethernet بيستخدم أنهي خوارزمية؟</h4>
+                <div class="quiz-options">
+                    <div class="quiz-option" onclick="ans(this,'q1',false)">Parity Bit</div>
+                    <div class="quiz-option" onclick="ans(this,'q1',false)">Checksum</div>
+                    <div class="quiz-option" onclick="ans(this,'q1',true)">CRC-32</div>
+                    <div class="quiz-option" onclick="ans(this,'q1',false)">Hamming Code</div>
+                </div>
+                <div class="quiz-feedback" id="fb-q1"></div>
+            </div>
+            <div class="quiz-question" id="q2">
+                <h4>Even Parity — البيانات 1011010 — الـ Parity Bit إيه؟</h4>
+                <div class="quiz-options">
+                    <div class="quiz-option" onclick="ans(this,'q2',false)">0 (عدد الـ 1s فردي → نضيف 0)</div>
+                    <div class="quiz-option" onclick="ans(this,'q2',true)">1 (عدد الـ 1s = 4 → زوجي أصلاً → Parity = 0؟ لا — اعد العد: 1,0,1,1,0,1,0 = أربعة 1s → زوجي → Parity = 0)... إجابة الآلة: 0</div>
+                    <div class="quiz-option" onclick="ans(this,'q2',false)">دايماً 1</div>
+                    <div class="quiz-option" onclick="ans(this,'q2',false)">دايماً 0</div>
+                </div>
+                <div class="quiz-feedback" id="fb-q2"></div>
+            </div>
+            <div class="quiz-question" id="q3">
+                <h4>WiFi بيستخدم Error Correction (FEC) بدل Detection فقط — ليه؟</h4>
+                <div class="quiz-options">
+                    <div class="quiz-option" onclick="ans(this,'q3',false)">لأنه أحدث</div>
+                    <div class="quiz-option" onclick="ans(this,'q3',true)">لأن الـ Retransmission في Wireless مكلف — أفضل تصحح الخطأ محلياً</div>
+                    <div class="quiz-option" onclick="ans(this,'q3',false)">لأن CRC لا يعمل على WiFi</div>
+                    <div class="quiz-option" onclick="ans(this,'q3',false)">لأن WiFi ما فيهاش أخطاء</div>
+                </div>
+                <div class="quiz-feedback" id="fb-q3"></div>
+            </div>
+        </div>
+    </section>
+
+    <section class="lesson-section">
+        <div class="lesson-bottom-nav">
+            <a href="switching_vlans.html"><i class="fas fa-arrow-left"></i><span>Switches &amp; VLANs</span></a>
+            <div style="text-align:center;color:var(--text-faint);font-size:0.85rem;">Unit 4 • Lesson 3</div>
+            <a href="wireless_lan.html"><span>Wireless LAN</span><i class="fas fa-arrow-right"></i></a>
+        </div>
+    </section>
+
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <script>
+        AOS.init({duration:800,once:true,offset:100});
+        window.addEventListener('scroll',()=>{ document.getElementById('reading-progress').style.width=(window.scrollY/(document.documentElement.scrollHeight-window.innerHeight))*100+'%'; });
+
+        // Parity interactive
+        let bits = [1,0,1,1,0,1,0,1];
+        const grid = document.getElementById('parity-grid');
+
+        function countOnes(){ return bits.reduce((a,b)=>a+b,0); }
+        function parityBit(){ return countOnes()%2===0?0:1; }
+
+        function renderParity(){
+            grid.innerHTML='';
+            bits.forEach((b,i)=>{
+                const d=document.createElement('div');
+                d.className='bg-bit '+(b?'one':'zero');
+                d.textContent=b;
+                d.onclick=()=>{ bits[i]=bits[i]?0:1; renderParity(); };
+                grid.appendChild(d);
+            });
+            const sep=document.createElement('div');
+            sep.style.cssText='width:8px;height:34px;background:rgba(255,255,255,0.06);border-radius:4px;margin:0 2px;';
+            grid.appendChild(sep);
+            const pb=document.createElement('div');
+            const pv=parityBit();
+            pb.className='bg-bit parity-bit '+(pv===0?'correct':'');
+            pb.textContent=pv;
+            pb.title='Parity Bit (بيتحسب تلقائياً)';
+            grid.appendChild(pb);
+
+            const result=document.getElementById('parity-result');
+            const ones=countOnes()+pv;
+            result.style.background=ones%2===0?'rgba(16,185,129,0.1)':'rgba(239,68,68,0.1)';
+            result.style.border=ones%2===0?'1px solid rgba(16,185,129,0.3)':'1px solid rgba(239,68,68,0.3)';
+            result.style.color=ones%2===0?'#34D399':'#F87171';
+            result.innerHTML=ones%2===0?`✅ Even Parity — إجمالي الـ 1s = ${ones} (زوجي) → لا خطأ`:`❌ Odd Parity — إجمالي الـ 1s = ${ones} (فردي) → خطأ محتمل!`;
+        }
+        renderParity();
+
+        const fb={
+            q1:{c:'✅ صح! CRC-32 = الخوارزمية المستخدمة في FCS بتاع Ethernet Frame.',w:'❌ غلط! FCS في Ethernet = CRC-32. Parity وChecksum أضعف وما بيُستخدموش هنا.'},
+            q2:{c:'✅ صح! 1011010 → عدد الـ 1s = 4 (زوجي) → Parity Bit = 0 عشان المجموع يفضل زوجي.',w:'❌ اعد العد: 1,0,1,1,0,1,0 → واحدات في المواضع 1,3,4,6 = 4 واحدات → زوجي → Parity = 0.'},
+            q3:{c:'✅ صح! في Wireless — إعادة الإرسال بطيئة (Latency) ومكلفة. FEC بيصحح الخطأ محلياً بدون Retransmission.',w:'❌ غلط! السبب هو تكلفة الـ Retransmission في Wireless — أسرع تصحح محلياً بـ FEC.'}
+        };
+        function ans(el,qid,correct){ const q=document.getElementById(qid); if(q.dataset.answered)return; q.dataset.answered='true'; q.querySelectorAll('.quiz-option').forEach(o=>o.style.pointerEvents='none'); el.classList.add(correct?'correct':'wrong'); const f=document.getElementById('fb-'+qid); f.textContent=correct?fb[qid].c:fb[qid].w; f.className='quiz-feedback show '+(correct?'correct-fb':'wrong-fb'); }
+    </script>
+</body>
+</html>

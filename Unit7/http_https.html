@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HTTP & HTTPS — بروتوكول الويب | Network Mastery</title>
+    <meta name="description" content="HTTP methods, status codes, request/response cycle, TLS handshake, HTTP/2 vs HTTP/3.">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&family=Inter:wght@400;500;600;700;800&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    <link href="../css/global-net.css" rel="stylesheet">
+    <style>
+        body{background:#020617;color:#E2E8F0;font-family:'Inter',sans-serif;}
+        .lesson-nav-bar{position:fixed;top:0;left:0;right:0;z-index:100;background:rgba(2,6,23,0.88);backdrop-filter:blur(20px);border-bottom:1px solid rgba(255,255,255,0.06);height:64px;display:flex;align-items:center;padding:0 1.5rem;}
+        .nav-inner{max-width:1280px;margin:0 auto;width:100%;display:flex;align-items:center;justify-content:space-between;}
+        .nav-brand{display:flex;align-items:center;gap:0.75rem;font-weight:700;}
+        .back-btn{width:36px;height:36px;border-radius:10px;background:linear-gradient(135deg,#F97316,#EA580C);display:flex;align-items:center;justify-content:center;color:white;font-size:0.85rem;transition:transform 0.3s;}
+        .back-btn:hover{transform:scale(1.1);}
+        .lesson-hero{position:relative;padding:8rem 1.5rem 5rem;text-align:center;overflow:hidden;}
+        .glow-orb{position:absolute;border-radius:50%;filter:blur(128px);pointer-events:none;}
+        .glow-orb-1{width:500px;height:500px;top:-10%;right:-5%;background:rgba(249,115,22,0.12);}
+        .glow-orb-2{width:400px;height:400px;bottom:-20%;left:-10%;background:rgba(34,211,238,0.06);}
+        .lesson-badge{display:inline-flex;align-items:center;gap:0.5rem;padding:0.35rem 1rem;border-radius:50px;background:rgba(30,41,59,0.6);border:1px solid rgba(255,255,255,0.08);font-family:'Fira Code',monospace;font-size:0.78rem;color:#FB923C;margin-bottom:1.5rem;}
+        .dot{width:6px;height:6px;border-radius:50%;background:#F97316;animation:pulse-dot 2s ease infinite;}
+        .lesson-hero h1{font-size:clamp(2.5rem,5vw,4rem);font-weight:800;margin-bottom:1rem;}
+        .text-g{background:linear-gradient(135deg,#F97316,#22D3EE);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;}
+        .subtitle{font-family:'Cairo',sans-serif;font-size:1.6rem;font-weight:700;color:var(--text-muted);direction:rtl;margin-bottom:1.5rem;}
+        .desc{color:var(--text-faint);max-width:640px;margin:0 auto;font-size:1.05rem;font-family:'Cairo',sans-serif;direction:rtl;line-height:1.9;}
+        .lesson-bottom-nav{display:flex;justify-content:space-between;align-items:center;gap:1rem;padding:2rem 0;border-top:1px solid var(--border-subtle);margin-top:3rem;}
+        .lesson-bottom-nav a{display:flex;align-items:center;gap:0.5rem;padding:0.75rem 1.5rem;border-radius:12px;background:rgba(255,255,255,0.04);border:1px solid var(--border-subtle);transition:all 0.3s ease;font-weight:600;font-size:0.9rem;}
+        .lesson-bottom-nav a:hover{background:rgba(249,115,22,0.1);border-color:rgba(249,115,22,0.3);transform:translateY(-2px);}
+        /* HTTP Request simulator */
+        .http-req{background:rgba(0,0,0,0.4);border:1px solid rgba(249,115,22,0.2);border-radius:10px;padding:1rem;font-family:'Fira Code',monospace;font-size:0.78rem;direction:ltr;margin:1rem 0;}
+        .http-req .method{color:#FBBF24;font-weight:900;}
+        .http-req .path{color:#E2E8F0;}
+        .http-req .header-k{color:#A78BFA;}
+        .http-req .header-v{color:#60A5FA;}
+        .http-res{background:rgba(0,0,0,0.4);border:1px solid rgba(34,211,238,0.2);border-radius:10px;padding:1rem;font-family:'Fira Code',monospace;font-size:0.78rem;direction:ltr;margin:1rem 0;}
+        .http-res .status{font-weight:900;}
+        .http-res .ok{color:#34D399;} .http-res .err{color:#F87171;} .http-res .redir{color:#FBBF24;}
+        /* Status code grid */
+        .status-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:0.5rem;margin:1rem 0;}
+        .sc-card{border-radius:10px;padding:0.75rem;text-align:center;}
+        .sc-num{font-family:'Fira Code',monospace;font-weight:900;font-size:1.1rem;direction:ltr;}
+        .sc-name{font-size:0.72rem;font-family:'Fira Code';direction:ltr;margin:0.1rem 0;}
+        .sc-desc{font-family:'Cairo',sans-serif;direction:rtl;font-size:0.7rem;color:var(--text-muted);}
+    </style>
+</head>
+<body>
+    <nav class="lesson-nav-bar">
+        <div class="nav-inner">
+            <a href="../index.html" class="nav-brand">
+                <div class="back-btn"><i class="fas fa-arrow-left"></i></div>
+                <span>HTTP<span style="color:#F97316;">S</span></span>
+            </a>
+        </div>
+    </nav>
+    <div class="progress-bar-container"><div class="progress-bar-fill" id="reading-progress" style="background:linear-gradient(90deg,#F97316,#22D3EE);"></div></div>
+
+    <header class="lesson-hero">
+        <div class="glow-orb glow-orb-1"></div><div class="glow-orb glow-orb-2"></div>
+        <div style="position:relative;z-index:1;">
+            <div class="lesson-badge" data-aos="fade-down"><span class="dot"></span>UNIT 7 • Lesson 1</div>
+            <h1 data-aos="fade-up" data-aos-delay="150"><span class="text-g">HTTP</span> &amp; HTTPS</h1>
+            <div class="subtitle" data-aos="fade-up" data-aos-delay="300">بروتوكول الويب وأمانه</div>
+            <p class="desc" data-aos="fade-up" data-aos-delay="450">متصفحك بيتكلم مع الـ Server بـ HTTP. اللي بيحوله آمن هو TLS. وكل مرة بتفتح موقع — بيحصل محادثة كاملة في أجزاء من الثانية.</p>
+        </div>
+    </header>
+
+    <!-- Request/Response cycle -->
+    <section class="lesson-section">
+        <div class="section-header" data-aos="fade-up">
+            <h2><i class="fas fa-comments" style="color:#F97316;margin-left:0.5rem;"></i> Request/Response Cycle</h2>
+            <p class="en-sub">The Conversation Between Browser and Server</p>
+        </div>
+        <div class="glass-card" style="padding:1.8rem;" data-aos="fade-up">
+            <div style="display:flex;gap:0.75rem;flex-wrap:wrap;margin-bottom:0.75rem;">
+                <select id="http-method" style="padding:0.35rem 0.75rem;background:rgba(0,0,0,0.4);border:1px solid rgba(249,115,22,0.3);border-radius:7px;color:#FB923C;font-family:'Fira Code';cursor:pointer;">
+                    <option>GET</option><option>POST</option><option>PUT</option><option>DELETE</option>
+                </select>
+                <input id="http-path" type="text" value="/api/users/42" style="flex:1;min-width:150px;background:rgba(0,0,0,0.3);border:1px solid rgba(249,115,22,0.2);border-radius:7px;color:#E2E8F0;font-family:'Fira Code';font-size:0.85rem;padding:0.35rem 0.75rem;outline:none;">
+                <button onclick="simulateHTTP()" style="padding:0.35rem 1rem;border-radius:7px;background:rgba(249,115,22,0.15);border:1px solid rgba(249,115,22,0.3);color:#FB923C;font-family:'Cairo';cursor:pointer;">إرسال</button>
+            </div>
+            <div class="http-req" id="http-req-display">
+                <div><span class="method">GET</span> <span class="path">/api/users/42 HTTP/1.1</span></div>
+                <div><span class="header-k">Host:</span> <span class="header-v">api.example.com</span></div>
+                <div><span class="header-k">Accept:</span> <span class="header-v">application/json</span></div>
+                <div><span class="header-k">Authorization:</span> <span class="header-v">Bearer eyJhbGc...</span></div>
+            </div>
+            <div class="http-res" id="http-res-display">
+                <div><span class="status ok">HTTP/1.1 200 OK</span></div>
+                <div><span class="header-k" style="color:#A78BFA;">Content-Type:</span> <span style="color:#60A5FA;">application/json</span></div>
+                <div><span class="header-k" style="color:#A78BFA;">Cache-Control:</span> <span style="color:#60A5FA;">max-age=300</span></div>
+                <div style="color:#34D399;margin-top:0.3rem;">{"id":42,"name":"Ahmed","email":"ahmed@example.com"}</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- HTTP Methods + Status Codes -->
+    <section class="lesson-section alt-bg">
+        <div class="section-inner">
+            <div class="section-header" data-aos="fade-up">
+                <h2><i class="fas fa-code" style="color:#FB923C;margin-left:0.5rem;"></i> HTTP Methods &amp; Status Codes</h2>
+            </div>
+            <div class="cost-compare" data-aos="fade-up">
+                <div style="background:rgba(15,23,42,0.7);border:1px solid rgba(249,115,22,0.2);border-radius:14px;padding:1.25rem;">
+                    <h5 style="color:#FB923C;margin-bottom:0.75rem;">HTTP Methods</h5>
+                    <div style="display:flex;flex-direction:column;gap:0.4rem;direction:ltr;font-family:'Fira Code';font-size:0.8rem;">
+                        <div><span style="color:#34D399;font-weight:700;">GET</span> <span style="color:#94A3B8;">جلب بيانات — Safe + Idempotent</span></div>
+                        <div><span style="color:#FBBF24;font-weight:700;">POST</span> <span style="color:#94A3B8;">إنشاء resource جديد</span></div>
+                        <div><span style="color:#60A5FA;font-weight:700;">PUT</span> <span style="color:#94A3B8;">تحديث resource كامل (Idempotent)</span></div>
+                        <div><span style="color:#A78BFA;font-weight:700;">PATCH</span> <span style="color:#94A3B8;">تعديل جزئي</span></div>
+                        <div><span style="color:#F87171;font-weight:700;">DELETE</span> <span style="color:#94A3B8;">حذف resource</span></div>
+                        <div><span style="color:#94A3B8;font-weight:700;">HEAD</span> <span style="color:#64748B;">لو Headers بس بدون Body</span></div>
+                        <div><span style="color:#94A3B8;font-weight:700;">OPTIONS</span> <span style="color:#64748B;">للـ CORS preflight</span></div>
+                    </div>
+                </div>
+                <div style="background:rgba(15,23,42,0.7);border:1px solid rgba(34,211,238,0.2);border-radius:14px;padding:1.25rem;">
+                    <h5 style="color:#22D3EE;margin-bottom:0.75rem;">Status Code Groups</h5>
+                    <div style="display:flex;flex-direction:column;gap:0.4rem;direction:ltr;font-family:'Fira Code';font-size:0.8rem;">
+                        <div><span style="color:#60A5FA;font-weight:700;">1xx</span> <span style="color:#94A3B8;">Informational (100 Continue)</span></div>
+                        <div><span style="color:#34D399;font-weight:700;">2xx</span> <span style="color:#94A3B8;">Success (200 OK, 201 Created, 204 No Content)</span></div>
+                        <div><span style="color:#FBBF24;font-weight:700;">3xx</span> <span style="color:#94A3B8;">Redirect (301 Moved, 302 Found, 304 Not Modified)</span></div>
+                        <div><span style="color:#F87171;font-weight:700;">4xx</span> <span style="color:#94A3B8;">Client Error (400, 401, 403, 404, 429)</span></div>
+                        <div><span style="color:#EC4899;font-weight:700;">5xx</span> <span style="color:#94A3B8;">Server Error (500, 502, 503)</span></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- HTTPS & TLS -->
+    <section class="lesson-section">
+        <div class="section-header" data-aos="fade-up">
+            <h2><i class="fas fa-lock" style="color:#34D399;margin-left:0.5rem;"></i> HTTPS — TLS Handshake</h2>
+            <p class="en-sub">How HTTPS Establishes Encryption Before Data Transfer</p>
+        </div>
+        <div class="glass-card" style="padding:1.8rem;" data-aos="fade-up">
+            <div style="display:flex;flex-direction:column;gap:0.5rem;direction:ltr;font-family:'Fira Code';font-size:0.78rem;">
+                <div style="padding:0.6rem;background:rgba(59,130,246,0.08);border:1px solid rgba(59,130,246,0.15);border-radius:8px;"><span style="color:#60A5FA;font-weight:700;">1. Client Hello:</span> <span style="color:#94A3B8;">Supported TLS versions, cipher suites, random bytes</span></div>
+                <div style="padding:0.6rem;background:rgba(16,185,129,0.08);border:1px solid rgba(16,185,129,0.15);border-radius:8px;"><span style="color:#34D399;font-weight:700;">2. Server Hello:</span> <span style="color:#94A3B8;">Chosen cipher, server random + Certificate (public key)</span></div>
+                <div style="padding:0.6rem;background:rgba(245,158,11,0.08);border:1px solid rgba(245,158,11,0.15);border-radius:8px;"><span style="color:#FBBF24;font-weight:700;">3. Certificate verify + Key Exchange:</span> <span style="color:#94A3B8;">Client verifies cert, generates Pre-Master Secret</span></div>
+                <div style="padding:0.6rem;background:rgba(139,92,246,0.08);border:1px solid rgba(139,92,246,0.15);border-radius:8px;"><span style="color:#A78BFA;font-weight:700;">4. Session Keys derived:</span> <span style="color:#94A3B8;">Both derive identical session keys independently (ECDHE)</span></div>
+                <div style="padding:0.6rem;background:rgba(16,185,129,0.12);border:1px solid rgba(16,185,129,0.3);border-radius:8px;"><span style="color:#34D399;font-weight:900;">5. Encrypted Application Data ✅</span> <span style="color:#94A3B8;">AES-256-GCM / ChaCha20</span></div>
+            </div>
+            <div class="rtl-block" style="margin-top:1rem;color:#94A3B8;font-size:0.85rem;">
+                <p>💡 <strong style="color:#22D3EE;">TLS 1.3</strong> (الأحدث): 1-RTT Handshake (أسرع من TLS 1.2 الذي يأخذ 2-RTT). 0-RTT للاتصالات المتكررة. يُستخدم في HTTP/3.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- HTTP/2 vs HTTP/3 -->
+    <section class="lesson-section alt-bg">
+        <div class="section-inner">
+            <div class="section-header" data-aos="fade-up">
+                <h2><i class="fas fa-rocket" style="color:#FB923C;margin-left:0.5rem;"></i> HTTP/1.1 → HTTP/2 → HTTP/3</h2>
+            </div>
+            <div data-aos="fade-up" style="overflow-x:auto;">
+                <table class="comparison-table">
+                    <thead><tr><th>Feature</th><th>HTTP/1.1</th><th>HTTP/2</th><th>HTTP/3</th></tr></thead>
+                    <tbody>
+                        <tr><td>Protocol</td><td style="direction:ltr;font-family:'Fira Code';">Text (TCP)</td><td style="direction:ltr;font-family:'Fira Code';">Binary (TCP)</td><td style="direction:ltr;font-family:'Fira Code';color:#34D399;">Binary (QUIC/UDP)</td></tr>
+                        <tr><td class="rtl-block">طلبات متزامنة</td><td>1 per connection</td><td style="color:#34D399;">Multiplexing ✅</td><td style="color:#34D399;">Multiplexing ✅</td></tr>
+                        <tr><td class="rtl-block">Head-of-Line Blocking</td><td style="color:#F87171;">❌ موجود</td><td style="color:#FBBF24;">TCP-level still</td><td style="color:#34D399;">✅ محلول (QUIC)</td></tr>
+                        <tr><td class="rtl-block">Header Compression</td><td>❌</td><td>HPACK ✅</td><td>QPACK ✅</td></tr>
+                        <tr><td>Server Push</td><td>❌</td><td>✅</td><td>Experimental</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </section>
+
+    <section class="lesson-section" id="quiz">
+        <div class="section-header" data-aos="fade-up">
+            <h2><i class="fas fa-brain" style="color:#F97316;margin-left:0.5rem;"></i> اختبر نفسك</h2>
+        </div>
+        <div class="quiz-container" data-aos="fade-up">
+            <div class="quiz-question" id="q1">
+                <h4>Status Code 401 vs 403 — الفرق؟</h4>
+                <div class="quiz-options">
+                    <div class="quiz-option" onclick="ans(this,'q1',false)">نفس الشيء</div>
+                    <div class="quiz-option" onclick="ans(this,'q1',true)">401 = Unauthorized (لم تتحقق من هويتك). 403 = Forbidden (هويتك معروفة لكن ممنوع)</div>
+                    <div class="quiz-option" onclick="ans(this,'q1',false)">401 = Server Error، 403 = Client Error</div>
+                    <div class="quiz-option" onclick="ans(this,'q1',false)">401 للـ Admin و403 للـ User</div>
+                </div>
+                <div class="quiz-feedback" id="fb-q1"></div>
+            </div>
+            <div class="quiz-question" id="q2">
+                <h4>HTTP/3 بيستخدم QUIC فوق أيه؟</h4>
+                <div class="quiz-options">
+                    <div class="quiz-option" onclick="ans(this,'q2',false)">TCP</div>
+                    <div class="quiz-option" onclick="ans(this,'q2',true)">UDP</div>
+                    <div class="quiz-option" onclick="ans(this,'q2',false)">ICMP</div>
+                    <div class="quiz-option" onclick="ans(this,'q2',false)">Raw IP</div>
+                </div>
+                <div class="quiz-feedback" id="fb-q2"></div>
+            </div>
+        </div>
+    </section>
+
+    <section class="lesson-section">
+        <div class="lesson-bottom-nav">
+            <a href="../Unit6/ports_sockets.html"><i class="fas fa-arrow-left"></i><span>Ports &amp; Sockets</span></a>
+            <div style="text-align:center;color:var(--text-faint);font-size:0.85rem;">Unit 7 • Lesson 1</div>
+            <a href="dns.html"><span>DNS</span><i class="fas fa-arrow-right"></i></a>
+        </div>
+    </section>
+
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <script>
+        AOS.init({duration:800,once:true,offset:100});
+        window.addEventListener('scroll',()=>{ document.getElementById('reading-progress').style.width=(window.scrollY/(document.documentElement.scrollHeight-window.innerHeight))*100+'%'; });
+
+        const methodBody={GET:'',POST:'{\n  "name": "Ahmed",\n  "email": "ahmed@example.com"\n}',PUT:'{\n  "id": 42,\n  "name": "Ahmed Updated"\n}',DELETE:''};
+        const statusMap={GET:{code:'200 OK',cls:'ok',body:'{"id":42,"name":"Ahmed"}'},POST:{code:'201 Created',cls:'ok',body:'{"id":99,"name":"Ahmed","created":true}'},PUT:{code:'200 OK',cls:'ok',body:'{"id":42,"name":"Ahmed Updated"}'},DELETE:{code:'204 No Content',cls:'ok',body:''}};
+        function simulateHTTP(){
+            const m=document.getElementById('http-method').value;
+            const p=document.getElementById('http-path').value||'/';
+            const body=methodBody[m];
+            const res=statusMap[m];
+            document.getElementById('http-req-display').innerHTML=`
+                <div><span class="method">${m}</span> <span class="path">${p} HTTP/1.1</span></div>
+                <div><span class="header-k">Host:</span> <span class="header-v">api.example.com</span></div>
+                <div><span class="header-k">Accept:</span> <span class="header-v">application/json</span></div>
+                ${body?`<div><span class="header-k">Content-Type:</span> <span class="header-v">application/json</span></div><div style="margin-top:0.3rem;color:#E2E8F0;">${body}</div>`:''}
+            `;
+            document.getElementById('http-res-display').innerHTML=`
+                <div><span class="status ${res.cls}">HTTP/1.1 ${res.code}</span></div>
+                <div><span class="header-k" style="color:#A78BFA;">Content-Type:</span> <span style="color:#60A5FA;">application/json</span></div>
+                ${res.body?`<div style="color:#34D399;margin-top:0.3rem;">${res.body}</div>`:'<div style="color:#64748B;margin-top:0.3rem;">&lt;no body&gt;</div>'}
+            `;
+        }
+
+        const fb={
+            q1:{c:'✅ صح! 401 = Unauthenticated (ما تحققتش من هويتك). 403 = هويتك معروفة بس ممنوع عليك الوصول.',w:'❌ غلط! 401 = Authentication required. 403 = Authorized but Forbidden.'},
+            q2:{c:'✅ صح! HTTP/3 = QUIC فوق UDP. QUIC بيبني Reliability بنفسه فوق UDP — أسرع من TCP في Handshake والـ Recovery.',w:'❌ HTTP/3 = QUIC/UDP. مش TCP. ده السبب الرئيسي للتحسن في الأداء — QUIC بيعالج Head-of-Line Blocking.'}
+        };
+        function ans(el,qid,correct){ const q=document.getElementById(qid); if(q.dataset.answered)return; q.dataset.answered='true'; q.querySelectorAll('.quiz-option').forEach(o=>o.style.pointerEvents='none'); el.classList.add(correct?'correct':'wrong'); const f=document.getElementById('fb-'+qid); f.textContent=correct?fb[qid].c:fb[qid].w; f.className='quiz-feedback show '+(correct?'correct-fb':'wrong-fb'); }
+    </script>
+</body>
+</html>

@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DHCP & SNMP — إدارة الشبكات | Network Mastery</title>
+    <meta name="description" content="DHCP deep dive: relay agents, options. SNMP v1/v2c/v3, MIB, OIDs, NTP time sync.">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&family=Inter:wght@400;500;600;700;800&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    <link href="../css/global-net.css" rel="stylesheet">
+    <style>
+        body{background:#020617;color:#E2E8F0;font-family:'Inter',sans-serif;}
+        .lesson-nav-bar{position:fixed;top:0;left:0;right:0;z-index:100;background:rgba(2,6,23,0.88);backdrop-filter:blur(20px);border-bottom:1px solid rgba(255,255,255,0.06);height:64px;display:flex;align-items:center;padding:0 1.5rem;}
+        .nav-inner{max-width:1280px;margin:0 auto;width:100%;display:flex;align-items:center;justify-content:space-between;}
+        .nav-brand{display:flex;align-items:center;gap:0.75rem;font-weight:700;}
+        .back-btn{width:36px;height:36px;border-radius:10px;background:linear-gradient(135deg,#F97316,#EA580C);display:flex;align-items:center;justify-content:center;color:white;font-size:0.85rem;transition:transform 0.3s;}
+        .back-btn:hover{transform:scale(1.1);}
+        .lesson-hero{position:relative;padding:8rem 1.5rem 5rem;text-align:center;overflow:hidden;}
+        .glow-orb{position:absolute;border-radius:50%;filter:blur(128px);pointer-events:none;}
+        .glow-orb-1{width:500px;height:500px;top:-10%;right:-5%;background:rgba(249,115,22,0.12);}
+        .glow-orb-2{width:400px;height:400px;bottom:-20%;left:-10%;background:rgba(100,116,139,0.06);}
+        .lesson-badge{display:inline-flex;align-items:center;gap:0.5rem;padding:0.35rem 1rem;border-radius:50px;background:rgba(30,41,59,0.6);border:1px solid rgba(255,255,255,0.08);font-family:'Fira Code',monospace;font-size:0.78rem;color:#FB923C;margin-bottom:1.5rem;}
+        .dot{width:6px;height:6px;border-radius:50%;background:#F97316;animation:pulse-dot 2s ease infinite;}
+        .lesson-hero h1{font-size:clamp(2.5rem,5vw,4rem);font-weight:800;margin-bottom:1rem;}
+        .text-g{background:linear-gradient(135deg,#F97316,#94A3B8);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;}
+        .subtitle{font-family:'Cairo',sans-serif;font-size:1.6rem;font-weight:700;color:var(--text-muted);direction:rtl;margin-bottom:1.5rem;}
+        .desc{color:var(--text-faint);max-width:640px;margin:0 auto;font-size:1.05rem;font-family:'Cairo',sans-serif;direction:rtl;line-height:1.9;}
+        .lesson-bottom-nav{display:flex;justify-content:space-between;align-items:center;gap:1rem;padding:2rem 0;border-top:1px solid var(--border-subtle);margin-top:3rem;}
+        .lesson-bottom-nav a{display:flex;align-items:center;gap:0.5rem;padding:0.75rem 1.5rem;border-radius:12px;background:rgba(255,255,255,0.04);border:1px solid var(--border-subtle);transition:all 0.3s ease;font-weight:600;font-size:0.9rem;}
+        .lesson-bottom-nav a:hover{background:rgba(249,115,22,0.1);border-color:rgba(249,115,22,0.3);transform:translateY(-2px);}
+        /* SNMP dashboard sim */
+        .snmp-device{background:rgba(15,23,42,0.8);border:1px solid var(--border-subtle);border-radius:12px;padding:1rem;transition:all 0.3s;}
+        .snmp-device:hover{border-color:rgba(249,115,22,0.3);}
+        .snmp-metric{display:flex;align-items:center;justify-content:space-between;margin:0.3rem 0;font-size:0.78rem;font-family:'Fira Code';}
+        .metric-bar{flex:1;height:6px;background:rgba(255,255,255,0.06);border-radius:3px;margin:0 0.5rem;overflow:hidden;}
+        .metric-fill{height:100%;border-radius:3px;transition:width 0.5s;}
+    </style>
+</head>
+<body>
+    <nav class="lesson-nav-bar">
+        <div class="nav-inner">
+            <a href="../index.html" class="nav-brand">
+                <div class="back-btn"><i class="fas fa-arrow-left"></i></div>
+                <span>DHCP<span style="color:#F97316;">&SNMP</span></span>
+            </a>
+        </div>
+    </nav>
+    <div class="progress-bar-container"><div class="progress-bar-fill" id="reading-progress" style="background:linear-gradient(90deg,#F97316,#94A3B8);"></div></div>
+
+    <header class="lesson-hero">
+        <div class="glow-orb glow-orb-1"></div><div class="glow-orb glow-orb-2"></div>
+        <div style="position:relative;z-index:1;">
+            <div class="lesson-badge" data-aos="fade-down"><span class="dot"></span>UNIT 7 • Lesson 5</div>
+            <h1 data-aos="fade-up" data-aos-delay="150">DHCP &amp; <span class="text-g">SNMP</span></h1>
+            <div class="subtitle" data-aos="fade-up" data-aos-delay="300">توزيع العناوين وإدارة الشبكة</div>
+            <p class="desc" data-aos="fade-up" data-aos-delay="450">SNMP بيسمح للـ NOC بمصر يراقب راوتر في الإسكندرية من القاهرة في اللحظة — bandwidth، CPU، temperature — كل ده عن بعد.</p>
+        </div>
+    </header>
+
+    <!-- DHCP Options Deep Dive -->
+    <section class="lesson-section">
+        <div class="section-header" data-aos="fade-up">
+            <h2><i class="fas fa-cogs" style="color:#FB923C;margin-left:0.5rem;"></i> DHCP Options — أكثر من مجرد IP</h2>
+            <p class="en-sub">DHCP Sends Config Parameters — Not Just an IP Address</p>
+        </div>
+        <div class="glass-card" style="padding:1.8rem;" data-aos="fade-up">
+            <div class="rtl-block" style="margin-bottom:1rem;color:#CBD5E1;font-size:0.95rem;line-height:1.8;">
+                <p>الـ DHCP Offer مش بس IP — بيبعت كل Settings اللي الجهاز محتاجها:</p>
+            </div>
+            <div style="overflow-x:auto;">
+                <table class="comparison-table">
+                    <thead><tr><th>Option</th><th>Code</th><th>القيمة</th><th>الوظيفة</th></tr></thead>
+                    <tbody>
+                        <tr><td style="direction:ltr;font-family:'Fira Code';">Subnet Mask</td><td style="font-family:'Fira Code';">1</td><td style="direction:ltr;font-family:'Fira Code';">255.255.255.0</td><td class="rtl-block">تحديد Network</td></tr>
+                        <tr><td style="direction:ltr;font-family:'Fira Code';">Router/Gateway</td><td style="font-family:'Fira Code';">3</td><td style="direction:ltr;font-family:'Fira Code';">192.168.1.1</td><td class="rtl-block">الـ Default Gateway</td></tr>
+                        <tr><td style="direction:ltr;font-family:'Fira Code';">DNS Server</td><td style="font-family:'Fira Code';">6</td><td style="direction:ltr;font-family:'Fira Code';">8.8.8.8, 8.8.4.4</td><td class="rtl-block">خوادم DNS</td></tr>
+                        <tr><td style="direction:ltr;font-family:'Fira Code';">Lease Time</td><td style="font-family:'Fira Code';">51</td><td style="direction:ltr;font-family:'Fira Code';">86400 (24h)</td><td class="rtl-block">مدة الـ IP</td></tr>
+                        <tr><td style="direction:ltr;font-family:'Fira Code';">NTP Server</td><td style="font-family:'Fira Code';">42</td><td style="direction:ltr;font-family:'Fira Code';">pool.ntp.org</td><td class="rtl-block">مزامنة الوقت</td></tr>
+                        <tr><td style="direction:ltr;font-family:'Fira Code';">TFTP Server</td><td style="font-family:'Fira Code';">66</td><td style="direction:ltr;font-family:'Fira Code';">192.168.1.10</td><td class="rtl-block">للـ PXE Boot</td></tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="info-box" style="margin-top:0.75rem;">
+                <div class="rtl-block" style="font-size:0.88rem;">💡 DHCP Relay Agent: لو الـ Client وServer على شبكات مختلفة، الـ Router بيعمل DHCP Relay — بيبعت الـ Broadcast من الـ Client للـ Server بـ Unicast.</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- SNMP Section -->
+    <section class="lesson-section alt-bg">
+        <div class="section-inner">
+            <div class="section-header" data-aos="fade-up">
+                <h2><i class="fas fa-gauge-high" style="color:#94A3B8;margin-left:0.5rem;"></i> SNMP — إدارة الشبكة عن بعد</h2>
+                <p class="en-sub">Simple Network Management Protocol — Port 161/162</p>
+            </div>
+            <div class="glass-card" style="padding:1.8rem;" data-aos="fade-up">
+                <div class="rtl-block" style="margin-bottom:1.5rem;color:#CBD5E1;font-size:0.95rem;line-height:1.8;">
+                    <p>SNMP بيمكّن النظام من: الاستعلام عن حالة الأجهزة (<strong style="color:#34D399;">GET</strong>)، تغيير تكوينها (<strong style="color:#FBBF24;">SET</strong>)، وإرسال تنبيهات تلقائية (<strong style="color:#F87171;">TRAP</strong>).</p>
+                </div>
+                <!-- Simulated SNMP Dashboard -->
+                <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:0.75rem;margin-bottom:1rem;">
+                    <div class="snmp-device">
+                        <div style="color:#FB923C;font-weight:700;font-size:0.85rem;margin-bottom:0.6rem;font-family:'Fira Code';direction:ltr;">🔀 Core-Router-1</div>
+                        <div class="snmp-metric"><span style="color:#94A3B8;">CPU:</span><div class="metric-bar"><div class="metric-fill" style="width:62%;background:#FBBF24;"></div></div><span style="color:#FBBF24;">62%</span></div>
+                        <div class="snmp-metric"><span style="color:#94A3B8;">Memory:</span><div class="metric-bar"><div class="metric-fill" style="width:45%;background:#34D399;"></div></div><span style="color:#34D399;">45%</span></div>
+                        <div class="snmp-metric"><span style="color:#94A3B8;">GE0/0:</span><div class="metric-bar"><div class="metric-fill" style="width:88%;background:#F87171;"></div></div><span style="color:#F87171;">88%</span></div>
+                    </div>
+                    <div class="snmp-device">
+                        <div style="color:#60A5FA;font-weight:700;font-size:0.85rem;margin-bottom:0.6rem;font-family:'Fira Code';direction:ltr;">🔌 Dist-Switch-2</div>
+                        <div class="snmp-metric"><span style="color:#94A3B8;">CPU:</span><div class="metric-bar"><div class="metric-fill" style="width:23%;background:#34D399;"></div></div><span style="color:#34D399;">23%</span></div>
+                        <div class="snmp-metric"><span style="color:#94A3B8;">Temp:</span><div class="metric-bar"><div class="metric-fill" style="width:55%;background:#FBBF24;"></div></div><span style="color:#FBBF24;">55°C</span></div>
+                        <div class="snmp-metric"><span style="color:#94A3B8;">Po1/1:</span><div class="metric-bar"><div class="metric-fill" style="width:35%;background:#34D399;"></div></div><span style="color:#34D399;">35%</span></div>
+                    </div>
+                </div>
+                <button onclick="refreshSNMP()" style="padding:0.4rem 1rem;border-radius:8px;background:rgba(249,115,22,0.15);border:1px solid rgba(249,115,22,0.3);color:#FB923C;font-family:'Cairo';cursor:pointer;font-size:0.82rem;">🔄 تحديث SNMP Data</button>
+            </div>
+
+            <!-- SNMP Versions -->
+            <div class="glass-card" style="padding:1.5rem;margin-top:1rem;" data-aos="fade-up">
+                <div class="section-header" style="margin-bottom:0.75rem;"><h3 style="font-size:1rem;">إصدارات SNMP</h3></div>
+                <div style="overflow-x:auto;">
+                    <table class="comparison-table">
+                        <thead><tr><th>Version</th><th>الأمان</th><th>Authentication</th></tr></thead>
+                        <tbody>
+                            <tr><td style="font-family:'Fira Code';color:#F87171;">v1</td><td class="rtl-block">Community String (Clear Text)</td><td class="rtl-block" style="color:#F87171;">❌ لا تشفير — خطير</td></tr>
+                            <tr><td style="font-family:'Fira Code';color:#FBBF24;">v2c</td><td class="rtl-block">Community String (Clear Text)</td><td class="rtl-block" style="color:#FBBF24;">⚠️ أفضل performance</td></tr>
+                            <tr><td style="font-family:'Fira Code';color:#34D399;">v3</td><td class="rtl-block">User-based Security + Encryption</td><td class="rtl-block" style="color:#34D399;">✅ MD5/SHA + AES/DES — استخدم دايماً</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- NTP -->
+    <section class="lesson-section">
+        <div class="section-header" data-aos="fade-up">
+            <h2><i class="fas fa-clock" style="color:#60A5FA;margin-left:0.5rem;"></i> NTP — مزامنة الوقت</h2>
+            <p class="en-sub">Network Time Protocol — Why Microseconds Matter</p>
+        </div>
+        <div class="glass-card" style="padding:1.8rem;" data-aos="fade-up">
+            <div class="rtl-block" style="margin-bottom:1rem;color:#CBD5E1;font-size:0.95rem;line-height:1.8;">
+                <p>لو الـ Cisco Router والـ Firewall عندهم وقت مختلف — الـ Logs بتبقى مفيش معنى. الـ Kerberos authentication بيفضل لو الوقت اختلف أكتر من 5 دقائق. Trading Systems بتخسر بالملايين لو الـ Timestamps غلط. NTP بيحل كل ده.</p>
+            </div>
+            <div style="background:rgba(0,0,0,0.3);border-radius:10px;padding:1rem;font-family:'Fira Code';font-size:0.8rem;direction:ltr;">
+                <div style="color:#94A3B8;margin-bottom:0.3rem;"># Stratum hierarchy</div>
+                <div style="color:#FBBF24;">Stratum 0: Atomic Clock / GPS</div>
+                <div style="color:#60A5FA;">Stratum 1: Primary NTP Server (pool.ntp.org)</div>
+                <div style="color:#34D399;">Stratum 2: Your Company NTP Server</div>
+                <div style="color:#CBD5E1;">Stratum 3+: Your Devices</div>
+                <div style="color:#94A3B8;margin-top:0.5rem;"># Config example (Cisco)</div>
+                <div style="color:#E2E8F0;">ntp server pool.ntp.org prefer</div>
+                <div style="color:#E2E8F0;">ntp update-calendar</div>
+            </div>
+        </div>
+    </section>
+
+    <section class="lesson-section alt-bg" id="quiz">
+        <div class="section-inner">
+            <div class="section-header" data-aos="fade-up">
+                <h2><i class="fas fa-brain" style="color:#F97316;margin-left:0.5rem;"></i> اختبر نفسك</h2>
+            </div>
+            <div class="quiz-container" data-aos="fade-up">
+                <div class="quiz-question" id="q1">
+                    <h4>SNMP Trap إيه الفرق بينه وبين GET؟</h4>
+                    <div class="quiz-options">
+                        <div class="quiz-option" onclick="ans(this,'q1',false)">نفس الشيء</div>
+                        <div class="quiz-option" onclick="ans(this,'q1',true)">GET = Manager يسأل الـ Agent. Trap = Agent يبعت تنبيه للـ Manager تلقائياً عند حدث معين</div>
+                        <div class="quiz-option" onclick="ans(this,'q1',false)">Trap للإعداد فقط</div>
+                        <div class="quiz-option" onclick="ans(this,'q1',false)">GET يستخدم UDP والـ Trap TCP</div>
+                    </div>
+                    <div class="quiz-feedback" id="fb-q1"></div>
+                </div>
+                <div class="quiz-question" id="q2">
+                    <h4>ليه NTP مهم في الشركات؟</h4>
+                    <div class="quiz-options">
+                        <div class="quiz-option" onclick="ans(this,'q2',false)">لحفظ الطاقة</div>
+                        <div class="quiz-option" onclick="ans(this,'q2',true)">لتزامن Logs والـ Authentication (Kerberos) والـ Certificates — اختلاف الوقت يخرب كل ده</div>
+                        <div class="quiz-option" onclick="ans(this,'q2',false)">لزيادة السرعة</div>
+                        <div class="quiz-option" onclick="ans(this,'q2',false)">للـ Backup</div>
+                    </div>
+                    <div class="quiz-feedback" id="fb-q2"></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="lesson-section">
+        <div class="glass-card" style="padding:2rem;text-align:center;border-color:rgba(249,115,22,0.3);margin-bottom:2rem;" data-aos="zoom-in">
+            <div style="font-size:3rem;margin-bottom:1rem;">🎓</div>
+            <h3 style="color:#FB923C;font-family:'Cairo',sans-serif;">أنهيت الوحدة السابعة!</h3>
+            <p class="rtl-block" style="color:#CBD5E1;margin:1rem 0;">Application Layer مكتملة: HTTP/HTTPS، DNS، Email، FTP/SSH، DHCP/SNMP/NTP — الجزء الأكثر تطبيقاً!</p>
+            <a href="../Unit8/security_concepts.html" style="display:inline-flex;align-items:center;gap:0.75rem;padding:0.9rem 2rem;border-radius:14px;background:linear-gradient(135deg,#EC4899,#DB2777);color:white;font-weight:800;transition:all 0.3s;text-decoration:none;">
+                الوحدة الثامنة: Network Security <i class="fas fa-arrow-right"></i>
+            </a>
+        </div>
+        <div class="lesson-bottom-nav">
+            <a href="ftp_ssh.html"><i class="fas fa-arrow-left"></i><span>FTP &amp; SSH</span></a>
+            <div style="text-align:center;color:var(--text-faint);font-size:0.85rem;">Unit 7 Complete ✅</div>
+            <a href="../Unit8/security_concepts.html"><span>Unit 8 →</span><i class="fas fa-arrow-right"></i></a>
+        </div>
+    </section>
+
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <script>
+        AOS.init({duration:800,once:true,offset:100});
+        window.addEventListener('scroll',()=>{ document.getElementById('reading-progress').style.width=(window.scrollY/(document.documentElement.scrollHeight-window.innerHeight))*100+'%'; });
+        function refreshSNMP(){
+            document.querySelectorAll('.metric-fill').forEach(m=>{ const pct=Math.floor(Math.random()*80+10); m.style.width=pct+'%'; const color=pct>75?'#F87171':pct>50?'#FBBF24':'#34D399'; m.style.background=color; m.closest('.snmp-metric').querySelector('span:last-child').style.color=color; m.closest('.snmp-metric').querySelector('span:last-child').textContent=m.closest('.snmp-metric').querySelector('span:first-child').textContent.replace(':','').trim()==='GE0/0'||m.closest('.snmp-metric').querySelector('span:first-child').textContent.includes('Po')?pct+'%':m.closest('.snmp-metric').querySelector('span:first-child').textContent.includes('Temp')?pct+'°C':pct+'%'; });
+        }
+        const fb={
+            q1:{c:'✅ صح! GET = Manager يسأل. Trap = Agent بيرسل تنبيه تلقائي لما يحصل حدث (interface down, CPU high, etc.).',w:'❌ غلط! GET = polling من الـ Manager. Trap = push notification من الـ Agent للـ Manager بدون طلب.'},
+            q2:{c:'✅ صح! NTP مهم للـ Logs، Kerberos (timeout 5 دقائق)، TLS Certificates، وForensics. اختلاف الوقت = Chaos.',w:'❌ غلط! NTP مهم لتزامن Logs وAuthentication (Kerberos يرفض لو الوقت اختلف 5 دقائق) وTLS Certificates.'}
+        };
+        function ans(el,qid,correct){ const q=document.getElementById(qid); if(q.dataset.answered)return; q.dataset.answered='true'; q.querySelectorAll('.quiz-option').forEach(o=>o.style.pointerEvents='none'); el.classList.add(correct?'correct':'wrong'); const f=document.getElementById('fb-'+qid); f.textContent=correct?fb[qid].c:fb[qid].w; f.className='quiz-feedback show '+(correct?'correct-fb':'wrong-fb'); }
+    </script>
+</body>
+</html>

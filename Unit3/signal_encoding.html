@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Signal Encoding — ترميز الإشارات | Network Mastery</title>
+    <meta name="description" content="كيف الـ Bits (0 و1) بتتحول لإشارات فيزيائية — NRZ, Manchester, 4B/5B">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&family=Inter:wght@400;500;600;700;800&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    <link href="../css/global-net.css" rel="stylesheet">
+    <style>
+        body{background:#020617;color:#E2E8F0;font-family:'Inter',sans-serif;}
+        .lesson-nav-bar{position:fixed;top:0;left:0;right:0;z-index:100;background:rgba(2,6,23,0.88);backdrop-filter:blur(20px);border-bottom:1px solid rgba(255,255,255,0.06);height:64px;display:flex;align-items:center;padding:0 1.5rem;}
+        .nav-inner{max-width:1280px;margin:0 auto;width:100%;display:flex;align-items:center;justify-content:space-between;}
+        .nav-brand{display:flex;align-items:center;gap:0.75rem;font-weight:700;}
+        .back-btn{width:36px;height:36px;border-radius:10px;background:linear-gradient(135deg,#8B5CF6,#6D28D9);display:flex;align-items:center;justify-content:center;color:white;font-size:0.85rem;transition:transform 0.3s;}
+        .back-btn:hover{transform:scale(1.1);}
+        .lesson-hero{position:relative;padding:8rem 1.5rem 5rem;text-align:center;overflow:hidden;}
+        .glow-orb{position:absolute;border-radius:50%;filter:blur(128px);pointer-events:none;}
+        .glow-orb-1{width:500px;height:500px;top:-10%;right:-5%;background:rgba(139,92,246,0.12);}
+        .glow-orb-2{width:400px;height:400px;bottom:-20%;left:-10%;background:rgba(59,130,246,0.08);}
+        .lesson-badge{display:inline-flex;align-items:center;gap:0.5rem;padding:0.35rem 1rem;border-radius:50px;background:rgba(30,41,59,0.6);border:1px solid rgba(255,255,255,0.08);font-family:'Fira Code',monospace;font-size:0.78rem;color:#A78BFA;margin-bottom:1.5rem;}
+        .dot{width:6px;height:6px;border-radius:50%;background:#8B5CF6;animation:pulse-dot 2s ease infinite;}
+        .lesson-hero h1{font-size:clamp(2.5rem,5vw,4rem);font-weight:800;margin-bottom:1rem;}
+        .text-g{background:linear-gradient(135deg,#8B5CF6,#A78BFA);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;}
+        .subtitle{font-family:'Cairo',sans-serif;font-size:1.6rem;font-weight:700;color:var(--text-muted);direction:rtl;margin-bottom:1.5rem;}
+        .desc{color:var(--text-faint);max-width:640px;margin:0 auto;font-size:1.05rem;font-family:'Cairo',sans-serif;direction:rtl;line-height:1.9;}
+
+        /* Encoding canvas */
+        .enc-wrap{background:rgba(0,0,0,0.4);border:1px solid var(--border-subtle);border-radius:12px;overflow:hidden;margin:1rem 0;}
+        .enc-canvas{width:100%;display:block;}
+        .enc-controls{display:flex;gap:0.5rem;flex-wrap:wrap;padding:0.75rem;border-top:1px solid var(--border-subtle);background:rgba(0,0,0,0.2);}
+        .enc-btn{padding:0.35rem 0.8rem;border-radius:8px;border:1px solid var(--border-light);background:rgba(255,255,255,0.03);color:var(--text-body);font-family:'Fira Code',monospace;font-size:0.78rem;cursor:pointer;transition:all 0.3s;}
+        .enc-btn:hover,.enc-btn.active{background:rgba(139,92,246,0.2);border-color:#8B5CF6;color:#A78BFA;}
+
+        /* Bit sequence builder */
+        .bit-builder{display:flex;align-items:center;gap:0.5rem;flex-wrap:wrap;margin:1rem 0;direction:ltr;}
+        .bit-cell{width:36px;height:36px;border-radius:8px;border:2px solid var(--border-light);display:flex;align-items:center;justify-content:center;font-family:'Fira Code',monospace;font-weight:900;font-size:1rem;cursor:pointer;transition:all 0.3s;user-select:none;}
+        .bit-cell.one{background:rgba(139,92,246,0.2);border-color:#8B5CF6;color:#A78BFA;}
+        .bit-cell.zero{background:rgba(6,182,212,0.1);border-color:#06B6D4;color:#22D3EE;}
+
+        .lesson-bottom-nav{display:flex;justify-content:space-between;align-items:center;gap:1rem;padding:2rem 0;border-top:1px solid var(--border-subtle);margin-top:3rem;}
+        .lesson-bottom-nav a{display:flex;align-items:center;gap:0.5rem;padding:0.75rem 1.5rem;border-radius:12px;background:rgba(255,255,255,0.04);border:1px solid var(--border-subtle);transition:all 0.3s ease;font-weight:600;font-size:0.9rem;}
+        .lesson-bottom-nav a:hover{background:rgba(139,92,246,0.1);border-color:rgba(139,92,246,0.3);transform:translateY(-2px);}
+    </style>
+</head>
+<body>
+    <nav class="lesson-nav-bar">
+        <div class="nav-inner">
+            <a href="../index.html" class="nav-brand">
+                <div class="back-btn"><i class="fas fa-arrow-left"></i></div>
+                <span>Signal<span style="color:#8B5CF6;">Enc</span></span>
+            </a>
+        </div>
+    </nav>
+    <div class="progress-bar-container"><div class="progress-bar-fill" id="reading-progress" style="background:linear-gradient(90deg,#8B5CF6,#A78BFA);"></div></div>
+
+    <header class="lesson-hero">
+        <div class="glow-orb glow-orb-1"></div><div class="glow-orb glow-orb-2"></div>
+        <div style="position:relative;z-index:1;">
+            <div class="lesson-badge" data-aos="fade-down"><span class="dot"></span>UNIT 3 • Lesson 2</div>
+            <h1 data-aos="fade-up" data-aos-delay="150">Signal <span class="text-g">Encoding</span></h1>
+            <div class="subtitle" data-aos="fade-up" data-aos-delay="300">ترميز الإشارات</div>
+            <p class="desc" data-aos="fade-up" data-aos-delay="450">الكمبيوتر بيتكلم 0 و1 — الكابل بيفهم كهرباء. كيف بيتم الترجمة؟ وليه مش أي ترجمة بتشتغل؟</p>
+        </div>
+    </header>
+
+    <!-- The Fundamental Problem -->
+    <section class="lesson-section">
+        <div class="section-header" data-aos="fade-up">
+            <h2><i class="fas fa-arrows-turn-right" style="color:#8B5CF6;margin-left:0.5rem;"></i> المشكلة الأساسية</h2>
+            <p class="en-sub">Digital → Analog → Digital — The Encoding Problem</p>
+        </div>
+        <div class="glass-card" style="padding:1.8rem;" data-aos="fade-up" data-aos-delay="100">
+            <div class="rtl-block">
+                <p style="color:#E2E8F0;font-size:1rem;margin-bottom:1rem;line-height:1.9;">الكمبيوتر يتكلم رقمياً: 0 و1. الكابل بيحمل إشارة فيزيائية: جهد كهربي، ضوء، أو موجة راديو. لازم تكون فيه <strong style="color:#A78BFA;">قواعد اتفاق محددة</strong> للترجمة بينهم — وده اللي بيسموه <strong>Line Encoding</strong>.</p>
+                <p style="color:#94A3B8;font-size:0.9rem;line-height:1.8;margin-bottom:1rem;">لو قلنا "1 = +5V و0 = 0V" ببساطة — هيبقى فيه مشاكل كتير: إيمتى بدأت بيانات جديدة؟ إزاي أعرف لو فيه أصفار متتالية كتير؟ الساعة (Clock) بتتزامن ازاي؟</p>
+                <div class="think-box">
+                    <div class="think-label">⚡ THE CORE CHALLENGE</div>
+                    <p>لو بعتلك 10 أصفار متتالية كـ 0V — إزاي تفرق بين إنهم 10 صفر تاني عن بعض، ولا السلك وقف وبقى 0V طول الوقت؟ الإجابة هي الـ Encoding.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Interactive Encoding Visualizer -->
+    <section class="lesson-section alt-bg">
+        <div class="section-inner">
+            <div class="section-header" data-aos="fade-up">
+                <h2><i class="fas fa-sliders" style="color:#A78BFA;margin-left:0.5rem;"></i> شوف الـ Encoding بنفسك</h2>
+                <p class="en-sub">Interactive Encoding Visualizer — Click Bits to Toggle</p>
+            </div>
+
+            <div class="glass-card" style="padding:1.5rem;" data-aos="fade-up" data-aos-delay="100">
+                <div class="rtl-block" style="margin-bottom:1rem;">
+                    <p style="color:#CBD5E1;font-size:0.9rem;">اضغط على أي Bit عشان تغيره من 0 لـ 1 وشوف الإشارة بتتغير:</p>
+                </div>
+                <div class="bit-builder" id="bit-builder"></div>
+                <div class="enc-wrap">
+                    <canvas class="enc-canvas" id="enc-canvas" height="100"></canvas>
+                    <div class="enc-controls">
+                        <button class="enc-btn active" id="enc-nrz" onclick="setEnc('nrz')">NRZ</button>
+                        <button class="enc-btn" id="enc-nrzi" onclick="setEnc('nrzi')">NRZ-I</button>
+                        <button class="enc-btn" id="enc-man" onclick="setEnc('manchester')">Manchester</button>
+                        <button class="enc-btn" id="enc-ami" onclick="setEnc('ami')">AMI</button>
+                    </div>
+                </div>
+                <!-- Encoding description -->
+                <div id="enc-desc" class="info-box" style="margin-top:0.75rem;">
+                    <div class="rtl-block" style="font-size:0.88rem;">
+                        <strong>NRZ (Non-Return to Zero):</strong> 1 = +V، 0 = -V (أو 0V). بسيط لكن مشكلة التزامن موجودة مع القيم المتكررة.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Encoding Types Explained -->
+    <section class="lesson-section">
+        <div class="section-header" data-aos="fade-up">
+            <h2><i class="fas fa-code" style="color:#A78BFA;margin-left:0.5rem;"></i> أنواع الـ Encoding</h2>
+            <p class="en-sub">Line Encoding Schemes — Strengths &amp; Weaknesses</p>
+        </div>
+
+        <div class="problem-grid" data-aos="fade-up" data-aos-delay="100">
+            <div class="solution-card" style="border-color:rgba(139,92,246,0.2);">
+                <div class="icon" style="background:rgba(139,92,246,0.1);color:#A78BFA;"><i class="fas fa-minus"></i></div>
+                <h4 style="color:#A78BFA; font-family:'Fira Code',monospace; direction:ltr;">NRZ</h4>
+                <p class="rtl-block">Non-Return to Zero. الأبسط — 1 = مستوى عالي، 0 = مستوى منخفض. المشكلة: أصفار أو واحدات كتير متتالية بتسبب مشكلة Synchronization.</p>
+            </div>
+            <div class="solution-card" style="border-color:rgba(6,182,212,0.2);">
+                <div class="icon" style="background:rgba(6,182,212,0.1);color:#22D3EE;"><i class="fas fa-retweet"></i></div>
+                <h4 style="color:#22D3EE; font-family:'Fira Code',monospace; direction:ltr;">NRZ-I</h4>
+                <p class="rtl-block">NRZ Inverted. عند الـ 1، الإشارة بتتعكس (invert). الـ 0 مش بيغير الإشارة. بيحل جزء من مشكلة التزامن للواحدات المتكررة.</p>
+            </div>
+            <div class="solution-card" style="border-color:rgba(16,185,129,0.2);">
+                <div class="icon" style="background:rgba(16,185,129,0.1);color:#34D399;"><i class="fas fa-rotate"></i></div>
+                <h4 style="color:#34D399; font-family:'Fira Code',monospace; direction:ltr;">Manchester</h4>
+                <p class="rtl-block">كل Bit فيه انتقال (transition) في المنتصف. 1 = انتقال لفوق، 0 = انتقال لتحت. بيحل مشكلة التزامن تماماً. بيستخدمه Ethernet 10Base-T.</p>
+            </div>
+            <div class="solution-card" style="border-color:rgba(245,158,11,0.2);">
+                <div class="icon" style="background:rgba(245,158,11,0.1);color:#FBBF24;"><i class="fas fa-wave-square"></i></div>
+                <h4 style="color:#FBBF24; font-family:'Fira Code',monospace; direction:ltr;">AMI</h4>
+                <p class="rtl-block">Alternate Mark Inversion. الـ 0 = 0V، الـ 1 = يتبادل بين +V و-V. بيوفر إشارة متعادلة وكشف أخطاء مضمّن. بيستخدمه T1/E1 telephone lines.</p>
+            </div>
+            <div class="solution-card" style="border-color:rgba(236,72,153,0.2);">
+                <div class="icon" style="background:rgba(236,72,153,0.1);color:#F472B6;"><i class="fas fa-hashtag"></i></div>
+                <h4 style="color:#F472B6; font-family:'Fira Code',monospace; direction:ltr;">4B/5B</h4>
+                <p class="rtl-block">كل 4 bits بتتحول لـ 5 bits عشان تضمن عدم وجود أكتر من 3 أصفار متتالية. بيستخدمه Fast Ethernet (100BASE-TX). 20% overhead لكن مضمون.</p>
+            </div>
+            <div class="solution-card" style="border-color:rgba(59,130,246,0.2);">
+                <div class="icon" style="background:rgba(59,130,246,0.1);color:#60A5FA;"><i class="fas fa-circle-nodes"></i></div>
+                <h4 style="color:#60A5FA; font-family:'Fira Code',monospace; direction:ltr;">8B/10B</h4>
+                <p class="rtl-block">كل 8 bits بتتحول لـ 10 bits. Balance كهربي مضمون. بيستخدمه Gigabit Ethernet (1000BASE-T) وFiber Channel.</p>
+            </div>
+        </div>
+
+        <!-- Why it matters table -->
+        <div data-aos="fade-up" style="overflow-x:auto;margin-top:2rem;">
+            <table class="comparison-table">
+                <thead><tr><th>الـ Encoding</th><th>التزامن</th><th>Bandwidth</th><th>Complexity</th><th>الاستخدام</th></tr></thead>
+                <tbody>
+                    <tr><td style="color:#A78BFA;font-weight:700;font-family:'Fira Code';direction:ltr;">NRZ</td><td class="rtl-block" style="color:#F87171;">ضعيف</td><td style="color:#34D399;">100%</td><td class="rtl-block" style="color:#34D399;">بسيط</td><td>Serial RS-232</td></tr>
+                    <tr><td style="color:#34D399;font-weight:700;font-family:'Fira Code';direction:ltr;">Manchester</td><td class="rtl-block" style="color:#34D399;">ممتاز</td><td style="color:#F87171;">50%</td><td class="rtl-block" style="color:#FBBF24;">متوسط</td><td>10Base-T Ethernet</td></tr>
+                    <tr><td style="color:#F472B6;font-weight:700;font-family:'Fira Code';direction:ltr;">4B/5B</td><td class="rtl-block" style="color:#34D399;">جيد</td><td style="color:#FBBF24;">80%</td><td class="rtl-block" style="color:#FBBF24;">متوسط</td><td>Fast Ethernet</td></tr>
+                    <tr><td style="color:#60A5FA;font-weight:700;font-family:'Fira Code';direction:ltr;">8B/10B</td><td class="rtl-block" style="color:#34D399;">ممتاز</td><td style="color:#FBBF24;">80%</td><td class="rtl-block" style="color:#F87171;">معقد</td><td>Gigabit Ethernet</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <!-- Baud Rate vs Bit Rate -->
+    <section class="lesson-section alt-bg">
+        <div class="section-inner">
+            <div class="section-header" data-aos="fade-up">
+                <h2><i class="fas fa-tachometer-alt" style="color:#FBBF24;margin-left:0.5rem;"></i> Baud Rate ≠ Bit Rate</h2>
+                <p class="en-sub">Common Confusion — Cleared Once and For All</p>
+            </div>
+            <div class="glass-card" style="padding:1.8rem;" data-aos="fade-up" data-aos-delay="100">
+                <div class="rtl-block">
+                    <p style="color:#CBD5E1;margin-bottom:1rem;font-size:0.98rem;line-height:1.8;">
+                        <strong style="color:#FBBF24;">Baud Rate</strong> = عدد التغيرات في الإشارة في الثانية (Signal Changes/sec)<br>
+                        <strong style="color:#22D3EE;">Bit Rate</strong> = عدد الـ Bits المنقولة في الثانية
+                    </p>
+                    <p style="color:#CBD5E1;margin-bottom:1rem;font-size:0.95rem;line-height:1.8;">لو كل تغيير في الإشارة بيمثّل <strong>أكتر من Bit واحد</strong> — الـ Bit Rate هيبقى أعلى من الـ Baud Rate!</p>
+                    <div class="step-box" style="border-color:#FBBF24;">
+                        <div style="direction:ltr;font-family:'Fira Code',monospace;font-size:0.88rem;">
+                            <p>Example: QAM-16 → each symbol = 4 bits</p>
+                            <p>Baud Rate = 1,000 symbols/sec</p>
+                            <p style="color:#FBBF24;">Bit Rate = 1,000 × 4 = 4,000 bps</p>
+                        </div>
+                    </div>
+                    <p style="color:#94A3B8;font-size:0.85rem;margin-top:1rem;">هذه هي الطريقة اللي WiFi وADSL بيحققوا بها سرعات عالية على نفس الـ Bandwidth — بزيادة عدد الـ Bits per Symbol.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Quiz -->
+    <section class="lesson-section" id="quiz">
+        <div class="section-header" data-aos="fade-up">
+            <h2><i class="fas fa-brain" style="color:#8B5CF6;margin-left:0.5rem;"></i> اختبر نفسك</h2>
+            <p class="en-sub">Signal Encoding Quiz</p>
+        </div>
+        <div class="quiz-container" data-aos="fade-up">
+            <div class="quiz-question" id="q1">
+                <h4>أنهي Encoding بيضمن وجود تغيير في الإشارة في منتصف كل Bit — مما يضمن التزامن؟</h4>
+                <div class="quiz-options">
+                    <div class="quiz-option" onclick="ans(this,'q1',false)">NRZ</div>
+                    <div class="quiz-option" onclick="ans(this,'q1',false)">AMI</div>
+                    <div class="quiz-option" onclick="ans(this,'q1',true)">Manchester</div>
+                    <div class="quiz-option" onclick="ans(this,'q1',false)">NRZ-I</div>
+                </div>
+                <div class="quiz-feedback" id="fb-q1"></div>
+            </div>
+            <div class="quiz-question" id="q2">
+                <h4>Baud Rate = 2000 و Bit Rate = 8000. كام bit بيشيل كل Symbol؟</h4>
+                <div class="quiz-options">
+                    <div class="quiz-option" onclick="ans(this,'q2',false)">2 bits</div>
+                    <div class="quiz-option" onclick="ans(this,'q2',false)">3 bits</div>
+                    <div class="quiz-option" onclick="ans(this,'q2',true)">4 bits</div>
+                    <div class="quiz-option" onclick="ans(this,'q2',false)">8 bits</div>
+                </div>
+                <div class="quiz-feedback" id="fb-q2"></div>
+            </div>
+            <div class="quiz-question" id="q3">
+                <h4>ليه NRZ ليس كافياً للشبكات الحديثة؟</h4>
+                <div class="quiz-options">
+                    <div class="quiz-option" onclick="ans(this,'q3',false)">لأنه بطيء جداً</div>
+                    <div class="quiz-option" onclick="ans(this,'q3',true)">لأن القيم المتكررة (كثير من 0s أو 1s) بتسبب مشاكل في التزامن</div>
+                    <div class="quiz-option" onclick="ans(this,'q3',false)">لأنه مش آمن</div>
+                    <div class="quiz-option" onclick="ans(this,'q3',false)">لأنه يحتاج طاقة عالية</div>
+                </div>
+                <div class="quiz-feedback" id="fb-q3"></div>
+            </div>
+        </div>
+    </section>
+
+    <section class="lesson-section">
+        <div class="lesson-bottom-nav">
+            <a href="transmission_media.html"><i class="fas fa-arrow-left"></i><span>وسائط النقل</span></a>
+            <div style="text-align:center;color:var(--text-faint);font-size:0.85rem;">Unit 3 • Lesson 2</div>
+            <a href="multiplexing.html"><span>Multiplexing</span><i class="fas fa-arrow-right"></i></a>
+        </div>
+    </section>
+
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <script>
+        AOS.init({duration:800,once:true,offset:100});
+        window.addEventListener('scroll',()=>{ document.getElementById('reading-progress').style.width=(window.scrollY/(document.documentElement.scrollHeight-window.innerHeight))*100+'%'; });
+
+        // Bit Builder
+        let bits=[1,0,1,1,0,0,1,0];
+        let currentEnc='nrz';
+        const bb=document.getElementById('bit-builder');
+
+        function buildBits(){
+            bb.innerHTML='<span style="font-family:\'Cairo\',sans-serif;direction:rtl;color:var(--text-faint);font-size:0.8rem;">الـ Bits:</span>';
+            bits.forEach((b,i)=>{
+                const c=document.createElement('div');
+                c.className='bit-cell '+(b?'one':'zero');
+                c.textContent=b;
+                c.onclick=()=>{ bits[i]=bits[i]?0:1; buildBits(); drawEncoding(); };
+                bb.appendChild(c);
+            });
+        }
+        buildBits();
+
+        const ec=document.getElementById('enc-canvas');
+        const ectx=ec.getContext('2d');
+        function resizeEnc(){ ec.width=ec.parentElement.clientWidth; ec.height=100; }
+        resizeEnc(); window.addEventListener('resize',()=>{ resizeEnc(); drawEncoding(); });
+
+        const encDescs={
+            nrz:'<strong>NRZ (Non-Return to Zero):</strong> 1 = +V، 0 = -V (أو 0V). بسيط لكن مشكلة التزامن موجودة مع القيم المتكررة.',
+            nrzi:'<strong>NRZ-I (NRZ Inverted):</strong> عند كل 1، الإشارة بتتعكس. الـ 0 ما بيغيرش الإشارة. أفضل من NRZ للواحدات المتكررة.',
+            manchester:'<strong>Manchester Encoding:</strong> كل Bit عنده تغيير في المنتصف. 1 = يروح لفوق، 0 = يروح لتحت. ممتاز للتزامن — GPIO Ethernet 10Base-T.',
+            ami:'<strong>AMI (Alternate Mark Inversion):</strong> 0 = 0V، الـ 1s بتتبادل +V و-V. إشارة متوازنة وكشف أخطاء مضمّن.'
+        };
+
+        function setEnc(type){
+            currentEnc=type;
+            ['enc-nrz','enc-nrzi','enc-man','enc-ami'].forEach(id=>document.getElementById(id).classList.remove('active'));
+            const map={nrz:'enc-nrz',nrzi:'enc-nrzi',manchester:'enc-man',ami:'enc-ami'};
+            document.getElementById(map[type]).classList.add('active');
+            document.getElementById('enc-desc').innerHTML='<div class="rtl-block" style="font-size:0.88rem;">'+encDescs[type]+'</div>';
+            drawEncoding();
+        }
+
+        function drawEncoding(){
+            ectx.clearRect(0,0,ec.width,ec.height);
+            const mid=ec.height/2, hi=15, lo=ec.height-15, bw=ec.width/bits.length;
+            ectx.strokeStyle='rgba(255,255,255,0.04)'; ectx.lineWidth=1;
+            ectx.beginPath(); ectx.moveTo(0,mid); ectx.lineTo(ec.width,mid); ectx.stroke();
+
+            ectx.strokeStyle='#A78BFA'; ectx.lineWidth=2.5;
+            ectx.shadowColor='#8B5CF6'; ectx.shadowBlur=8;
+            ectx.beginPath();
+
+            let prevY=mid, amiSign=1;
+            bits.forEach((b,i)=>{
+                const x=i*bw;
+                if(currentEnc==='nrz'){
+                    const y=b?hi:lo;
+                    ectx.moveTo(x,prevY); ectx.lineTo(x,y); ectx.lineTo(x+bw,y);
+                    prevY=y;
+                } else if(currentEnc==='nrzi'){
+                    let y=prevY;
+                    if(b){ y=(prevY===hi)?lo:hi; }
+                    ectx.moveTo(x,prevY); ectx.lineTo(x,y); ectx.lineTo(x+bw,y);
+                    prevY=y;
+                } else if(currentEnc==='manchester'){
+                    const half=bw/2;
+                    if(b){ ectx.moveTo(x,lo); ectx.lineTo(x+half,lo); ectx.lineTo(x+half,hi); ectx.lineTo(x+bw,hi); prevY=hi; }
+                    else { ectx.moveTo(x,hi); ectx.lineTo(x+half,hi); ectx.lineTo(x+half,lo); ectx.lineTo(x+bw,lo); prevY=lo; }
+                } else if(currentEnc==='ami'){
+                    if(b===0){ const cy=mid; ectx.moveTo(x,prevY); ectx.lineTo(x,cy); ectx.lineTo(x+bw,cy); prevY=cy; }
+                    else { const y=amiSign>0?hi:lo; ectx.moveTo(x,prevY); ectx.lineTo(x,y); ectx.lineTo(x+bw,y); prevY=y; amiSign*=-1; }
+                }
+            });
+            ectx.stroke();
+
+            // Bit labels
+            ectx.fillStyle='rgba(167,139,250,0.7)';
+            ectx.font='bold 11px "Fira Code",monospace';
+            ectx.textAlign='center';
+            bits.forEach((b,i)=>{ ectx.fillText(b,i*bw+bw/2,ec.height-3); });
+        }
+        drawEncoding();
+
+        const fb={
+            q1:{c:'✅ صح! Manchester Encoding بيضمن transition في منتصف كل Bit —ده بيحل مشكلة التزامن تماماً.',w:'❌ غلط! Manchester هو اللي بيضمن transition في المنتصف. NRZ وNRZ-I ممكن يكون فيهم أجزاء بلا تغيير.'},
+            q2:{c:'✅ صح! Bit Rate ÷ Baud Rate = 8000 ÷ 2000 = 4 bits per symbol.',w:'❌ غلط! الحساب: Bit Rate ÷ Baud Rate = 8000 ÷ 2000 = 4 bits per symbol.'},
+            q3:{c:'✅ صح! أصفار أو واحدات كتير متتالية في NRZ بتخلي الإشارة ثابتة طول الوقت — المستقبل ما يعرفش يتزامن.',w:'❌ غلط! المشكلة الأساسية هي التزامن (Synchronization) — مش السرعة أو الأمان.'}
+        };
+        function ans(el,qid,correct){ const q=document.getElementById(qid); if(q.dataset.answered)return; q.dataset.answered='true'; q.querySelectorAll('.quiz-option').forEach(o=>o.style.pointerEvents='none'); el.classList.add(correct?'correct':'wrong'); const f=document.getElementById('fb-'+qid); f.textContent=correct?fb[qid].c:fb[qid].w; f.className='quiz-feedback show '+(correct?'correct-fb':'wrong-fb'); }
+    </script>
+</body>
+</html>

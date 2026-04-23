@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TCP Deep Dive — عمق الـ TCP | Network Mastery</title>
+    <meta name="description" content="3-Way Handshake، Flow Control، Congestion Control، Reliable Delivery بالتفصيل.">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&family=Inter:wght@400;500;600;700;800&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    <link href="../css/global-net.css" rel="stylesheet">
+    <style>
+        body{background:#020617;color:#E2E8F0;font-family:'Inter',sans-serif;}
+        .lesson-nav-bar{position:fixed;top:0;left:0;right:0;z-index:100;background:rgba(2,6,23,0.88);backdrop-filter:blur(20px);border-bottom:1px solid rgba(255,255,255,0.06);height:64px;display:flex;align-items:center;padding:0 1.5rem;}
+        .nav-inner{max-width:1280px;margin:0 auto;width:100%;display:flex;align-items:center;justify-content:space-between;}
+        .nav-brand{display:flex;align-items:center;gap:0.75rem;font-weight:700;}
+        .back-btn{width:36px;height:36px;border-radius:10px;background:linear-gradient(135deg,#3B82F6,#1D4ED8);display:flex;align-items:center;justify-content:center;color:white;font-size:0.85rem;transition:transform 0.3s;}
+        .back-btn:hover{transform:scale(1.1);}
+        .lesson-hero{position:relative;padding:8rem 1.5rem 5rem;text-align:center;overflow:hidden;}
+        .glow-orb{position:absolute;border-radius:50%;filter:blur(128px);pointer-events:none;}
+        .glow-orb-1{width:500px;height:500px;top:-10%;right:-5%;background:rgba(59,130,246,0.12);}
+        .glow-orb-2{width:400px;height:400px;bottom:-20%;left:-10%;background:rgba(96,165,250,0.06);}
+        .lesson-badge{display:inline-flex;align-items:center;gap:0.5rem;padding:0.35rem 1rem;border-radius:50px;background:rgba(30,41,59,0.6);border:1px solid rgba(255,255,255,0.08);font-family:'Fira Code',monospace;font-size:0.78rem;color:#60A5FA;margin-bottom:1.5rem;}
+        .dot{width:6px;height:6px;border-radius:50%;background:#3B82F6;animation:pulse-dot 2s ease infinite;}
+        .lesson-hero h1{font-size:clamp(2.5rem,5vw,4rem);font-weight:800;margin-bottom:1rem;}
+        .text-g{background:linear-gradient(135deg,#3B82F6,#60A5FA);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;}
+        .subtitle{font-family:'Cairo',sans-serif;font-size:1.6rem;font-weight:700;color:var(--text-muted);direction:rtl;margin-bottom:1.5rem;}
+        .desc{color:var(--text-faint);max-width:640px;margin:0 auto;font-size:1.05rem;font-family:'Cairo',sans-serif;direction:rtl;line-height:1.9;}
+
+        /* Handshake diagram */
+        .hs-diagram{display:grid;grid-template-columns:1fr 1fr;gap:0;margin:1.5rem 0;position:relative;direction:ltr;}
+        .hs-side{padding:0.5rem;font-family:'Fira Code',monospace;font-size:0.78rem;text-align:center;}
+        .hs-side-label{font-weight:900;font-size:0.9rem;margin-bottom:0.5rem;padding:0.5rem;border-radius:8px;}
+        .hs-msg{display:flex;align-items:center;margin:0.3rem 0;padding:0.3rem 0;}
+        .hs-msg.c2s{justify-content:flex-end;padding-right:0.5rem;}
+        .hs-msg.s2c{justify-content:flex-start;padding-left:0.5rem;grid-column:2;}
+        .hs-arrow{font-size:1.2rem;margin:0 0.3rem;}
+        .hs-label{padding:0.2rem 0.5rem;border-radius:5px;font-size:0.72rem;}
+
+        /* Seq/Ack table */
+        .sa-row{display:grid;grid-template-columns:60px 1fr 1fr 1fr;gap:0.3rem;font-family:'Fira Code',monospace;font-size:0.75rem;padding:0.4rem;border-bottom:1px solid var(--border-subtle);}
+        .sa-row.hd{background:rgba(59,130,246,0.1);color:#60A5FA;font-weight:700;}
+
+        .lesson-bottom-nav{display:flex;justify-content:space-between;align-items:center;gap:1rem;padding:2rem 0;border-top:1px solid var(--border-subtle);margin-top:3rem;}
+        .lesson-bottom-nav a{display:flex;align-items:center;gap:0.5rem;padding:0.75rem 1.5rem;border-radius:12px;background:rgba(255,255,255,0.04);border:1px solid var(--border-subtle);transition:all 0.3s ease;font-weight:600;font-size:0.9rem;}
+        .lesson-bottom-nav a:hover{background:rgba(59,130,246,0.1);border-color:rgba(59,130,246,0.3);transform:translateY(-2px);}
+    </style>
+</head>
+<body>
+    <nav class="lesson-nav-bar">
+        <div class="nav-inner">
+            <a href="../index.html" class="nav-brand">
+                <div class="back-btn"><i class="fas fa-arrow-left"></i></div>
+                <span>TCP<span style="color:#3B82F6;">Deep</span></span>
+            </a>
+        </div>
+    </nav>
+    <div class="progress-bar-container"><div class="progress-bar-fill" id="reading-progress" style="background:linear-gradient(90deg,#3B82F6,#60A5FA);"></div></div>
+
+    <header class="lesson-hero">
+        <div class="glow-orb glow-orb-1"></div><div class="glow-orb glow-orb-2"></div>
+        <div style="position:relative;z-index:1;">
+            <div class="lesson-badge" data-aos="fade-down"><span class="dot"></span>UNIT 6 • Lesson 1</div>
+            <h1 data-aos="fade-up" data-aos-delay="150">TCP <span class="text-g">Deep</span> Dive</h1>
+            <div class="subtitle" data-aos="fade-up" data-aos-delay="300">أعمق بروتوكول في الإنترنت</div>
+            <p class="desc" data-aos="fade-up" data-aos-delay="450">كل موقع Streaming، كل Download، كل WhatsApp Message — وراه TCP بضماناته الخمسة على الـ Reliability. كيف؟</p>
+        </div>
+    </header>
+
+    <!-- TCP Guarantees -->
+    <section class="lesson-section">
+        <div class="section-header" data-aos="fade-up">
+            <h2><i class="fas fa-shield-check" style="color:#3B82F6;margin-left:0.5rem;"></i> ضمانات TCP — الخمسة</h2>
+            <p class="en-sub">What Makes TCP "Reliable"</p>
+        </div>
+        <div class="problem-grid" data-aos="fade-up" data-aos-delay="100">
+            <div class="solution-card" style="border-color:rgba(59,130,246,0.2);">
+                <div class="icon" style="background:rgba(59,130,246,0.1);color:#60A5FA;">📬</div>
+                <h4>Reliable Delivery</h4>
+                <p class="rtl-block" style="font-size:0.82rem;">كل Segment لازم يتأكد وصوله بـ ACK. لو ما جاش ACK → إعادة إرسال.</p>
+            </div>
+            <div class="solution-card" style="border-color:rgba(59,130,246,0.2);">
+                <div class="icon" style="background:rgba(59,130,246,0.1);color:#60A5FA;">🔢</div>
+                <h4>Ordered Delivery</h4>
+                <p class="rtl-block" style="font-size:0.82rem;">كل Segment عنده Sequence Number. المستقبل بيرتبهم تلقائياً.</p>
+            </div>
+            <div class="solution-card" style="border-color:rgba(59,130,246,0.2);">
+                <div class="icon" style="background:rgba(59,130,246,0.1);color:#60A5FA;">🌊</div>
+                <h4>Flow Control</h4>
+                <p class="rtl-block" style="font-size:0.82rem;">الـ Receiver بيقول للـ Sender "أبطأ" لو Buffer امتلى. Window Size.</p>
+            </div>
+            <div class="solution-card" style="border-color:rgba(59,130,246,0.2);">
+                <div class="icon" style="background:rgba(59,130,246,0.1);color:#60A5FA;">🚦</div>
+                <h4>Congestion Control</h4>
+                <p class="rtl-block" style="font-size:0.82rem;">لو الشبكة مزحومة → TCP Slow Start. يبدأ ببطء ويزيد تدريجياً.</p>
+            </div>
+            <div class="solution-card" style="border-color:rgba(59,130,246,0.2);">
+                <div class="icon" style="background:rgba(59,130,246,0.1);color:#60A5FA;">🤝</div>
+                <h4>Connection-Oriented</h4>
+                <p class="rtl-block" style="font-size:0.82rem;">Handshake قبل أي بيانات. Connection Termination متحكم فيه.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- 3-Way Handshake -->
+    <section class="lesson-section alt-bg">
+        <div class="section-inner">
+            <div class="section-header" data-aos="fade-up">
+                <h2><i class="fas fa-handshake" style="color:#60A5FA;margin-left:0.5rem;"></i> 3-Way Handshake</h2>
+                <p class="en-sub">SYN → SYN-ACK → ACK — Connection Establishment</p>
+            </div>
+            <div class="glass-card" style="padding:1.8rem;" data-aos="fade-up">
+                <div style="direction:ltr;font-family:'Fira Code',monospace;font-size:0.82rem;">
+                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;text-align:center;margin-bottom:1rem;">
+                        <div style="background:rgba(59,130,246,0.15);border-radius:10px;padding:0.75rem;color:#60A5FA;font-weight:900;">CLIENT</div>
+                        <div style="background:rgba(16,185,129,0.15);border-radius:10px;padding:0.75rem;color:#34D399;font-weight:900;">SERVER</div>
+                    </div>
+                    <!-- Step 1 -->
+                    <div style="display:flex;align-items:center;margin:0.75rem 0;">
+                        <div style="flex:1;text-align:right;color:#60A5FA;font-size:0.78rem;">SYN<br><span style="color:#94A3B8;font-size:0.65rem;">seq=1000</span></div>
+                        <div style="flex:2;text-align:center;position:relative;height:24px;">
+                            <div style="position:absolute;top:50%;width:100%;height:2px;background:rgba(59,130,246,0.4);"></div>
+                            <div style="position:absolute;right:0;top:50%;transform:translateY(-50%);color:#60A5FA;">▶</div>
+                        </div>
+                        <div style="flex:1;color:#94A3B8;font-size:0.7rem;text-align:left;">منتظر…</div>
+                    </div>
+                    <!-- Step 2 -->
+                    <div style="display:flex;align-items:center;margin:0.75rem 0;">
+                        <div style="flex:1;color:#94A3B8;font-size:0.7rem;text-align:right;">منتظر…</div>
+                        <div style="flex:2;text-align:center;position:relative;height:24px;">
+                            <div style="position:absolute;top:50%;width:100%;height:2px;background:rgba(16,185,129,0.4);"></div>
+                            <div style="position:absolute;left:0;top:50%;transform:translateY(-50%);color:#34D399;">◀</div>
+                        </div>
+                        <div style="flex:1;text-align:left;color:#34D399;font-size:0.78rem;">SYN-ACK<br><span style="color:#94A3B8;font-size:0.65rem;">seq=5000, ack=1001</span></div>
+                    </div>
+                    <!-- Step 3 -->
+                    <div style="display:flex;align-items:center;margin:0.75rem 0;">
+                        <div style="flex:1;text-align:right;color:#60A5FA;font-size:0.78rem;">ACK<br><span style="color:#94A3B8;font-size:0.65rem;">ack=5001</span></div>
+                        <div style="flex:2;text-align:center;position:relative;height:24px;">
+                            <div style="position:absolute;top:50%;width:100%;height:2px;background:rgba(59,130,246,0.4);"></div>
+                            <div style="position:absolute;right:0;top:50%;transform:translateY(-50%);color:#60A5FA;">▶</div>
+                        </div>
+                        <div style="flex:1;color:#34D399;font-size:0.7rem;text-align:left;">Connection ✅</div>
+                    </div>
+                    <div style="margin-top:1rem;padding:0.75rem;background:rgba(59,130,246,0.06);border:1px solid rgba(59,130,246,0.15);border-radius:8px;color:#94A3B8;font-size:0.72rem;">
+                        📌 Data transfer starts → Connection teardown (4-way FIN: FIN → ACK → FIN → ACK)
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Seq/Ack Numbers -->
+    <section class="lesson-section">
+        <div class="section-header" data-aos="fade-up">
+            <h2><i class="fas fa-hashtag" style="color:#A78BFA;margin-left:0.5rem;"></i> Sequence &amp; ACK Numbers</h2>
+            <p class="en-sub">How TCP Tracks Every Single Byte</p>
+        </div>
+        <div class="glass-card" style="padding:1.8rem;" data-aos="fade-up">
+            <div class="rtl-block" style="margin-bottom:1rem;color:#CBD5E1;font-size:0.92rem;line-height:1.8;">
+                <p>كل Byte في الاتصال عنده رقم (Sequence Number). الـ ACK بيقول "وصلني كل حاجة حتى Byte رقم X — ابعت من X+1."</p>
+            </div>
+            <div style="background:rgba(0,0,0,0.3);border-radius:10px;overflow:hidden;">
+                <div class="sa-row hd"><span>Segment</span><span>Direction</span><span>Seq</span><span>ACK</span></div>
+                <div class="sa-row"><span style="color:#60A5FA;">SYN</span><span>Client→Server</span><span>1000</span><span>—</span></div>
+                <div class="sa-row"><span style="color:#34D399;">SYN-ACK</span><span>Server→Client</span><span>5000</span><span>1001</span></div>
+                <div class="sa-row"><span style="color:#60A5FA;">ACK</span><span>Client→Server</span><span>1001</span><span>5001</span></div>
+                <div class="sa-row"><span style="color:#FBBF24;">Data [100B]</span><span>Client→Server</span><span>1001</span><span>5001</span></div>
+                <div class="sa-row"><span style="color:#34D399;">ACK</span><span>Server→Client</span><span>5001</span><span>1101</span></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- TCP Header -->
+    <section class="lesson-section alt-bg">
+        <div class="section-inner">
+            <div class="section-header" data-aos="fade-up">
+                <h2><i class="fas fa-file-code" style="color:#60A5FA;margin-left:0.5rem;"></i> TCP Header — 20 bytes</h2>
+            </div>
+            <div class="glass-card" style="padding:1.5rem;" data-aos="fade-up">
+                <div data-aos="fade-up" style="overflow-x:auto;">
+                    <table class="comparison-table">
+                        <thead><tr><th>الحقل</th><th>الحجم</th><th>الوظيفة</th></tr></thead>
+                        <tbody>
+                            <tr><td style="font-family:'Fira Code';direction:ltr;color:#60A5FA;">Source Port</td><td>16 bit</td><td class="rtl-block">رقم Port المرسل</td></tr>
+                            <tr><td style="font-family:'Fira Code';direction:ltr;color:#60A5FA;">Dest Port</td><td>16 bit</td><td class="rtl-block">رقم Port المستقبل</td></tr>
+                            <tr><td style="font-family:'Fira Code';direction:ltr;color:#A78BFA;">Seq Number</td><td>32 bit</td><td class="rtl-block">رقم البداية للـ Data في هذا الـ Segment</td></tr>
+                            <tr><td style="font-family:'Fira Code';direction:ltr;color:#A78BFA;">ACK Number</td><td>32 bit</td><td class="rtl-block">الـ Byte التالي المتوقع من الطرف الآخر</td></tr>
+                            <tr><td style="font-family:'Fira Code';direction:ltr;color:#34D399;">Flags</td><td>6 bit</td><td class="rtl-block">SYN, ACK, FIN, RST, PSH, URG</td></tr>
+                            <tr><td style="font-family:'Fira Code';direction:ltr;color:#FBBF24;">Window Size</td><td>16 bit</td><td class="rtl-block">Flow Control — كام Byte Buffer متاح</td></tr>
+                            <tr><td style="font-family:'Fira Code';direction:ltr;color:#EF4444;">Checksum</td><td>16 bit</td><td class="rtl-block">Error Detection للـ Header والـ Data</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="lesson-section" id="quiz">
+        <div class="section-header" data-aos="fade-up">
+            <h2><i class="fas fa-brain" style="color:#3B82F6;margin-left:0.5rem;"></i> اختبر نفسك</h2>
+        </div>
+        <div class="quiz-container" data-aos="fade-up">
+            <div class="quiz-question" id="q1">
+                <h4>الـ 3-Way Handshake بيبتدي بإيه؟</h4>
+                <div class="quiz-options">
+                    <div class="quiz-option" onclick="ans(this,'q1',false)">ACK</div>
+                    <div class="quiz-option" onclick="ans(this,'q1',false)">SYN-ACK</div>
+                    <div class="quiz-option" onclick="ans(this,'q1',true)">SYN (من الـ Client)</div>
+                    <div class="quiz-option" onclick="ans(this,'q1',false)">FIN</div>
+                </div>
+                <div class="quiz-feedback" id="fb-q1"></div>
+            </div>
+            <div class="quiz-question" id="q2">
+                <h4>TCP Window Size بتتحكم في إيه؟</h4>
+                <div class="quiz-options">
+                    <div class="quiz-option" onclick="ans(this,'q2',false)">سرعة الإنترنت</div>
+                    <div class="quiz-option" onclick="ans(this,'q2',true)">Flow Control — كمية البيانات اللي المستقبل يقدر يستقبلها بدون ACK</div>
+                    <div class="quiz-option" onclick="ans(this,'q2',false)">حجم الـ Packet</div>
+                    <div class="quiz-option" onclick="ans(this,'q2',false)">عدد الـ Connections</div>
+                </div>
+                <div class="quiz-feedback" id="fb-q2"></div>
+            </div>
+        </div>
+    </section>
+
+    <section class="lesson-section">
+        <div class="lesson-bottom-nav">
+            <a href="../Unit5/icmp_arp.html"><i class="fas fa-arrow-left"></i><span>ICMP &amp; ARP</span></a>
+            <div style="text-align:center;color:var(--text-faint);font-size:0.85rem;">Unit 6 • Lesson 1</div>
+            <a href="udp_ports.html"><span>UDP &amp; Ports</span><i class="fas fa-arrow-right"></i></a>
+        </div>
+    </section>
+
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <script>
+        AOS.init({duration:800,once:true,offset:100});
+        window.addEventListener('scroll',()=>{ document.getElementById('reading-progress').style.width=(window.scrollY/(document.documentElement.scrollHeight-window.innerHeight))*100+'%'; });
+        const fb={
+            q1:{c:'✅ صح! 3-Way Handshake: Client يبعت SYN → Server يرد SYN-ACK → Client يرد ACK.',w:'❌ غلط! الـ Handshake بيبدأ بـ SYN من الـ Client. SYN = Synchronize اتصال جديد.'},
+            q2:{c:'✅ صح! Window Size هي الـ Flow Control mechanism. بتقول للـ Sender كام Byte يقدر يبعت قبل ما ينتظر ACK.',w:'❌ غلط! Window Size = Flow Control. مش سرعة الإنترنت — ده إدارة Buffer الـ Receiver.'}
+        };
+        function ans(el,qid,correct){ const q=document.getElementById(qid); if(q.dataset.answered)return; q.dataset.answered='true'; q.querySelectorAll('.quiz-option').forEach(o=>o.style.pointerEvents='none'); el.classList.add(correct?'correct':'wrong'); const f=document.getElementById('fb-'+qid); f.textContent=correct?fb[qid].c:fb[qid].w; f.className='quiz-feedback show '+(correct?'correct-fb':'wrong-fb'); }
+    </script>
+</body>
+</html>

@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ethernet Basics — أساسيات الإيثرنت | Network Mastery</title>
+    <meta name="description" content="Ethernet — البروتوكول اللي بيحكم كل شبكة سلكية. Frame Structure, CSMA/CD, و MAC Addressing.">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&family=Inter:wght@400;500;600;700;800&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    <link href="../css/global-net.css" rel="stylesheet">
+    <style>
+        body{background:#020617;color:#E2E8F0;font-family:'Inter',sans-serif;}
+        .lesson-nav-bar{position:fixed;top:0;left:0;right:0;z-index:100;background:rgba(2,6,23,0.88);backdrop-filter:blur(20px);border-bottom:1px solid rgba(255,255,255,0.06);height:64px;display:flex;align-items:center;padding:0 1.5rem;}
+        .nav-inner{max-width:1280px;margin:0 auto;width:100%;display:flex;align-items:center;justify-content:space-between;}
+        .nav-brand{display:flex;align-items:center;gap:0.75rem;font-weight:700;}
+        .back-btn{width:36px;height:36px;border-radius:10px;background:linear-gradient(135deg,#F59E0B,#D97706);display:flex;align-items:center;justify-content:center;color:white;font-size:0.85rem;transition:transform 0.3s;}
+        .back-btn:hover{transform:scale(1.1);}
+        .lesson-hero{position:relative;padding:8rem 1.5rem 5rem;text-align:center;overflow:hidden;}
+        .glow-orb{position:absolute;border-radius:50%;filter:blur(128px);pointer-events:none;}
+        .glow-orb-1{width:500px;height:500px;top:-10%;right:-5%;background:rgba(245,158,11,0.12);}
+        .glow-orb-2{width:400px;height:400px;bottom:-20%;left:-10%;background:rgba(251,191,36,0.06);}
+        .lesson-badge{display:inline-flex;align-items:center;gap:0.5rem;padding:0.35rem 1rem;border-radius:50px;background:rgba(30,41,59,0.6);border:1px solid rgba(255,255,255,0.08);font-family:'Fira Code',monospace;font-size:0.78rem;color:#FBBF24;margin-bottom:1.5rem;}
+        .dot{width:6px;height:6px;border-radius:50%;background:#F59E0B;animation:pulse-dot 2s ease infinite;}
+        .lesson-hero h1{font-size:clamp(2.5rem,5vw,4rem);font-weight:800;margin-bottom:1rem;}
+        .text-g{background:linear-gradient(135deg,#F59E0B,#FBBF24);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;}
+        .subtitle{font-family:'Cairo',sans-serif;font-size:1.6rem;font-weight:700;color:var(--text-muted);direction:rtl;margin-bottom:1.5rem;}
+        .desc{color:var(--text-faint);max-width:640px;margin:0 auto;font-size:1.05rem;font-family:'Cairo',sans-serif;direction:rtl;line-height:1.9;}
+
+        /* Ethernet Frame Visual */
+        .frame-display{display:flex;flex-direction:row;border-radius:10px;overflow:hidden;margin:1.5rem 0;direction:ltr;min-height:60px;}
+        .frame-field{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:0.5rem 0.3rem;text-align:center;cursor:pointer;transition:all 0.3s;border-right:1px solid rgba(0,0,0,0.2);}
+        .frame-field:last-child{border-right:none;}
+        .frame-field .ff-name{font-family:'Fira Code',monospace;font-size:0.65rem;font-weight:700;color:rgba(255,255,255,0.9);}
+        .frame-field .ff-size{font-size:0.55rem;color:rgba(255,255,255,0.5);margin-top:0.15rem;}
+        .frame-field:hover{filter:brightness(1.3);}
+
+        /* CSMA/CD Visual */
+        .csma-timeline{margin:1.5rem 0;position:relative;}
+        .csma-row{display:flex;align-items:center;gap:0.5rem;margin-bottom:0.5rem;}
+        .csma-device{width:50px;font-family:'Fira Code',monospace;font-size:0.72rem;font-weight:700;text-align:right;direction:ltr;}
+        .csma-track{flex:1;height:24px;background:rgba(255,255,255,0.04);border-radius:6px;overflow:hidden;position:relative;}
+        .csma-bar{height:100%;border-radius:6px;position:absolute;left:0;display:flex;align-items:center;justify-content:center;font-size:0.6rem;font-weight:700;color:white;font-family:'Fira Code';}
+
+        .lesson-bottom-nav{display:flex;justify-content:space-between;align-items:center;gap:1rem;padding:2rem 0;border-top:1px solid var(--border-subtle);margin-top:3rem;}
+        .lesson-bottom-nav a{display:flex;align-items:center;gap:0.5rem;padding:0.75rem 1.5rem;border-radius:12px;background:rgba(255,255,255,0.04);border:1px solid var(--border-subtle);transition:all 0.3s ease;font-weight:600;font-size:0.9rem;}
+        .lesson-bottom-nav a:hover{background:rgba(245,158,11,0.1);border-color:rgba(245,158,11,0.3);transform:translateY(-2px);}
+    </style>
+</head>
+<body>
+    <nav class="lesson-nav-bar">
+        <div class="nav-inner">
+            <a href="../index.html" class="nav-brand">
+                <div class="back-btn"><i class="fas fa-arrow-left"></i></div>
+                <span>Ether<span style="color:#F59E0B;">net</span></span>
+            </a>
+        </div>
+    </nav>
+    <div class="progress-bar-container"><div class="progress-bar-fill" id="reading-progress" style="background:linear-gradient(90deg,#F59E0B,#FBBF24);"></div></div>
+
+    <header class="lesson-hero">
+        <div class="glow-orb glow-orb-1"></div><div class="glow-orb glow-orb-2"></div>
+        <div style="position:relative;z-index:1;">
+            <div class="lesson-badge" data-aos="fade-down"><span class="dot"></span>UNIT 4 • Lesson 1</div>
+            <h1 data-aos="fade-up" data-aos-delay="150"><span class="text-g">Ethernet</span> Basics</h1>
+            <div class="subtitle" data-aos="fade-up" data-aos-delay="300">أساسيات الإيثرنت</div>
+            <p class="desc" data-aos="fade-up" data-aos-delay="450">اخترع 1973 في Xerox PARC — ولا يزال البروتوكول الأساسي لكل شبكة سلكية في العالم. ليه؟ لأنه ببساطة نجح.</p>
+        </div>
+    </header>
+
+    <!-- What is Ethernet -->
+    <section class="lesson-section">
+        <div class="section-header" data-aos="fade-up">
+            <h2><i class="fas fa-plug" style="color:#F59E0B;margin-left:0.5rem;"></i> الإيثرنت في ثلاث نقاط</h2>
+            <p class="en-sub">Ethernet — The Backbone of Every Wired Network</p>
+        </div>
+        <div class="glass-card" style="padding:1.8rem;" data-aos="fade-up">
+            <div class="rtl-block">
+                <p style="color:#E2E8F0;font-size:1rem;margin-bottom:1.5rem;line-height:1.9;">الـ Ethernet هو مجموعة من المعايير (Standards) بتحكم <strong style="color:#FBBF24;">Layer 1 (Physical)</strong> و<strong style="color:#FBBF24;">Layer 2 (Data Link)</strong> في الشبكات السلكية. معيار IEEE 802.3.</p>
+                <div class="problem-grid" style="margin:0;">
+                    <div class="solution-card" style="border-color:rgba(245,158,11,0.2);">
+                        <div class="icon" style="background:rgba(245,158,11,0.1);color:#FBBF24;">📦</div>
+                        <h4 style="color:#FBBF24;font-size:0.95rem;">Frame Format</h4>
+                        <p class="rtl-block" style="font-size:0.85rem;">بيحدد شكل "الظرف" اللي البيانات بتتشحن فيه — Header, Data, Trailer.</p>
+                    </div>
+                    <div class="solution-card" style="border-color:rgba(245,158,11,0.2);">
+                        <div class="icon" style="background:rgba(245,158,11,0.1);color:#FBBF24;">🔢</div>
+                        <h4 style="color:#FBBF24;font-size:0.95rem;">MAC Addressing</h4>
+                        <p class="rtl-block" style="font-size:0.85rem;">كل كارت شبكة عنده MAC Address فريد — بيستخدمه الـ Ethernet لتحديد هوية الجهاز داخل الـ LAN.</p>
+                    </div>
+                    <div class="solution-card" style="border-color:rgba(245,158,11,0.2);">
+                        <div class="icon" style="background:rgba(245,158,11,0.1);color:#FBBF24;">🚦</div>
+                        <h4 style="color:#FBBF24;font-size:0.95rem;">Media Access Control</h4>
+                        <p class="rtl-block" style="font-size:0.85rem;">CSMA/CD — بيحدد من يحق له إرسال البيانات وإيمتى للتجنب التعارض.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Ethernet Frame -->
+    <section class="lesson-section alt-bg">
+        <div class="section-inner">
+            <div class="section-header" data-aos="fade-up">
+                <h2><i class="fas fa-envelope-open" style="color:#FBBF24;margin-left:0.5rem;"></i> بنية الـ Ethernet Frame</h2>
+                <p class="en-sub">Ethernet Frame Structure — Every Field Has a Purpose</p>
+            </div>
+            <div class="glass-card" style="padding:1.8rem;" data-aos="fade-up" data-aos-delay="100">
+                <div class="rtl-block" style="margin-bottom:1rem;">
+                    <p style="color:#CBD5E1;font-size:0.9rem;">اضغط على أي حقل عشان تعرف وظيفته:</p>
+                </div>
+                <div class="frame-display" id="eth-frame">
+                    <div class="frame-field" style="background:rgba(100,116,139,0.4);flex:0.8;" onclick="showField('preamble')">
+                        <div class="ff-name">Preamble</div><div class="ff-size">7 bytes</div>
+                    </div>
+                    <div class="frame-field" style="background:rgba(100,116,139,0.3);flex:0.4;" onclick="showField('sfd')">
+                        <div class="ff-name">SFD</div><div class="ff-size">1B</div>
+                    </div>
+                    <div class="frame-field" style="background:rgba(16,185,129,0.4);flex:1;" onclick="showField('dst')">
+                        <div class="ff-name">Dst MAC</div><div class="ff-size">6 bytes</div>
+                    </div>
+                    <div class="frame-field" style="background:rgba(59,130,246,0.4);flex:1;" onclick="showField('src')">
+                        <div class="ff-name">Src MAC</div><div class="ff-size">6 bytes</div>
+                    </div>
+                    <div class="frame-field" style="background:rgba(245,158,11,0.4);flex:0.5;" onclick="showField('etype')">
+                        <div class="ff-name">EType</div><div class="ff-size">2B</div>
+                    </div>
+                    <div class="frame-field" style="background:rgba(139,92,246,0.4);flex:3;" onclick="showField('payload')">
+                        <div class="ff-name">Payload / Data</div><div class="ff-size">46–1500 bytes</div>
+                    </div>
+                    <div class="frame-field" style="background:rgba(239,68,68,0.4);flex:0.6;" onclick="showField('fcs')">
+                        <div class="ff-name">FCS</div><div class="ff-size">4B</div>
+                    </div>
+                </div>
+                <div id="frame-detail" class="info-box" style="display:none;margin-top:0.75rem;">
+                    <div class="rtl-block" id="frame-detail-content" style="font-size:0.88rem;"></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CSMA/CD -->
+    <section class="lesson-section">
+        <div class="section-header" data-aos="fade-up">
+            <h2><i class="fas fa-traffic-light" style="color:#34D399;margin-left:0.5rem;"></i> CSMA/CD — نظام المرور</h2>
+            <p class="en-sub">Carrier Sense Multiple Access / Collision Detection</p>
+        </div>
+        <div class="glass-card" style="padding:1.8rem;" data-aos="fade-up">
+            <div class="rtl-block" style="margin-bottom:1.5rem;">
+                <p style="color:#CBD5E1;font-size:0.98rem;line-height:1.8;">في الشبكات القديمة — كل الأجهزة على نفس الكابل (Bus Topology). لو اتنين بعتوا في نفس اللحظة → Collision. الـ CSMA/CD هو الحل:</p>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:0.75rem;" data-aos="fade-up" data-aos-delay="100">
+                <div style="display:flex;align-items:flex-start;gap:1rem;padding:0.75rem;background:rgba(16,185,129,0.06);border:1px solid rgba(16,185,129,0.15);border-radius:10px;">
+                    <div style="background:rgba(16,185,129,0.2);color:#34D399;font-weight:900;width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:0.8rem;font-family:'Fira Code';">1</div>
+                    <div class="rtl-block" style="font-size:0.9rem;"><strong style="color:#34D399;">CS (Carrier Sense):</strong> استمع قبل ما تتكلم — تأكد الكابل فاضي (مفيش إشارة حالياً)</div>
+                </div>
+                <div style="display:flex;align-items:flex-start;gap:1rem;padding:0.75rem;background:rgba(59,130,246,0.06);border:1px solid rgba(59,130,246,0.15);border-radius:10px;">
+                    <div style="background:rgba(59,130,246,0.2);color:#60A5FA;font-weight:900;width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:0.8rem;font-family:'Fira Code';">2</div>
+                    <div class="rtl-block" style="font-size:0.9rem;"><strong style="color:#60A5FA;">MA (Multiple Access):</strong> الكابل مشترك — أكتر من جهاز بيحاول يوصل في نفس الوقت</div>
+                </div>
+                <div style="display:flex;align-items:flex-start;gap:1rem;padding:0.75rem;background:rgba(239,68,68,0.06);border:1px solid rgba(239,68,68,0.15);border-radius:10px;">
+                    <div style="background:rgba(239,68,68,0.2);color:#F87171;font-weight:900;width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:0.8rem;font-family:'Fira Code';">3</div>
+                    <div class="rtl-block" style="font-size:0.9rem;"><strong style="color:#F87171;">CD (Collision Detection):</strong> لو Collision حصل → بعت Jam Signal → وقّف الكل → انتظر وقت عشوائي (Backoff) → حاول تاني</div>
+                </div>
+            </div>
+            <div class="note" style="margin-top:1rem;">
+                <div class="rtl-block">💡 الـ Switch الحديث ألغى الـ CSMA/CD عملياً — لأن كل Port عنده خط خاص (Full Duplex). الـ CSMA/CD للـ Hub القديم.</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Ethernet Versions -->
+    <section class="lesson-section alt-bg">
+        <div class="section-inner">
+            <div class="section-header" data-aos="fade-up">
+                <h2><i class="fas fa-history" style="color:#FBBF24;margin-left:0.5rem;"></i> تطور الإيثرنت</h2>
+                <p class="en-sub">From 10 Mbps to 400 Gbps</p>
+            </div>
+            <div data-aos="fade-up" style="overflow-x:auto;">
+                <table class="comparison-table">
+                    <thead><tr><th>الإصدار</th><th>السرعة</th><th>الكابل</th><th>المدى</th><th>الاستخدام</th></tr></thead>
+                    <tbody>
+                        <tr><td style="font-family:'Fira Code';direction:ltr;">10BASE-T</td><td>10 Mbps</td><td>Cat 3</td><td>100م</td><td class="rtl-block">تاريخي (90s)</td></tr>
+                        <tr><td style="font-family:'Fira Code';direction:ltr;">100BASE-TX</td><td style="color:#FBBF24;">100 Mbps</td><td>Cat 5</td><td>100م</td><td class="rtl-block">Fast Ethernet</td></tr>
+                        <tr><td style="font-family:'Fira Code';direction:ltr;">1000BASE-T</td><td style="color:#34D399;">1 Gbps</td><td>Cat 5e</td><td>100م</td><td class="rtl-block">شائع حالياً</td></tr>
+                        <tr><td style="font-family:'Fira Code';direction:ltr;">10GBASE-T</td><td style="color:#22D3EE;">10 Gbps</td><td>Cat 6a</td><td>100م</td><td class="rtl-block">Data Centers</td></tr>
+                        <tr><td style="font-family:'Fira Code';direction:ltr;">400GBASE</td><td style="color:#A78BFA;">400 Gbps</td><td>Fiber</td><td>40كم</td><td class="rtl-block">Backbone</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </section>
+
+    <!-- Quiz -->
+    <section class="lesson-section" id="quiz">
+        <div class="section-header" data-aos="fade-up">
+            <h2><i class="fas fa-brain" style="color:#F59E0B;margin-left:0.5rem;"></i> اختبر نفسك</h2>
+        </div>
+        <div class="quiz-container" data-aos="fade-up">
+            <div class="quiz-question" id="q1">
+                <h4>الـ FCS في الـ Ethernet Frame بيعمل إيه؟</h4>
+                <div class="quiz-options">
+                    <div class="quiz-option" onclick="ans(this,'q1',false)">بيحدد عنوان الوجهة</div>
+                    <div class="quiz-option" onclick="ans(this,'q1',false)">بيحدد نوع البيانات</div>
+                    <div class="quiz-option" onclick="ans(this,'q1',true)">بيتحقق من سلامة الـ Frame (Error Detection)</div>
+                    <div class="quiz-option" onclick="ans(this,'q1',false)">بيحدد طول البيانات</div>
+                </div>
+                <div class="quiz-feedback" id="fb-q1"></div>
+            </div>
+            <div class="quiz-question" id="q2">
+                <h4>CSMA/CD مهم أكتر مع الـ Hub ولا الـ Switch؟</h4>
+                <div class="quiz-options">
+                    <div class="quiz-option" onclick="ans(this,'q2',true)">الـ Hub — لأن كل الأجهزة على نفس Collision Domain</div>
+                    <div class="quiz-option" onclick="ans(this,'q2',false)">الـ Switch — لأنه أحدث</div>
+                    <div class="quiz-option" onclick="ans(this,'q2',false)">مهم بالتساوي</div>
+                    <div class="quiz-option" onclick="ans(this,'q2',false)">مش مهم لأي منهم</div>
+                </div>
+                <div class="quiz-feedback" id="fb-q2"></div>
+            </div>
+            <div class="quiz-question" id="q3">
+                <h4>عايز تشيل 10 Gbps على كابل Twisted Pair لمسافة 100م — إيه الـ Category اللازم؟</h4>
+                <div class="quiz-options">
+                    <div class="quiz-option" onclick="ans(this,'q3',false)">Cat 5</div>
+                    <div class="quiz-option" onclick="ans(this,'q3',false)">Cat 5e</div>
+                    <div class="quiz-option" onclick="ans(this,'q3',false)">Cat 6</div>
+                    <div class="quiz-option" onclick="ans(this,'q3',true)">Cat 6a</div>
+                </div>
+                <div class="quiz-feedback" id="fb-q3"></div>
+            </div>
+        </div>
+    </section>
+
+    <section class="lesson-section">
+        <div class="lesson-bottom-nav">
+            <a href="../Unit3/switching_transmission.html"><i class="fas fa-arrow-left"></i><span>Switching</span></a>
+            <div style="text-align:center;color:var(--text-faint);font-size:0.85rem;">Unit 4 • Lesson 1</div>
+            <a href="switching_vlans.html"><span>Switches &amp; VLANs</span><i class="fas fa-arrow-right"></i></a>
+        </div>
+    </section>
+
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <script>
+        AOS.init({duration:800,once:true,offset:100});
+        window.addEventListener('scroll',()=>{ document.getElementById('reading-progress').style.width=(window.scrollY/(document.documentElement.scrollHeight-window.innerHeight))*100+'%'; });
+
+        const fieldDetails = {
+            preamble:'<strong>Preamble (7 bytes):</strong> تسلسل ثابت 10101010 × 7 بيساعد المستقبل يتزامن مع إيقاع الإشارة قبل استقبال الـ Frame.',
+            sfd:'<strong>SFD - Start Frame Delimiter (1 byte):</strong> 10101011 — الـ Byte الأخير قبل البيانات. بيعلن "Frame جاي!"',
+            dst:'<strong>Destination MAC (6 bytes):</strong> الـ MAC Address بتاع الجهاز المستقبل. لو FF:FF:FF:FF:FF:FF = Broadcast لكل الشبكة.',
+            src:'<strong>Source MAC (6 bytes):</strong> الـ MAC Address بتاع الجهاز المرسل — عشان المستقبل يعرف يرد عليه.',
+            etype:'<strong>EtherType (2 bytes):</strong> بيحدد نوع البروتوكول في الـ Payload: 0x0800 = IPv4، 0x0806 = ARP، 0x86DD = IPv6.',
+            payload:'<strong>Payload / Data (46-1500 bytes):</strong> البيانات الفعلية — ممكن يكون IP Packet، ARP Message، او غيره. الـ 46 bytes الحد الأدنى.',
+            fcs:'<strong>FCS - Frame Check Sequence (4 bytes):</strong> CRC Checksum — بيتحسب من باقي الـ Frame. لو الحاسبة ما طلعتش نفس النتيجة = الـ Frame اتكسر → بيتحذف.'
+        };
+        function showField(f){
+            const box=document.getElementById('frame-detail');
+            box.style.display='block';
+            document.getElementById('frame-detail-content').innerHTML=fieldDetails[f];
+        }
+
+        const fb={
+            q1:{c:'✅ صح! FCS (Frame Check Sequence) = CRC Checksum. بيكتشف الأخطاء اللي حصلت أثناء الإرسال.',w:'❌ غلط! FCS بيتحقق من سلامة الـ Frame (Error Detection) — مش بيحدد العنوان أو النوع.'},
+            q2:{c:'✅ صح! الـ Hub بيشيل الـ Frames لكل الأجهزة — كلهم على نفس Collision Domain. الـ CSMA/CD ضروري لمنع التعارض.',w:'❌ غلط! الـ Switch بيعمل Full Duplex على كل Port — مفيش Collision. الـ CSMA/CD للـ Hub القديم.'},
+            q3:{c:'✅ صح! 10GBASE-T بيحتاج Cat 6a عشان يدعم 10 Gbps على 100م. Cat 6 بيوصل 10G بس على 55م بس.',w:'❌ غلط! 10 Gbps على 100م يحتاج Cat 6a. Cat 6 بيوصل 10G على 55م بس.'}
+        };
+        function ans(el,qid,correct){ const q=document.getElementById(qid); if(q.dataset.answered)return; q.dataset.answered='true'; q.querySelectorAll('.quiz-option').forEach(o=>o.style.pointerEvents='none'); el.classList.add(correct?'correct':'wrong'); const f=document.getElementById('fb-'+qid); f.textContent=correct?fb[qid].c:fb[qid].w; f.className='quiz-feedback show '+(correct?'correct-fb':'wrong-fb'); }
+    </script>
+</body>
+</html>

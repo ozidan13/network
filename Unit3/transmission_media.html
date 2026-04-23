@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Transmission Media — وسائط النقل | Network Mastery</title>
+    <meta name="description" content="الكابلات والفايبر والموجات اللاسلكية — كيف الـ Bits بتتنقل فيزيائياً في الشبكات.">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&family=Inter:wght@400;500;600;700;800&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    <link href="../css/global-net.css" rel="stylesheet">
+    <style>
+        body { background:#020617; color:#E2E8F0; font-family:'Inter',sans-serif; }
+        .lesson-nav-bar { position:fixed; top:0; left:0; right:0; z-index:100; background:rgba(2,6,23,0.88); backdrop-filter:blur(20px); border-bottom:1px solid rgba(255,255,255,0.06); height:64px; display:flex; align-items:center; padding:0 1.5rem; }
+        .nav-inner { max-width:1280px; margin:0 auto; width:100%; display:flex; align-items:center; justify-content:space-between; }
+        .nav-brand { display:flex; align-items:center; gap:0.75rem; font-weight:700; }
+        .back-btn { width:36px; height:36px; border-radius:10px; background:linear-gradient(135deg,#8B5CF6,#6D28D9); display:flex; align-items:center; justify-content:center; color:white; font-size:0.85rem; transition:transform 0.3s; }
+        .back-btn:hover { transform:scale(1.1); }
+        .lesson-hero { position:relative; padding:8rem 1.5rem 5rem; text-align:center; overflow:hidden; }
+        .glow-orb { position:absolute; border-radius:50%; filter:blur(128px); pointer-events:none; }
+        .glow-orb-1 { width:500px;height:500px;top:-10%;right:-5%;background:rgba(139,92,246,0.12); }
+        .glow-orb-2 { width:400px;height:400px;bottom:-20%;left:-10%;background:rgba(59,130,246,0.08); }
+        .lesson-badge { display:inline-flex; align-items:center; gap:0.5rem; padding:0.35rem 1rem; border-radius:50px; background:rgba(30,41,59,0.6); border:1px solid rgba(255,255,255,0.08); font-family:'Fira Code',monospace; font-size:0.78rem; color:#A78BFA; margin-bottom:1.5rem; }
+        .dot { width:6px;height:6px;border-radius:50%;background:#8B5CF6;animation:pulse-dot 2s ease infinite; }
+        .lesson-hero h1 { font-size:clamp(2.5rem,5vw,4rem);font-weight:800;margin-bottom:1rem; }
+        .text-g { background:linear-gradient(135deg,#8B5CF6,#A78BFA);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent; }
+        .subtitle { font-family:'Cairo',sans-serif;font-size:1.6rem;font-weight:700;color:var(--text-muted);direction:rtl;margin-bottom:1.5rem; }
+        .desc { color:var(--text-faint);max-width:640px;margin:0 auto;font-size:1.05rem;font-family:'Cairo',sans-serif;direction:rtl;line-height:1.9; }
+
+        /* Media Cards */
+        .media-card { background:rgba(15,23,42,0.7);backdrop-filter:blur(12px);border:1px solid var(--border-subtle);border-radius:20px;padding:2rem;margin-bottom:1.5rem;transition:all 0.4s ease;cursor:pointer; }
+        .media-card:hover { transform:translateX(-4px); }
+        .media-header { display:flex;align-items:center;gap:1.5rem;margin-bottom:1.5rem; }
+        .media-icon { width:60px;height:60px;border-radius:16px;display:flex;align-items:center;justify-content:center;font-size:1.6rem;flex-shrink:0; }
+        .media-name { font-family:'Fira Code',monospace;font-size:1.2rem;font-weight:900;direction:ltr; }
+        .media-ar { font-family:'Cairo',sans-serif;direction:rtl;color:var(--text-muted);font-size:0.9rem; }
+
+        /* Speed bar */
+        .speed-bar-wrap { margin:0.75rem 0; }
+        .speed-label { display:flex;justify-content:space-between;font-size:0.75rem;margin-bottom:0.25rem; }
+        .speed-label span:first-child { font-family:'Cairo',sans-serif;direction:rtl;color:var(--text-muted); }
+        .speed-label span:last-child { font-family:'Fira Code',monospace;direction:ltr; }
+        .speed-bar { height:8px;border-radius:4px;background:rgba(255,255,255,0.06);overflow:hidden; }
+        .speed-fill { height:100%;border-radius:4px;transition:width 1.5s cubic-bezier(0.22,1,0.36,1); }
+
+        /* Canvas Signal */
+        #sig-canvas { width:100%;display:block;border-radius:10px;background:rgba(0,0,0,0.4); }
+        .sig-btns { display:flex;gap:0.75rem;flex-wrap:wrap;margin-top:0.75rem; }
+        .sig-btn { padding:0.4rem 1rem;border-radius:8px;border:1px solid var(--border-light);background:rgba(255,255,255,0.04);color:var(--text-body);font-family:'Cairo',sans-serif;font-size:0.82rem;font-weight:600;cursor:pointer;transition:all 0.3s; }
+        .sig-btn:hover,.sig-btn.active { background:rgba(139,92,246,0.2);border-color:#8B5CF6;color:#A78BFA; }
+
+        .lesson-bottom-nav { display:flex;justify-content:space-between;align-items:center;gap:1rem;padding:2rem 0;border-top:1px solid var(--border-subtle);margin-top:3rem; }
+        .lesson-bottom-nav a { display:flex;align-items:center;gap:0.5rem;padding:0.75rem 1.5rem;border-radius:12px;background:rgba(255,255,255,0.04);border:1px solid var(--border-subtle);transition:all 0.3s ease;font-weight:600;font-size:0.9rem; }
+        .lesson-bottom-nav a:hover { background:rgba(139,92,246,0.1);border-color:rgba(139,92,246,0.3);transform:translateY(-2px); }
+    </style>
+</head>
+<body>
+    <nav class="lesson-nav-bar">
+        <div class="nav-inner">
+            <a href="../index.html" class="nav-brand">
+                <div class="back-btn"><i class="fas fa-arrow-left"></i></div>
+                <span>Tx<span style="color:#8B5CF6;">Media</span></span>
+            </a>
+        </div>
+    </nav>
+    <div class="progress-bar-container"><div class="progress-bar-fill" id="reading-progress" style="background:linear-gradient(90deg,#8B5CF6,#A78BFA);"></div></div>
+
+    <header class="lesson-hero">
+        <div class="glow-orb glow-orb-1"></div><div class="glow-orb glow-orb-2"></div>
+        <div style="position:relative;z-index:1;">
+            <div class="lesson-badge" data-aos="fade-down"><span class="dot"></span>UNIT 3 • Lesson 1</div>
+            <h1 data-aos="fade-up" data-aos-delay="150">Transmission <span class="text-g">Media</span></h1>
+            <div class="subtitle" data-aos="fade-up" data-aos-delay="300">وسائط النقل الفيزيائية</div>
+            <p class="desc" data-aos="fade-up" data-aos-delay="450">سؤال ما بيتسألش كتير: الـ Bit يمشي من موبايلك لـ YouTube Server — بيمشي في إيه بالظبط؟</p>
+        </div>
+    </header>
+
+    <!-- Opening: the overlooked question -->
+    <section class="lesson-section">
+        <div class="section-header" data-aos="fade-up">
+            <h2><i class="fas fa-wave-square" style="color:#8B5CF6;margin-left:0.5rem;"></i> المادة اللي بتشيل البيانات</h2>
+            <p class="en-sub">Physical Layer — What Carries the Bits?</p>
+        </div>
+        <div class="glass-card" style="padding:1.8rem;" data-aos="fade-up" data-aos-delay="100">
+            <div class="rtl-block">
+                <p style="color:#E2E8F0;font-size:1rem;margin-bottom:1rem;line-height:1.9;">كل الـ Bits الرقمية اللي بترسلها لازم تتحول لشيء فيزيائي عشان تتنقل: <strong style="color:#A78BFA;">إشارة كهربية</strong>، <strong style="color:#22D3EE;">نبضة ضوئية</strong>، أو <strong style="color:#FBBF24;">موجة راديو</strong>. اختيار الوسيط بيحدد السرعة والمسافة والتكلفة.</p>
+                <div class="stat-bomb" style="grid-template-columns:repeat(3,1fr);">
+                    <div class="stat-card"><div class="stat-num" style="font-size:1.4rem;background:linear-gradient(135deg,#8B5CF6,#A78BFA);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;">100 Gbps</div><div class="stat-label">سرعة أحدث Fiber Optic</div></div>
+                    <div class="stat-card"><div class="stat-num" style="font-size:1.4rem;background:linear-gradient(135deg,#06B6D4,#22D3EE);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;">200,000km</div><div class="stat-label">كابلات بحرية تحت البحار</div></div>
+                    <div class="stat-card"><div class="stat-num" style="font-size:1.4rem;background:linear-gradient(135deg,#FBBF24,#F59E0B);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;">300,000km/s</div><div class="stat-label">سرعة الضوء في الفايبر</div></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- WIRED MEDIA -->
+    <section class="lesson-section alt-bg">
+        <div class="section-inner">
+            <div class="section-header" data-aos="fade-up">
+                <h2><i class="fas fa-plug" style="color:#A78BFA;margin-left:0.5rem;"></i> الوسائط السلكية</h2>
+                <p class="en-sub">Wired / Guided Media — 3 Types</p>
+            </div>
+
+            <!-- Twisted Pair -->
+            <div class="media-card" style="border-color:rgba(245,158,11,0.2);" data-aos="fade-up">
+                <div class="media-header">
+                    <div class="media-icon" style="background:rgba(245,158,11,0.1);">🔌</div>
+                    <div>
+                        <div class="media-name" style="color:#FBBF24;">Twisted Pair Cable</div>
+                        <div class="media-ar">كابل الأسلاك الملتوية — الأشيع حول العالم</div>
+                    </div>
+                </div>
+                <div class="rtl-block" style="font-size:0.92rem;color:#CBD5E1;margin-bottom:1rem;line-height:1.8;">
+                    <p>مكوّن من زوجين أو أكتر من الأسلاك ملتوية مع بعض عمداً — الالتواء بيلغي التشويش الكهرومغناطيسي (EMI). النوعان: <strong>UTP</strong> (بدون حماية) و<strong>STP</strong> (بغلاف واق).</p>
+                    <div style="display:flex;flex-wrap:wrap;gap:0.4rem;direction:ltr;margin:0.75rem 0;">
+                        <span class="inline-code">Cat 5e → 1 Gbps / 100m</span>
+                        <span class="inline-code">Cat 6 → 10 Gbps / 55m</span>
+                        <span class="inline-code">Cat 6a → 10 Gbps / 100m</span>
+                        <span class="inline-code">Cat 8 → 40 Gbps / 30m</span>
+                    </div>
+                    <div class="nt-fact" style="background:rgba(245,158,11,0.06);border:1px solid rgba(245,158,11,0.15);border-left:3px solid #F59E0B;border-radius:0 10px 10px 0;padding:0.8rem 1rem;margin-top:0.75rem;font-size:0.85rem;color:#94A3B8;">
+                        🏠 <strong>في مصر:</strong> كابل UTP Cat 5e هو اللي بيوصل الـ Router ببيوت المشتركين في معظم خدمات ADSL وFiber Last-Mile.
+                    </div>
+                </div>
+                <div class="speed-bar-wrap">
+                    <div class="speed-label"><span>السرعة القصوى</span><span style="color:#FBBF24;">40 Gbps (Cat 8)</span></div>
+                    <div class="speed-bar"><div class="speed-fill" style="width:45%;background:linear-gradient(90deg,#FBBF24,#F59E0B);"></div></div>
+                </div>
+                <div style="display:flex;gap:1rem;flex-wrap:wrap;margin-top:0.75rem;">
+                    <span style="font-size:0.78rem;font-family:'Cairo',sans-serif;direction:rtl;color:#34D399;background:rgba(16,185,129,0.1);padding:0.2rem 0.6rem;border-radius:6px;">✅ رخيص جداً</span>
+                    <span style="font-size:0.78rem;font-family:'Cairo',sans-serif;direction:rtl;color:#34D399;background:rgba(16,185,129,0.1);padding:0.2rem 0.6rem;border-radius:6px;">✅ سهل التركيب</span>
+                    <span style="font-size:0.78rem;font-family:'Cairo',sans-serif;direction:rtl;color:#F87171;background:rgba(239,68,68,0.1);padding:0.2rem 0.6rem;border-radius:6px;">❌ مسافة محدودة</span>
+                    <span style="font-size:0.78rem;font-family:'Cairo',sans-serif;direction:rtl;color:#F87171;background:rgba(239,68,68,0.1);padding:0.2rem 0.6rem;border-radius:6px;">❌ قابل للـ EMI</span>
+                </div>
+            </div>
+
+            <!-- Coaxial -->
+            <div class="media-card" style="border-color:rgba(6,182,212,0.2);" data-aos="fade-up" data-aos-delay="50">
+                <div class="media-header">
+                    <div class="media-icon" style="background:rgba(6,182,212,0.1);">📡</div>
+                    <div>
+                        <div class="media-name" style="color:#22D3EE;">Coaxial Cable</div>
+                        <div class="media-ar">الكابل المحوري — كابل التلفزيون والـ Cable Internet</div>
+                    </div>
+                </div>
+                <div class="rtl-block" style="font-size:0.92rem;color:#CBD5E1;margin-bottom:1rem;line-height:1.8;">
+                    <p>طبقات متمحورة: سلك نحاسي في المنتصف ← عازل ← شبكة حماية ← غلاف خارجي. الشبكة المعدنية بتمنع التشويش بشكل ممتاز. بيشتغل لمسافات أطول من Twisted Pair.</p>
+                    <div class="nt-fact" style="background:rgba(6,182,212,0.06);border:1px solid rgba(6,182,212,0.15);border-left:3px solid #06B6D4;border-radius:0 10px 10px 0;padding:0.8rem 1rem;margin-top:0.75rem;font-size:0.85rem;color:#94A3B8;">
+                        📺 <strong>في مصر:</strong> كابل CableHome (Telecom Egypt) بيستخدم Coaxial لحد البيت = DOCSIS 3.1 بيوصل لـ 1 Gbps.
+                    </div>
+                </div>
+                <div class="speed-bar-wrap">
+                    <div class="speed-label"><span>السرعة القصوى</span><span style="color:#22D3EE;">10 Gbps</span></div>
+                    <div class="speed-bar"><div class="speed-fill" style="width:30%;background:linear-gradient(90deg,#06B6D4,#22D3EE);"></div></div>
+                </div>
+                <div style="display:flex;gap:1rem;flex-wrap:wrap;margin-top:0.75rem;">
+                    <span style="font-size:0.78rem;font-family:'Cairo',sans-serif;direction:rtl;color:#34D399;background:rgba(16,185,129,0.1);padding:0.2rem 0.6rem;border-radius:6px;">✅ مقاوم للـ EMI</span>
+                    <span style="font-size:0.78rem;font-family:'Cairo',sans-serif;direction:rtl;color:#34D399;background:rgba(16,185,129,0.1);padding:0.2rem 0.6rem;border-radius:6px;">✅ مسافات أطول</span>
+                    <span style="font-size:0.78rem;font-family:'Cairo',sans-serif;direction:rtl;color:#F87171;background:rgba(239,68,68,0.1);padding:0.2rem 0.6rem;border-radius:6px;">❌ أغلى وأثقل</span>
+                </div>
+            </div>
+
+            <!-- Fiber Optic -->
+            <div class="media-card" style="border-color:rgba(139,92,246,0.3);box-shadow:0 0 30px rgba(139,92,246,0.05);" data-aos="fade-up" data-aos-delay="100">
+                <div class="media-header">
+                    <div class="media-icon" style="background:rgba(139,92,246,0.15);">💫</div>
+                    <div>
+                        <div class="media-name" style="color:#A78BFA;">Fiber Optic Cable</div>
+                        <div class="media-ar">الألياف الضوئية — ملك وسائط النقل</div>
+                    </div>
+                </div>
+                <div class="rtl-block" style="font-size:0.92rem;color:#CBD5E1;margin-bottom:1rem;line-height:1.8;">
+                    <p>بدل ما الـ Bits تمشي كإشارة كهربية — بتمشي كـ <strong style="color:#A78BFA;">نبضات ضوء</strong> داخل خيط زجاجي أو بلاستيكي رفيع جداً (أرفع من شعرة). الضوء بيتعكس داخل الخيط ويمشي لآلاف الكيلوات بلا تخفيف يُذكر.</p>
+                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.75rem;margin:0.75rem 0;">
+                        <div style="background:rgba(139,92,246,0.08);border:1px solid rgba(139,92,246,0.2);border-radius:10px;padding:0.75rem;">
+                            <div style="color:#A78BFA;font-weight:700;font-size:0.8rem;font-family:'Fira Code',monospace;direction:ltr;margin-bottom:0.3rem;">Single-Mode (SMF)</div>
+                            <div class="rtl-block" style="font-size:0.78rem;color:var(--text-muted);">خيط ضيق جداً — مسافات تتجاوز 100كم. للـ WAN والكابلات البحرية.</div>
+                        </div>
+                        <div style="background:rgba(139,92,246,0.05);border:1px solid rgba(139,92,246,0.15);border-radius:10px;padding:0.75rem;">
+                            <div style="color:#A78BFA;font-weight:700;font-size:0.8rem;font-family:'Fira Code',monospace;direction:ltr;margin-bottom:0.3rem;">Multi-Mode (MMF)</div>
+                            <div class="rtl-block" style="font-size:0.78rem;color:var(--text-muted);">خيط أوسع — مسافات حتى 2كم. للـ Data Center وداخل المباني.</div>
+                        </div>
+                    </div>
+                    <div class="nt-fact" style="background:rgba(139,92,246,0.06);border:1px solid rgba(139,92,246,0.15);border-left:3px solid #8B5CF6;border-radius:0 10px 10px 0;padding:0.8rem 1rem;margin-top:0.75rem;font-size:0.85rem;color:#94A3B8;">
+                        🌊 <strong>كابل SEA-ME-WE 4:</strong> يمر بساحل مصر على البحر الأحمر — يربط مصر بأوروبا وآسيا بسعة 1.28 Tbps. ده Fiber Optic تحت البحر!
+                    </div>
+                </div>
+                <div class="speed-bar-wrap">
+                    <div class="speed-label"><span>السرعة القصوى</span><span style="color:#A78BFA;">100 Tbps (نظرياً)</span></div>
+                    <div class="speed-bar"><div class="speed-fill" style="width:95%;background:linear-gradient(90deg,#8B5CF6,#A78BFA);"></div></div>
+                </div>
+                <div style="display:flex;gap:1rem;flex-wrap:wrap;margin-top:0.75rem;">
+                    <span style="font-size:0.78rem;font-family:'Cairo',sans-serif;direction:rtl;color:#34D399;background:rgba(16,185,129,0.1);padding:0.2rem 0.6rem;border-radius:6px;">✅ سرعة هائلة</span>
+                    <span style="font-size:0.78rem;font-family:'Cairo',sans-serif;direction:rtl;color:#34D399;background:rgba(16,185,129,0.1);padding:0.2rem 0.6rem;border-radius:6px;">✅ مسافات طويلة جداً</span>
+                    <span style="font-size:0.78rem;font-family:'Cairo',sans-serif;direction:rtl;color:#34D399;background:rgba(16,185,129,0.1);padding:0.2rem 0.6rem;border-radius:6px;">✅ مناعة كاملة للـ EMI</span>
+                    <span style="font-size:0.78rem;font-family:'Cairo',sans-serif;direction:rtl;color:#F87171;background:rgba(239,68,68,0.1);padding:0.2rem 0.6rem;border-radius:6px;">❌ أغلى وأصعب تركيباً</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- WIRELESS -->
+    <section class="lesson-section">
+        <div class="section-header" data-aos="fade-up">
+            <h2><i class="fas fa-wifi" style="color:#FBBF24;margin-left:0.5rem;"></i> الوسائط اللاسلكية</h2>
+            <p class="en-sub">Wireless / Unguided Media — The Air is the Cable</p>
+        </div>
+        <div class="glass-card" style="padding:1.5rem;margin-bottom:1.5rem;" data-aos="fade-up">
+            <div class="rtl-block" style="margin-bottom:1.5rem;">
+                <p style="color:#CBD5E1;font-size:0.95rem;line-height:1.8;">في الوسائط اللاسلكية — الهواء نفسه هو الوسيط. البيانات بتتحول لموجات كهرومغناطيسية وبتنتشر في الفضاء. التردد بيحدد السرعة والمسافة والقدرة على اختراق العوائق.</p>
+            </div>
+            <div class="problem-grid" style="margin:0;">
+                <div style="background:rgba(251,191,36,0.06);border:1px solid rgba(251,191,36,0.15);border-radius:14px;padding:1.2rem;">
+                    <div style="color:#FBBF24;font-weight:700;font-family:'Fira Code',monospace;margin-bottom:0.5rem;direction:ltr;">WiFi (802.11)</div>
+                    <div class="rtl-block" style="font-size:0.85rem;color:var(--text-muted);">
+                        <p>2.4 GHz: بطيئة لكن تخترق الجدران أحسن. 5 GHz: سريعة لكن مسافة أقل. WiFi 6 يوصل لـ 9.6 Gbps.</p>
+                    </div>
+                </div>
+                <div style="background:rgba(16,185,129,0.06);border:1px solid rgba(16,185,129,0.15);border-radius:14px;padding:1.2rem;">
+                    <div style="color:#34D399;font-weight:700;font-family:'Fira Code',monospace;margin-bottom:0.5rem;direction:ltr;">4G LTE / 5G</div>
+                    <div class="rtl-block" style="font-size:0.85rem;color:var(--text-muted);">
+                        <p>4G: 20-50 Mbps. 5G: يوصل لـ 20 Gbps. Vodafone مصر طلقت 5G في القاهرة 2023.</p>
+                    </div>
+                </div>
+                <div style="background:rgba(6,182,212,0.06);border:1px solid rgba(6,182,212,0.15);border-radius:14px;padding:1.2rem;">
+                    <div style="color:#22D3EE;font-weight:700;font-family:'Fira Code',monospace;margin-bottom:0.5rem;direction:ltr;">Microwave</div>
+                    <div class="rtl-block" style="font-size:0.85rem;color:var(--text-muted);">
+                        <p>للمسافات الطويلة بين المباني. محطات بتشوفوه على الأبراج العالية. يحتاج Line of Sight.</p>
+                    </div>
+                </div>
+                <div style="background:rgba(139,92,246,0.06);border:1px solid rgba(139,92,246,0.15);border-radius:14px;padding:1.2rem;">
+                    <div style="color:#A78BFA;font-weight:700;font-family:'Fira Code',monospace;margin-bottom:0.5rem;direction:ltr;">Satellite</div>
+                    <div class="rtl-block" style="font-size:0.85rem;color:var(--text-muted);">
+                        <p>Starlink يوصل الإنترنت لأماكن ما فيهاش infrastructure. Latency عالية بسبب المسافة.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Signal Visualizer -->
+        <div class="glass-card" style="padding:1.5rem;" data-aos="fade-up" data-aos-delay="100">
+            <div class="section-header" style="margin-bottom:1rem;">
+                <h3 style="font-size:1.2rem;"><i class="fas fa-wave-square" style="color:#8B5CF6;margin-left:0.5rem;"></i> شكل الإشارة — انقر وشوف</h3>
+            </div>
+            <canvas id="sig-canvas" height="120"></canvas>
+            <div class="sig-btns">
+                <button class="sig-btn active" id="btn-dig" onclick="drawSig('digital')">📊 Digital (Bits)</button>
+                <button class="sig-btn" id="btn-sin" onclick="drawSig('sine')">〰️ Analog Sine</button>
+                <button class="sig-btn" id="btn-mod" onclick="drawSig('modulated')">📡 Modulated (WiFi)</button>
+                <button class="sig-btn" id="btn-fib" onclick="drawSig('fiber')">💫 Fiber Pulses</button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Comparison Table -->
+    <section class="lesson-section alt-bg">
+        <div class="section-inner">
+            <div class="section-header" data-aos="fade-up">
+                <h2><i class="fas fa-table" style="color:#A78BFA;margin-left:0.5rem;"></i> مقارنة شاملة</h2>
+                <p class="en-sub">Media Comparison at a Glance</p>
+            </div>
+            <div data-aos="fade-up" style="overflow-x:auto;">
+                <table class="comparison-table">
+                    <thead><tr><th>الوسيط</th><th>السرعة</th><th>المسافة</th><th>التكلفة</th><th>التشويش</th><th>الاستخدام</th></tr></thead>
+                    <tbody>
+                        <tr><td style="color:#FBBF24;font-weight:700;">Twisted Pair</td><td>1-40 Gbps</td><td>100م</td><td style="color:#34D399;">رخيص</td><td style="color:#F87171;">متوسط</td><td class="rtl-block">LAN المكاتب / بيوت</td></tr>
+                        <tr><td style="color:#22D3EE;font-weight:700;">Coaxial</td><td>10 Gbps</td><td>500م</td><td style="color:#FBBF24;">متوسط</td><td style="color:#34D399;">قليل</td><td class="rtl-block">Cable Internet / TV</td></tr>
+                        <tr><td style="color:#A78BFA;font-weight:700;">Fiber Optic</td><td>100+ Gbps</td><td>100+ كم</td><td style="color:#F87171;">غالي</td><td style="color:#34D399;">معدوم</td><td class="rtl-block">WAN / Data Centers</td></tr>
+                        <tr><td style="color:#FBBF24;font-weight:700;">WiFi</td><td>9.6 Gbps</td><td>150م</td><td style="color:#34D399;">رخيص</td><td style="color:#F87171;">عالي</td><td class="rtl-block">شبكات لاسلكية داخلية</td></tr>
+                        <tr><td style="color:#34D399;font-weight:700;">5G</td><td>20 Gbps</td><td>كم+</td><td style="color:#F87171;">غالي بنية</td><td style="color:#FBBF24;">متوسط</td><td class="rtl-block">موبايل / IoT</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </section>
+
+    <!-- Quiz -->
+    <section class="lesson-section" id="quiz">
+        <div class="section-header" data-aos="fade-up">
+            <h2><i class="fas fa-brain" style="color:#8B5CF6;margin-left:0.5rem;"></i> اختبر نفسك</h2>
+            <p class="en-sub">Transmission Media Quiz</p>
+        </div>
+        <div class="quiz-container" data-aos="fade-up">
+            <div class="quiz-question" id="q1">
+                <h4>أنهي نوع كابل بيستخدم في الكابلات البحرية بين القارات؟</h4>
+                <div class="quiz-options">
+                    <div class="quiz-option" onclick="ans(this,'q1',false)">Coaxial Cable</div>
+                    <div class="quiz-option" onclick="ans(this,'q1',false)">Cat 6 Twisted Pair</div>
+                    <div class="quiz-option" onclick="ans(this,'q1',true)">Single-Mode Fiber Optic</div>
+                    <div class="quiz-option" onclick="ans(this,'q1',false)">Satellite Microwave</div>
+                </div>
+                <div class="quiz-feedback" id="fb-q1"></div>
+            </div>
+            <div class="quiz-question" id="q2">
+                <h4>ليه WiFi 2.4 GHz أفضل من 5 GHz في اختراق الجدران؟</h4>
+                <div class="quiz-options">
+                    <div class="quiz-option" onclick="ans(this,'q2',false)">لأنه أسرع</div>
+                    <div class="quiz-option" onclick="ans(this,'q2',true)">لأن التردد المنخفض موجاته أطول وبتخترق العوائق أحسن</div>
+                    <div class="quiz-option" onclick="ans(this,'q2',false)">لأنه أرخص</div>
+                    <div class="quiz-option" onclick="ans(this,'q2',false)">لأنه أقدم</div>
+                </div>
+                <div class="quiz-feedback" id="fb-q2"></div>
+            </div>
+            <div class="quiz-question" id="q3">
+                <h4>الـ Fiber Optic ليه أسرع بكتير من Twisted Pair؟</h4>
+                <div class="quiz-options">
+                    <div class="quiz-option" onclick="ans(this,'q3',false)">لأنه أسمك</div>
+                    <div class="quiz-option" onclick="ans(this,'q3',false)">لأنه نحاس خالص</div>
+                    <div class="quiz-option" onclick="ans(this,'q3',true)">لأنه بينقل ضوء مش كهرباء — والضوء أسرع وما بيتأثرش بالـ EMI</div>
+                    <div class="quiz-option" onclick="ans(this,'q3',false)">لأنه أحدث</div>
+                </div>
+                <div class="quiz-feedback" id="fb-q3"></div>
+            </div>
+        </div>
+    </section>
+
+    <section class="lesson-section">
+        <div class="lesson-bottom-nav">
+            <a href="../Unit2/addressing_basics.html"><i class="fas fa-arrow-left"></i><span>العناوين</span></a>
+            <div style="text-align:center;color:var(--text-faint);font-size:0.85rem;font-family:'Cairo',sans-serif;">Unit 3 • Lesson 1</div>
+            <a href="signal_encoding.html"><span>Signal Encoding</span><i class="fas fa-arrow-right"></i></a>
+        </div>
+    </section>
+
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <script>
+        AOS.init({duration:800,once:true,offset:100});
+        window.addEventListener('scroll',()=>{ document.getElementById('reading-progress').style.width=(window.scrollY/(document.documentElement.scrollHeight-window.innerHeight))*100+'%'; });
+
+        // Signal Canvas
+        const sc = document.getElementById('sig-canvas');
+        const sctx = sc.getContext('2d');
+        function resizeSig(){ sc.width=sc.parentElement.clientWidth; sc.height=120; }
+        resizeSig(); window.addEventListener('resize',()=>{ resizeSig(); drawSig(currentSig); });
+        let currentSig='digital';
+
+        function drawSig(type){
+            currentSig=type;
+            ['btn-dig','btn-sin','btn-mod','btn-fib'].forEach(id=>document.getElementById(id).classList.remove('active'));
+            const map={digital:'btn-dig',sine:'btn-sin',modulated:'btn-mod',fiber:'btn-fib'};
+            document.getElementById(map[type]).classList.add('active');
+
+            sctx.clearRect(0,0,sc.width,sc.height);
+            sctx.strokeStyle='rgba(255,255,255,0.04)';
+            sctx.lineWidth=1;
+            // grid lines
+            for(let y=20;y<sc.height;y+=20){ sctx.beginPath();sctx.moveTo(0,y);sctx.lineTo(sc.width,y);sctx.stroke(); }
+
+            const mid=sc.height/2, amp=40, colors={digital:'#22D3EE',sine:'#A78BFA',modulated:'#FBBF24',fiber:'#8B5CF6'};
+            sctx.strokeStyle=colors[type]; sctx.lineWidth=2.5;
+            sctx.shadowColor=colors[type]; sctx.shadowBlur=10;
+            sctx.beginPath();
+            const w=sc.width;
+
+            if(type==='digital'){
+                const bits=[1,0,1,1,0,0,1,0,1,1];
+                const bw=w/bits.length; let x=0;
+                bits.forEach(b=>{
+                    const y=b===1?mid-amp:mid+amp;
+                    sctx.moveTo(x,mid+(b===1?amp:-amp)*-1);
+                    sctx.lineTo(x,y); sctx.lineTo(x+bw,y);
+                    x+=bw;
+                });
+            } else if(type==='sine'){
+                sctx.moveTo(0,mid);
+                for(let x=0;x<=w;x++){ sctx.lineTo(x,mid-amp*Math.sin(x*0.05)); }
+            } else if(type==='modulated'){
+                sctx.moveTo(0,mid);
+                for(let x=0;x<=w;x++){
+                    const env=Math.sin(x*0.012)*0.5+0.5;
+                    sctx.lineTo(x,mid-amp*env*Math.sin(x*0.25));
+                }
+            } else if(type==='fiber'){
+                const pulses=[0.08,0.22,0.38,0.52,0.65,0.8,0.9];
+                pulses.forEach(p=>{ const px=p*w; sctx.moveTo(px,mid+10); sctx.lineTo(px,mid-35); sctx.lineTo(px+8,mid-35); sctx.lineTo(px+8,mid+10); });
+            }
+            sctx.stroke();
+        }
+        drawSig('digital');
+
+        const fb={
+            q1:{c:'✅ صح! Fiber Optic Single-Mode هو اللي بيُستخدم في الكابلات البحرية — يقدر يمشي 100+ كيلومتر بدون تقوية.',w:'❌ غلط! الكابلات البحرية Fiber Optic Single-Mode — السرعة والمسافة الهائلة مستحيلة بغيره.'},
+            q2:{c:'✅ صح! التردد المنخفض (2.4 GHz) موجاته أطول — وبتقدر تمشي حول العوائق الصلبة أحسن من الموجات القصيرة (5 GHz).',w:'❌ غلط! السبب فيزيائي: الموجات الأطول (تردد أقل) أقدر على اختراق العوائق.'},
+            q3:{c:'✅ ممتاز! الفايبر بينقل ضوء بدل كهرباء. الضوء أسرع بكتير، ومش بيتأثر بالحرارة أو الـ EMI.',w:'❌ غلط! السبب الأساسي هو النقل الضوئي — الضوء أسرع من الإشارة الكهربية وأكثر قدرة على الانتقال لمسافات طويلة.'}
+        };
+        function ans(el,qid,correct){ const q=document.getElementById(qid); if(q.dataset.answered)return; q.dataset.answered='true'; q.querySelectorAll('.quiz-option').forEach(o=>o.style.pointerEvents='none'); el.classList.add(correct?'correct':'wrong'); const f=document.getElementById('fb-'+qid); f.textContent=correct?fb[qid].c:fb[qid].w; f.className='quiz-feedback show '+(correct?'correct-fb':'wrong-fb'); }
+    </script>
+</body>
+</html>

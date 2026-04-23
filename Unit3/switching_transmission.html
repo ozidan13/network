@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Switching & Transmission — التحويل | Network Mastery</title>
+    <meta name="description" content="Circuit Switching vs Packet Switching — كيف المكالمات والإنترنت بيشتغلوا بطريقتين مختلفتين جداً.">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&family=Inter:wght@400;500;600;700;800&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    <link href="../css/global-net.css" rel="stylesheet">
+    <style>
+        body{background:#020617;color:#E2E8F0;font-family:'Inter',sans-serif;}
+        .lesson-nav-bar{position:fixed;top:0;left:0;right:0;z-index:100;background:rgba(2,6,23,0.88);backdrop-filter:blur(20px);border-bottom:1px solid rgba(255,255,255,0.06);height:64px;display:flex;align-items:center;padding:0 1.5rem;}
+        .nav-inner{max-width:1280px;margin:0 auto;width:100%;display:flex;align-items:center;justify-content:space-between;}
+        .nav-brand{display:flex;align-items:center;gap:0.75rem;font-weight:700;}
+        .back-btn{width:36px;height:36px;border-radius:10px;background:linear-gradient(135deg,#8B5CF6,#6D28D9);display:flex;align-items:center;justify-content:center;color:white;font-size:0.85rem;transition:transform 0.3s;}
+        .back-btn:hover{transform:scale(1.1);}
+        .lesson-hero{position:relative;padding:8rem 1.5rem 5rem;text-align:center;overflow:hidden;}
+        .glow-orb{position:absolute;border-radius:50%;filter:blur(128px);pointer-events:none;}
+        .glow-orb-1{width:500px;height:500px;top:-10%;right:-5%;background:rgba(139,92,246,0.12);}
+        .glow-orb-2{width:400px;height:400px;bottom:-20%;left:-10%;background:rgba(59,130,246,0.08);}
+        .lesson-badge{display:inline-flex;align-items:center;gap:0.5rem;padding:0.35rem 1rem;border-radius:50px;background:rgba(30,41,59,0.6);border:1px solid rgba(255,255,255,0.08);font-family:'Fira Code',monospace;font-size:0.78rem;color:#A78BFA;margin-bottom:1.5rem;}
+        .dot{width:6px;height:6px;border-radius:50%;background:#8B5CF6;animation:pulse-dot 2s ease infinite;}
+        .lesson-hero h1{font-size:clamp(2.5rem,5vw,4rem);font-weight:800;margin-bottom:1rem;}
+        .text-g{background:linear-gradient(135deg,#8B5CF6,#A78BFA);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;}
+        .subtitle{font-family:'Cairo',sans-serif;font-size:1.6rem;font-weight:700;color:var(--text-muted);direction:rtl;margin-bottom:1.5rem;}
+        .desc{color:var(--text-faint);max-width:640px;margin:0 auto;font-size:1.05rem;font-family:'Cairo',sans-serif;direction:rtl;line-height:1.9;}
+
+        /* Switching Canvas */
+        #sw-canvas{width:100%;display:block;background:rgba(0,0,0,0.5);border-radius:12px;}
+        .sw-btns{display:flex;gap:0.75rem;flex-wrap:wrap;padding:0.75rem;border-top:1px solid var(--border-subtle);}
+        .sw-btn{padding:0.5rem 1.2rem;border-radius:10px;border:1px solid var(--border-light);background:rgba(255,255,255,0.04);color:var(--text-body);font-family:'Cairo',sans-serif;font-size:0.85rem;font-weight:600;cursor:pointer;transition:all 0.3s;}
+        .sw-btn:hover,.sw-btn.active{background:rgba(139,92,246,0.2);border-color:#8B5CF6;color:#A78BFA;}
+
+        /* Switching Type Cards */
+        .sw-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:1rem;margin:2rem 0;}
+        @media(max-width:700px){.sw-grid{grid-template-columns:1fr;}}
+        .sw-card{background:rgba(15,23,42,0.7);border:1px solid var(--border-subtle);border-radius:16px;padding:1.5rem;transition:all 0.3s;}
+        .sw-card:hover{transform:translateY(-4px);}
+        .sw-card h4{font-family:'Fira Code',monospace;font-size:1rem;font-weight:900;margin-bottom:0.75rem;direction:ltr;}
+        .sw-prop{font-size:0.82rem;margin-bottom:0.4rem;display:flex;align-items:flex-start;gap:0.4rem;}
+        .sw-prop .pk{font-family:'Fira Code',monospace;direction:ltr;color:var(--text-ghost);font-size:0.7rem;min-width:55px;}
+        .sw-prop .pv{font-family:'Cairo',sans-serif;direction:rtl;color:var(--text-muted);}
+
+        .lesson-bottom-nav{display:flex;justify-content:space-between;align-items:center;gap:1rem;padding:2rem 0;border-top:1px solid var(--border-subtle);margin-top:3rem;}
+        .lesson-bottom-nav a{display:flex;align-items:center;gap:0.5rem;padding:0.75rem 1.5rem;border-radius:12px;background:rgba(255,255,255,0.04);border:1px solid var(--border-subtle);transition:all 0.3s ease;font-weight:600;font-size:0.9rem;}
+        .lesson-bottom-nav a:hover{background:rgba(139,92,246,0.1);border-color:rgba(139,92,246,0.3);transform:translateY(-2px);}
+    </style>
+</head>
+<body>
+    <nav class="lesson-nav-bar">
+        <div class="nav-inner">
+            <a href="../index.html" class="nav-brand">
+                <div class="back-btn"><i class="fas fa-arrow-left"></i></div>
+                <span>Switch<span style="color:#8B5CF6;">ing</span></span>
+            </a>
+        </div>
+    </nav>
+    <div class="progress-bar-container"><div class="progress-bar-fill" id="reading-progress" style="background:linear-gradient(90deg,#8B5CF6,#A78BFA);"></div></div>
+
+    <header class="lesson-hero">
+        <div class="glow-orb glow-orb-1"></div><div class="glow-orb glow-orb-2"></div>
+        <div style="position:relative;z-index:1;">
+            <div class="lesson-badge" data-aos="fade-down"><span class="dot"></span>UNIT 3 • Lesson 4</div>
+            <h1 data-aos="fade-up" data-aos-delay="150">Switching &amp; <span class="text-g">Transmission</span></h1>
+            <div class="subtitle" data-aos="fade-up" data-aos-delay="300">التحويل والإرسال</div>
+            <p class="desc" data-aos="fade-up" data-aos-delay="450">مكالمة تليفون ومكالمة WhatsApp — بتمشيا بطريقتين مختلفتين جذرياً. وده مش خطأ — كل طريقة صُممت لحاجة مختلفة.</p>
+        </div>
+    </header>
+
+    <!-- The key difference setup -->
+    <section class="lesson-section">
+        <div class="section-header" data-aos="fade-up">
+            <h2><i class="fas fa-code-fork" style="color:#8B5CF6;margin-left:0.5rem;"></i> سؤال يفرق</h2>
+            <p class="en-sub">Two Worlds of Data Transmission</p>
+        </div>
+        <div class="glass-card" style="padding:1.8rem;" data-aos="fade-up" data-aos-delay="100">
+            <div class="rtl-block">
+                <p style="color:#E2E8F0;font-size:1rem;margin-bottom:1.5rem;line-height:1.9;">لما بتتصل بحد على التليفون — هل البيانات بتمشي نفس المسار طول المكالمة؟ ولما بتبعت WhatsApp message — هل بتمشي كلها في نفس الطريق دفعة واحدة؟</p>
+                <div class="cost-compare">
+                    <div class="cost-card before">
+                        <h5>📞 Circuit Switching</h5>
+                        <div class="cost-item">📌 مسار ثابت مخصص طول المكالمة</div>
+                        <div class="cost-item">📌 موارد محجوزة حتى لو سكتوا</div>
+                        <div class="cost-item">📌 الشبكات التليفونية التقليدية</div>
+                    </div>
+                    <div class="cost-card after">
+                        <h5>📦 Packet Switching</h5>
+                        <div class="cost-item">📌 البيانات بتتقسم لـ Packets</div>
+                        <div class="cost-item">📌 كل Packet ممكن يمشي مسار مختلف</div>
+                        <div class="cost-item">📌 الإنترنت كله شغّال بيه</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Interactive Switching Simulator -->
+    <section class="lesson-section alt-bg">
+        <div class="section-inner">
+            <div class="section-header" data-aos="fade-up">
+                <h2><i class="fas fa-play-circle" style="color:#A78BFA;margin-left:0.5rem;"></i> شوف الفرق بنفسك</h2>
+                <p class="en-sub">Live Switching Simulator</p>
+            </div>
+            <div class="glass-card" style="padding:0;overflow:hidden;" data-aos="fade-up" data-aos-delay="100">
+                <canvas id="sw-canvas" height="240"></canvas>
+                <div class="sw-btns">
+                    <button class="sw-btn active" id="btn-circuit" onclick="setSW('circuit')">📞 Circuit Switching</button>
+                    <button class="sw-btn" id="btn-packet" onclick="setSW('packet')">📦 Packet Switching</button>
+                </div>
+                <div id="sw-desc" style="padding:1rem 1.2rem;border-top:1px solid var(--border-subtle);">
+                    <div class="rtl-block" style="font-size:0.88rem;color:#CBD5E1;">
+                        <strong style="color:#22D3EE;">Circuit Switching:</strong> مسار كامل ومخصص بين المرسل والمستقبل. الموارد محجوزة طول المكالمة حتى لو الخط صامت.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Three Types Detail -->
+    <section class="lesson-section">
+        <div class="section-header" data-aos="fade-up">
+            <h2><i class="fas fa-network-wired" style="color:#A78BFA;margin-left:0.5rem;"></i> أنواع التحويل</h2>
+            <p class="en-sub">Circuit, Message, and Packet Switching</p>
+        </div>
+
+        <div class="sw-grid" data-aos="fade-up" data-aos-delay="100">
+            <!-- Circuit -->
+            <div class="sw-card" style="border-color:rgba(34,211,238,0.2);">
+                <h4 style="color:#22D3EE;">Circuit</h4>
+                <div class="sw-prop"><span class="pk">مسار</span><span class="pv">ثابت ومخصص</span></div>
+                <div class="sw-prop"><span class="pk">Setup</span><span class="pv">مطلوب قبل الاتصال</span></div>
+                <div class="sw-prop"><span class="pk">Delay</span><span class="pv">ثابت ومنخفض</span></div>
+                <div class="sw-prop"><span class="pk">الموارد</span><span class="pv">محجوزة دايماً</span></div>
+                <div class="sw-prop"><span class="pk">مناسب لـ</span><span class="pv">المكالمات الصوتية</span></div>
+                <div class="sw-prop"><span class="pk">مثال</span><span class="pv">PSTN (التليفون العادي)</span></div>
+            </div>
+
+            <!-- Message -->
+            <div class="sw-card" style="border-color:rgba(251,191,36,0.2);">
+                <h4 style="color:#FBBF24;">Message</h4>
+                <div class="sw-prop"><span class="pk">الرسالة</span><span class="pv">كاملة غير مقسّمة</span></div>
+                <div class="sw-prop"><span class="pk">مسار</span><span class="pv">Store-and-Forward</span></div>
+                <div class="sw-prop"><span class="pk">Delay</span><span class="pv">عالي (انتظار كامل)</span></div>
+                <div class="sw-prop"><span class="pk">الموارد</span><span class="pv">حسب الحاجة</span></div>
+                <div class="sw-prop"><span class="pk">مناسب لـ</span><span class="pv">Email / SMS تاريخياً</span></div>
+                <div class="sw-prop"><span class="pk">نادر الآن</span><span class="pv">استُبدل بـ Packet</span></div>
+            </div>
+
+            <!-- Packet -->
+            <div class="sw-card" style="border-color:rgba(139,92,246,0.3);box-shadow:0 0 30px rgba(139,92,246,0.05);">
+                <h4 style="color:#A78BFA;">Packet ⭐</h4>
+                <div class="sw-prop"><span class="pk">البيانات</span><span class="pv">مقسّمة Packets</span></div>
+                <div class="sw-prop"><span class="pk">مسار</span><span class="pv">مرن لكل Packet</span></div>
+                <div class="sw-prop"><span class="pk">Delay</span><span class="pv">متغير (جيد للإنترنت)</span></div>
+                <div class="sw-prop"><span class="pk">الموارد</span><span class="pv">تُستخدم عند الحاجة</span></div>
+                <div class="sw-prop"><span class="pk">مناسب لـ</span><span class="pv">كل الإنترنت!</span></div>
+                <div class="sw-prop"><span class="pk">مثال</span><span class="pv">IP / Ethernet / WiFi</span></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Why Internet uses Packet -->
+    <section class="lesson-section alt-bg">
+        <div class="section-inner">
+            <div class="section-header" data-aos="fade-up">
+                <h2><i class="fas fa-question-circle" style="color:#FBBF24;margin-left:0.5rem;"></i> ليه الإنترنت اختار Packet Switching؟</h2>
+                <p class="en-sub">The Design Decision That Changed Everything</p>
+            </div>
+            <div class="glass-card" style="padding:1.8rem;" data-aos="fade-up" data-aos-delay="100">
+                <div class="rtl-block">
+                    <p style="color:#CBD5E1;font-size:0.98rem;line-height:1.8;margin-bottom:1rem;">الـ ARPANET (أصل الإنترنت) اتصمم أيام الحرب الباردة. الاحتياج: <strong style="color:#FBBF24;">شبكة تظل تشتغل حتى لو جزء منها اتدمر</strong>. Circuit Switching ما يقدرش — لو الـ Circuit اتكسر، المكالمة انتهت.</p>
+                    <p style="color:#94A3B8;font-size:0.9rem;line-height:1.8;margin-bottom:1.5rem;">Packet Switching: لو مسار اتكسر — الـ Router بيلاقي مسار تاني. الرسالة بتوصل حتى لو الشبكة جزء منها مش شغّال.</p>
+                    <div class="problem-grid" style="margin:0;grid-template-columns:1fr 1fr;">
+                        <div class="solution-card" style="border-color:rgba(139,92,246,0.2);">
+                            <div class="icon" style="background:rgba(139,92,246,0.1);color:#A78BFA;font-size:1rem;">🛡️</div>
+                            <h4 style="font-size:0.9rem;">Fault Tolerance</h4>
+                            <p class="rtl-block" style="font-size:0.82rem;">لو Router وقع — الـ Packets بتلاقي مسار تاني تلقائياً</p>
+                        </div>
+                        <div class="solution-card" style="border-color:rgba(139,92,246,0.2);">
+                            <div class="icon" style="background:rgba(139,92,246,0.1);color:#A78BFA;font-size:1rem;">⚡</div>
+                            <h4 style="font-size:0.9rem;">Resource Sharing</h4>
+                            <p class="rtl-block" style="font-size:0.82rem;">الـ Bandwidth بيتشارك — مش محجوز لمستخدم خامل</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Quiz -->
+    <section class="lesson-section" id="quiz">
+        <div class="section-header" data-aos="fade-up">
+            <h2><i class="fas fa-brain" style="color:#8B5CF6;margin-left:0.5rem;"></i> اختبر نفسك</h2>
+        </div>
+        <div class="quiz-container" data-aos="fade-up">
+            <div class="quiz-question" id="q1">
+                <h4>مكالمة زفاف بين الإسكندرية والقاهرة على التليفون الأرضي العادي — أنهي نوع Switching؟</h4>
+                <div class="quiz-options">
+                    <div class="quiz-option" onclick="ans(this,'q1',false)">Packet Switching</div>
+                    <div class="quiz-option" onclick="ans(this,'q1',true)">Circuit Switching</div>
+                    <div class="quiz-option" onclick="ans(this,'q1',false)">Message Switching</div>
+                    <div class="quiz-option" onclick="ans(this,'q1',false)">Virtual Switching</div>
+                </div>
+                <div class="quiz-feedback" id="fb-q1"></div>
+            </div>
+            <div class="quiz-question" id="q2">
+                <h4>ليه الإنترنت استخدام Packet Switching هو قرار ذكي؟</h4>
+                <div class="quiz-options">
+                    <div class="quiz-option" onclick="ans(this,'q2',false)">لأنه أبسط في التنفيذ</div>
+                    <div class="quiz-option" onclick="ans(this,'q2',false)">لأنه أسرع دايماً</div>
+                    <div class="quiz-option" onclick="ans(this,'q2',true)">لأنه Fault Tolerant وشغّال بكفاءة بدون حجز موارد</div>
+                    <div class="quiz-option" onclick="ans(this,'q2',false)">لأنه قديم ومجرّب</div>
+                </div>
+                <div class="quiz-feedback" id="fb-q2"></div>
+            </div>
+            <div class="quiz-question" id="q3">
+                <h4>في Packet Switching — لو الـ Packet A و Packet B من نفس الرسالة — يمكن يوصلوا بترتيب مختلف؟</h4>
+                <div class="quiz-options">
+                    <div class="quiz-option" onclick="ans(this,'q3',true)">آه، كل Packet بياخد المسار المتاح — والـ Receiver بيرتبهم</div>
+                    <div class="quiz-option" onclick="ans(this,'q3',false)">لا، المسار ثابت للكل</div>
+                    <div class="quiz-option" onclick="ans(this,'q3',false)">آه، ومش بيتنظموا أبداً</div>
+                    <div class="quiz-option" onclick="ans(this,'q3',false)">مستحيل — الـ Switch بيمنع ده</div>
+                </div>
+                <div class="quiz-feedback" id="fb-q3"></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Unit 3 Complete -->
+    <section class="lesson-section">
+        <div class="glass-card" style="padding:2rem;text-align:center;border-color:rgba(139,92,246,0.25);margin-bottom:2rem;" data-aos="zoom-in">
+            <div style="font-size:3rem;margin-bottom:1rem;">🎓</div>
+            <h3 style="color:#A78BFA;margin-bottom:1rem;font-family:'Cairo',sans-serif;">أنهيت الوحدة الثالثة!</h3>
+            <div class="rtl-block" style="color:#CBD5E1;margin-bottom:1.5rem;">
+                <p>دلوقتي فاهم الـ Physical Layer كله: وسائط النقل، ترميز الإشارات، الـ Multiplexing، والـ Switching.</p>
+                <p style="color:#94A3B8;font-size:0.9rem;margin-top:0.5rem;">الجاية: الـ Data Link Layer — Ethernet, MAC, Error Detection.</p>
+            </div>
+            <a href="../Unit4/ethernet_basics.html" style="display:inline-flex;align-items:center;gap:0.75rem;padding:0.9rem 2rem;border-radius:14px;background:linear-gradient(135deg,#8B5CF6,#A78BFA);color:white;font-weight:700;font-size:1rem;transition:all 0.3s ease;text-decoration:none;">
+                <span>الوحدة الرابعة: Data Link Layer</span>
+                <i class="fas fa-arrow-right"></i>
+            </a>
+        </div>
+        <div class="lesson-bottom-nav">
+            <a href="multiplexing.html"><i class="fas fa-arrow-left"></i><span>Multiplexing</span></a>
+            <div style="text-align:center;color:var(--text-faint);font-size:0.85rem;">Unit 3 Complete ✅</div>
+            <a href="../Unit4/ethernet_basics.html"><span>Unit 4 →</span><i class="fas fa-arrow-right"></i></a>
+        </div>
+    </section>
+
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <script>
+        AOS.init({duration:800,once:true,offset:100});
+        window.addEventListener('scroll',()=>{ document.getElementById('reading-progress').style.width=(window.scrollY/(document.documentElement.scrollHeight-window.innerHeight))*100+'%'; });
+
+        // Switching Simulator
+        const swc = document.getElementById('sw-canvas');
+        const sctx = swc.getContext('2d');
+        let swType = 'circuit';
+        let animFrame;
+
+        const nodes = {
+            A:{x:0.08,y:0.5,label:'A',color:'#22D3EE'},
+            R1:{x:0.3,y:0.25,label:'R1',color:'#64748B'},
+            R2:{x:0.5,y:0.5,label:'R2',color:'#64748B'},
+            R3:{x:0.3,y:0.75,label:'R3',color:'#64748B'},
+            R4:{x:0.7,y:0.3,label:'R4',color:'#64748B'},
+            B:{x:0.92,y:0.5,label:'B',color:'#F472B6'}
+        };
+        const edges = [
+            ['A','R1'],['A','R3'],['R1','R2'],['R3','R2'],['R2','R4'],['R4','B'],['R1','R4'],['R3','R4'],['R2','B']
+        ];
+        const circuitPath = ['A','R1','R2','R4','B'];
+        const packetPaths = [
+            ['A','R1','R2','R4','B'],
+            ['A','R3','R2','R4','B'],
+            ['A','R1','R4','B']
+        ];
+
+        function resize(){ swc.width=swc.parentElement.clientWidth; swc.height=240; }
+        resize(); window.addEventListener('resize',()=>{ resize(); drawBase(); });
+
+        function pos(key){ const n=nodes[key]; return{x:n.x*swc.width,y:n.y*swc.height}; }
+
+        function drawBase(){
+            sctx.clearRect(0,0,swc.width,swc.height);
+            // edges
+            sctx.strokeStyle='rgba(255,255,255,0.08)'; sctx.lineWidth=2;
+            edges.forEach(([a,b])=>{ const pa=pos(a),pb=pos(b); sctx.beginPath(); sctx.moveTo(pa.x,pa.y); sctx.lineTo(pb.x,pb.y); sctx.stroke(); });
+            // nodes
+            Object.values(nodes).forEach(n=>{ const {x,y,label,color}=n; const nx=n.x*swc.width,ny=n.y*swc.height;
+                sctx.beginPath(); sctx.arc(nx,ny,16,0,Math.PI*2); sctx.fillStyle=color+'22'; sctx.fill();
+                sctx.strokeStyle=color; sctx.lineWidth=2; sctx.stroke();
+                sctx.fillStyle=color; sctx.font='bold 11px "Fira Code"'; sctx.textAlign='center'; sctx.textBaseline='middle'; sctx.fillText(label,nx,ny);
+            });
+        }
+
+        let packetAnims = [];
+        let circuitProgress = 0;
+        let circuitActive = false;
+
+        function setSW(type){
+            swType=type;
+            cancelAnimationFrame(animFrame);
+            packetAnims=[];
+            circuitProgress=0;
+            ['btn-circuit','btn-packet'].forEach(id=>document.getElementById(id).classList.remove('active'));
+            document.getElementById('btn-'+type).classList.add('active');
+            const descs = {
+                circuit:'<strong style="color:#22D3EE;">Circuit Switching:</strong> مسار كامل ومخصص بين A وB. طول المكالمة — المسار محجوز حتى لو مفيش بيانات.',
+                packet:'<strong style="color:#A78BFA;">Packet Switching:</strong> كل Packet بياخد المسار المتاح. الـ Packets ممكن تمشي طرق مختلفة وتوصل بترتيب مختلف.'
+            };
+            document.getElementById('sw-desc').innerHTML='<div class="rtl-block" style="font-size:0.88rem;color:#CBD5E1;">'+descs[type]+'</div>';
+            if(type==='circuit') animateCircuit();
+            else animatePackets();
+        }
+
+        function animateCircuit(){
+            drawBase();
+            circuitProgress += 0.008;
+            if(circuitProgress > 1) circuitProgress = 0;
+            // Draw highlighted path
+            sctx.strokeStyle='rgba(34,211,238,0.3)'; sctx.lineWidth=6;
+            for(let i=0;i<circuitPath.length-1;i++){
+                const pa=pos(circuitPath[i]),pb=pos(circuitPath[i+1]);
+                sctx.beginPath(); sctx.moveTo(pa.x,pa.y); sctx.lineTo(pb.x,pb.y); sctx.stroke();
+            }
+            // Draw packet dot
+            const totalLen = circuitPath.length-1;
+            const prog = circuitProgress * totalLen;
+            const seg = Math.min(Math.floor(prog), totalLen-1);
+            const segProg = prog - seg;
+            const pa=pos(circuitPath[seg]), pb=pos(circuitPath[seg+1]);
+            const dx=pb.x-pa.x, dy=pb.y-pa.y;
+            const px=pa.x+dx*segProg, py=pa.y+dy*segProg;
+            sctx.beginPath(); sctx.arc(px,py,6,0,Math.PI*2);
+            sctx.fillStyle='#22D3EE'; sctx.shadowColor='#22D3EE'; sctx.shadowBlur=12; sctx.fill();
+            sctx.shadowBlur=0;
+            animFrame=requestAnimationFrame(animateCircuit);
+        }
+
+        function spawnPacket(){
+            const path=packetPaths[Math.floor(Math.random()*packetPaths.length)];
+            const colors=['#A78BFA','#F472B6','#FBBF24','#22D3EE','#34D399'];
+            packetAnims.push({path,progress:0,color:colors[Math.floor(Math.random()*colors.length)],speed:0.006+Math.random()*0.004});
+        }
+
+        function animatePackets(){
+            drawBase();
+            if(Math.random()<0.04 && packetAnims.length<8) spawnPacket();
+            packetAnims=packetAnims.filter(p=>{
+                p.progress+=p.speed;
+                if(p.progress>=1) return false;
+                const totalLen=p.path.length-1;
+                const prog=p.progress*totalLen;
+                const seg=Math.min(Math.floor(prog),totalLen-1);
+                const segProg=prog-seg;
+                const pa=pos(p.path[seg]),pb=pos(p.path[seg+1]);
+                const px=pa.x+(pb.x-pa.x)*segProg;
+                const py=pa.y+(pb.y-pa.y)*segProg;
+                sctx.beginPath(); sctx.arc(px,py,5,0,Math.PI*2);
+                sctx.fillStyle=p.color; sctx.shadowColor=p.color; sctx.shadowBlur=10; sctx.fill();
+                sctx.shadowBlur=0;
+                return true;
+            });
+            animFrame=requestAnimationFrame(animatePackets);
+        }
+
+        drawBase();
+        animateCircuit();
+
+        const fb={
+            q1:{c:'✅ صح! التليفون الأرضي يستخدم Circuit Switching — مسار مخصص بينكم طول المكالمة.',w:'❌ غلط! التليفون الأرضي = Circuit Switching. المكالمة الصوتية التقليدية تحتاج مسار ثابت ومضمون.'},
+            q2:{c:'✅ صح! Packet Switching = Fault Tolerant + No resource waste. لو مسار وقع، الـ Router بيحول المسار.',w:'❌ غلط! أهمية Packet Switching هي Fault Tolerance وكفاءة استخدام الموارد.'},
+            q3:{c:'✅ صح! في Packet Switching، كل Packet ياخد المسار المتاح — ممكن يوصلوا بترتيب مختلف. الـ TCP بيرتبهم.',w:'❌ غلط! في Packet Switching، الـ Packets ممكن تأخد مسارات مختلفة وتوصل بترتيب مختلف — الـ TCP بيرتبهم من جديد.'}
+        };
+        function ans(el,qid,correct){ const q=document.getElementById(qid); if(q.dataset.answered)return; q.dataset.answered='true'; q.querySelectorAll('.quiz-option').forEach(o=>o.style.pointerEvents='none'); el.classList.add(correct?'correct':'wrong'); const f=document.getElementById('fb-'+qid); f.textContent=correct?fb[qid].c:fb[qid].w; f.className='quiz-feedback show '+(correct?'correct-fb':'wrong-fb'); }
+    </script>
+</body>
+</html>

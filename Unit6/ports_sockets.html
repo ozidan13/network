@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UDP & Ports — الـ UDP والـ Ports | Network Mastery</title>
+    <meta name="description" content="UDP Use Cases، Port Numbers، Well-Known Ports، Socket Basics.">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&family=Inter:wght@400;500;600;700;800&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    <link href="../css/global-net.css" rel="stylesheet">
+    <style>
+        body{background:#020617;color:#E2E8F0;font-family:'Inter',sans-serif;}
+        .lesson-nav-bar{position:fixed;top:0;left:0;right:0;z-index:100;background:rgba(2,6,23,0.88);backdrop-filter:blur(20px);border-bottom:1px solid rgba(255,255,255,0.06);height:64px;display:flex;align-items:center;padding:0 1.5rem;}
+        .nav-inner{max-width:1280px;margin:0 auto;width:100%;display:flex;align-items:center;justify-content:space-between;}
+        .nav-brand{display:flex;align-items:center;gap:0.75rem;font-weight:700;}
+        .back-btn{width:36px;height:36px;border-radius:10px;background:linear-gradient(135deg,#3B82F6,#1D4ED8);display:flex;align-items:center;justify-content:center;color:white;font-size:0.85rem;transition:transform 0.3s;}
+        .back-btn:hover{transform:scale(1.1);}
+        .lesson-hero{position:relative;padding:8rem 1.5rem 5rem;text-align:center;overflow:hidden;}
+        .glow-orb{position:absolute;border-radius:50%;filter:blur(128px);pointer-events:none;}
+        .glow-orb-1{width:500px;height:500px;top:-10%;right:-5%;background:rgba(59,130,246,0.1);}
+        .glow-orb-2{width:400px;height:400px;bottom:-20%;left:-10%;background:rgba(245,158,11,0.06);}
+        .lesson-badge{display:inline-flex;align-items:center;gap:0.5rem;padding:0.35rem 1rem;border-radius:50px;background:rgba(30,41,59,0.6);border:1px solid rgba(255,255,255,0.08);font-family:'Fira Code',monospace;font-size:0.78rem;color:#60A5FA;margin-bottom:1.5rem;}
+        .dot{width:6px;height:6px;border-radius:50%;background:#3B82F6;animation:pulse-dot 2s ease infinite;}
+        .lesson-hero h1{font-size:clamp(2.5rem,5vw,4rem);font-weight:800;margin-bottom:1rem;}
+        .text-g{background:linear-gradient(135deg,#F59E0B,#60A5FA);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;}
+        .subtitle{font-family:'Cairo',sans-serif;font-size:1.6rem;font-weight:700;color:var(--text-muted);direction:rtl;margin-bottom:1.5rem;}
+        .desc{color:var(--text-faint);max-width:640px;margin:0 auto;font-size:1.05rem;font-family:'Cairo',sans-serif;direction:rtl;line-height:1.9;}
+        .lesson-bottom-nav{display:flex;justify-content:space-between;align-items:center;gap:1rem;padding:2rem 0;border-top:1px solid var(--border-subtle);margin-top:3rem;}
+        .lesson-bottom-nav a{display:flex;align-items:center;gap:0.5rem;padding:0.75rem 1.5rem;border-radius:12px;background:rgba(255,255,255,0.04);border:1px solid var(--border-subtle);transition:all 0.3s ease;font-weight:600;font-size:0.9rem;}
+        .lesson-bottom-nav a:hover{background:rgba(59,130,246,0.1);border-color:rgba(59,130,246,0.3);transform:translateY(-2px);}
+        /* Port grid */
+        .port-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:0.5rem;margin:1rem 0;}
+        .port-card{background:rgba(15,23,42,0.8);border:1px solid var(--border-subtle);border-radius:10px;padding:0.75rem;transition:all 0.3s;cursor:default;}
+        .port-card:hover{transform:translateY(-2px);border-color:rgba(96,165,250,0.3);}
+        .port-num{font-family:'Fira Code',monospace;font-size:1.1rem;font-weight:900;direction:ltr;}
+        .port-name{font-family:'Fira Code',monospace;font-size:0.72rem;direction:ltr;color:var(--text-muted);margin:0.1rem 0;}
+        .port-desc{font-family:'Cairo',sans-serif;direction:rtl;font-size:0.72rem;color:var(--text-ghost);line-height:1.5;}
+        .port-proto{font-size:0.62rem;padding:0.1rem 0.35rem;border-radius:3px;font-family:'Fira Code',monospace;display:inline-block;margin-top:0.2rem;}
+    </style>
+</head>
+<body>
+    <nav class="lesson-nav-bar">
+        <div class="nav-inner">
+            <a href="../index.html" class="nav-brand">
+                <div class="back-btn"><i class="fas fa-arrow-left"></i></div>
+                <span>UDP<span style="color:#F59E0B;">&Ports</span></span>
+            </a>
+        </div>
+    </nav>
+    <div class="progress-bar-container"><div class="progress-bar-fill" id="reading-progress" style="background:linear-gradient(90deg,#3B82F6,#F59E0B);"></div></div>
+
+    <header class="lesson-hero">
+        <div class="glow-orb glow-orb-1"></div><div class="glow-orb glow-orb-2"></div>
+        <div style="position:relative;z-index:1;">
+            <div class="lesson-badge" data-aos="fade-down"><span class="dot"></span>UNIT 6 • Lesson 2</div>
+            <h1 data-aos="fade-up" data-aos-delay="150">UDP &amp; <span class="text-g">Ports</span></h1>
+            <div class="subtitle" data-aos="fade-up" data-aos-delay="300">السرعة ضد الضمان — والبوابات</div>
+            <p class="desc" data-aos="fade-up" data-aos-delay="450">Netflix بيستخدم UDP مش TCP لـ Streaming. الـ DNS بيستخدم UDP مش TCP للاستفسارات. ليه البروتوكول الأسرع في بعض الحالات أفضل من الأضمن؟</p>
+        </div>
+    </header>
+
+    <!-- UDP vs TCP -->
+    <section class="lesson-section">
+        <div class="section-header" data-aos="fade-up">
+            <h2><i class="fas fa-bolt" style="color:#F59E0B;margin-left:0.5rem;"></i> UDP — اتحكم في Reliability بنفسك</h2>
+            <p class="en-sub">Connectionless, No Guarantee — Maximum Speed</p>
+        </div>
+        <div class="glass-card" style="padding:1.8rem;" data-aos="fade-up">
+            <div class="rtl-block" style="margin-bottom:1.5rem;">
+                <p style="color:#E2E8F0;font-size:1rem;line-height:1.9;">UDP Header = <strong style="color:#F59E0B;">8 bytes فقط</strong>. Source Port، Dest Port، Length، Checksum. خلاص. مفيش Seq Numbers، مفيش ACK، مفيش Connection Setup. <strong>بيبعت وبيسيب.</strong></p>
+            </div>
+            <div class="cost-compare">
+                <div class="cost-card before" style="border-color:rgba(96,165,250,0.3);">
+                    <h5 style="color:#60A5FA;">TCP — 20+ bytes header</h5>
+                    <div class="cost-item">✅ Reliable — لا Packet ضائع</div>
+                    <div class="cost-item">✅ Ordered — الترتيب مضمون</div>
+                    <div class="cost-item">✅ Flow + Congestion Control</div>
+                    <div class="cost-item">❌ Overhead كبير</div>
+                    <div class="cost-item">❌ Connection Setup يأخذ وقت</div>
+                    <div class="cost-item">📌 HTTP، SSH، FTP، Email</div>
+                </div>
+                <div class="cost-card after" style="border-color:rgba(245,158,11,0.3);">
+                    <h5 style="color:#FBBF24;">UDP — 8 bytes header</h5>
+                    <div class="cost-item">✅ سريع جداً (Low Latency)</div>
+                    <div class="cost-item">✅ Multicast/Broadcast support</div>
+                    <div class="cost-item">✅ Application تتحكم في الـ Logic</div>
+                    <div class="cost-item">❌ لا Reliability</div>
+                    <div class="cost-item">❌ لا Ordering</div>
+                    <div class="cost-item">📌 DNS، Video Streaming، VoIP، Gaming</div>
+                </div>
+            </div>
+            <div class="think-box" style="margin-top:1rem;">
+                <div class="think-label">⚡ WHY STREAMING USES UDP</div>
+                <p>Netflix Frame تتأخر 50ms → مش مشكلة (Low Latency أهم). Frame تتأخر 2 ثانية عشان TCP يعيد إرساله → مشكلة كبيرة. Packet Loss في Video = Artifact صغير مش هيتلاحظ.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Port Numbers -->
+    <section class="lesson-section alt-bg">
+        <div class="section-inner">
+            <div class="section-header" data-aos="fade-up">
+                <h2><i class="fas fa-door-open" style="color:#60A5FA;margin-left:0.5rem;"></i> Port Numbers — البوابات</h2>
+                <p class="en-sub">0–65535 — How One IP Can Run 100 Services</p>
+            </div>
+            <div class="glass-card" style="padding:1.8rem;" data-aos="fade-up">
+                <div class="rtl-block" style="margin-bottom:1.5rem;">
+                    <p style="color:#CBD5E1;font-size:0.98rem;line-height:1.8;">الـ IP بيحدد الجهاز. الـ Port بيحدد <strong style="color:#60A5FA;">التطبيق</strong> على الجهاز. نفس الـ IP — مئات المنافذ في نفس الوقت.</p>
+                </div>
+                <div style="display:flex;gap:0.5rem;flex-wrap:wrap;margin-bottom:1rem;font-size:0.78rem;direction:ltr;">
+                    <span style="padding:0.2rem 0.6rem;border-radius:5px;background:rgba(59,130,246,0.15);color:#60A5FA;">0–1023: Well-Known</span>
+                    <span style="padding:0.2rem 0.6rem;border-radius:5px;background:rgba(245,158,11,0.15);color:#FBBF24;">1024–49151: Registered</span>
+                    <span style="padding:0.2rem 0.6rem;border-radius:5px;background:rgba(100,116,139,0.15);color:#94A3B8;">49152–65535: Dynamic</span>
+                </div>
+                <div class="port-grid" id="port-grid"></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Sockets -->
+    <section class="lesson-section">
+        <div class="section-header" data-aos="fade-up">
+            <h2><i class="fas fa-plug" style="color:#A78BFA;margin-left:0.5rem;"></i> Socket = IP + Port</h2>
+            <p class="en-sub">The 5-Tuple That Uniquely Identifies Every Connection</p>
+        </div>
+        <div class="glass-card" style="padding:1.8rem;" data-aos="fade-up">
+            <div class="rtl-block" style="margin-bottom:1rem;color:#CBD5E1;font-size:0.92rem;line-height:1.8;">
+                <p>كل Connection محدد بـ 5-Tuple فريد:</p>
+            </div>
+            <div style="background:rgba(0,0,0,0.3);border-radius:10px;padding:1rem;font-family:'Fira Code',monospace;direction:ltr;font-size:0.82rem;">
+                <div style="display:grid;grid-template-columns:140px 1fr;gap:0.3rem 0.75rem;">
+                    <span style="color:#94A3B8;">Protocol:</span><span style="color:#FBBF24;">TCP</span>
+                    <span style="color:#94A3B8;">Source IP:</span><span style="color:#60A5FA;">192.168.1.5</span>
+                    <span style="color:#94A3B8;">Source Port:</span><span style="color:#60A5FA;">52341 (ephemeral)</span>
+                    <span style="color:#94A3B8;">Dest IP:</span><span style="color:#34D399;">142.250.185.78 (google.com)</span>
+                    <span style="color:#94A3B8;">Dest Port:</span><span style="color:#34D399;">443 (HTTPS)</span>
+                </div>
+                <div style="margin-top:0.75rem;color:#A78BFA;font-size:0.72rem;">→ هذه المجموعة الخمسة تعرّف الـ Connection ده بشكل فريد على الشبكة كلها.</div>
+            </div>
+        </div>
+    </section>
+
+    <section class="lesson-section alt-bg" id="quiz">
+        <div class="section-inner">
+            <div class="section-header" data-aos="fade-up">
+                <h2><i class="fas fa-brain" style="color:#3B82F6;margin-left:0.5rem;"></i> اختبر نفسك</h2>
+            </div>
+            <div class="quiz-container" data-aos="fade-up">
+                <div class="quiz-question" id="q1">
+                    <h4>DNS بيستخدم أنهي Port وأنهي بروتوكول (للاستفسارات)؟</h4>
+                    <div class="quiz-options">
+                        <div class="quiz-option" onclick="ans(this,'q1',false)">Port 53 / TCP</div>
+                        <div class="quiz-option" onclick="ans(this,'q1',true)">Port 53 / UDP</div>
+                        <div class="quiz-option" onclick="ans(this,'q1',false)">Port 80 / UDP</div>
+                        <div class="quiz-option" onclick="ans(this,'q1',false)">Port 443 / TCP</div>
+                    </div>
+                    <div class="quiz-feedback" id="fb-q1"></div>
+                </div>
+                <div class="quiz-question" id="q2">
+                    <h4>ليه UDP Header 8 bytes بس — مش 20 زي TCP؟</h4>
+                    <div class="quiz-options">
+                        <div class="quiz-option" onclick="ans(this,'q2',false)">لأنه أقدم</div>
+                        <div class="quiz-option" onclick="ans(this,'q2',true)">لأنه ما فيهوش Reliability features — مفيش Seq/ACK/Window → مفيش حقول لهم</div>
+                        <div class="quiz-option" onclick="ans(this,'q2',false)">لأنه أسرع في الحساب</div>
+                        <div class="quiz-option" onclick="ans(this,'q2',false)">لأن UDP لا يستخدم IP</div>
+                    </div>
+                    <div class="quiz-feedback" id="fb-q2"></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="lesson-section">
+        <div class="lesson-bottom-nav">
+            <a href="tcp_deep.html"><i class="fas fa-arrow-left"></i><span>TCP Deep</span></a>
+            <div style="text-align:center;color:var(--text-faint);font-size:0.85rem;">Unit 6 • Lesson 2</div>
+            <a href="../Unit7/dns_deep.html"><span>Unit 7: DNS</span><i class="fas fa-arrow-right"></i></a>
+        </div>
+    </section>
+
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <script>
+        AOS.init({duration:800,once:true,offset:100});
+        window.addEventListener('scroll',()=>{ document.getElementById('reading-progress').style.width=(window.scrollY/(document.documentElement.scrollHeight-window.innerHeight))*100+'%'; });
+
+        const ports=[
+            {num:20,name:'FTP-Data',desc:'نقل الملفات',proto:'TCP',color:'#60A5FA'},
+            {num:21,name:'FTP-Ctrl',desc:'أوامر FTP',proto:'TCP',color:'#60A5FA'},
+            {num:22,name:'SSH',desc:'Shell آمن',proto:'TCP',color:'#34D399'},
+            {num:23,name:'Telnet',desc:'Shell غير آمن',proto:'TCP',color:'#F87171'},
+            {num:25,name:'SMTP',desc:'إرسال Email',proto:'TCP',color:'#A78BFA'},
+            {num:53,name:'DNS',desc:'ترجمة الأسماء',proto:'UDP',color:'#FBBF24'},
+            {num:67,name:'DHCP-S',desc:'Server DHCP',proto:'UDP',color:'#F59E0B'},
+            {num:68,name:'DHCP-C',desc:'Client DHCP',proto:'UDP',color:'#F59E0B'},
+            {num:80,name:'HTTP',desc:'ويب غير آمن',proto:'TCP',color:'#22D3EE'},
+            {num:110,name:'POP3',desc:'استقبال Email',proto:'TCP',color:'#A78BFA'},
+            {num:143,name:'IMAP',desc:'بريد المزامنة',proto:'TCP',color:'#A78BFA'},
+            {num:161,name:'SNMP',desc:'إدارة الشبكة',proto:'UDP',color:'#94A3B8'},
+            {num:443,name:'HTTPS',desc:'ويب آمن TLS',proto:'TCP',color:'#34D399'},
+            {num:3306,name:'MySQL',desc:'قاعدة بيانات',proto:'TCP',color:'#F472B6'},
+            {num:3389,name:'RDP',desc:'Remote Desktop',proto:'TCP',color:'#60A5FA'},
+            {num:5432,name:'PostgreSQL',desc:'قاعدة بيانات',proto:'TCP',color:'#A78BFA'},
+        ];
+        const pg=document.getElementById('port-grid');
+        ports.forEach(p=>{
+            const d=document.createElement('div'); d.className='port-card';
+            const proto_bg=p.proto==='TCP'?'rgba(96,165,250,0.2)':'rgba(245,158,11,0.2)';
+            const proto_c=p.proto==='TCP'?'#60A5FA':'#FBBF24';
+            d.innerHTML=`<div class="port-num" style="color:${p.color};">${p.num}</div><div class="port-name">${p.name}</div><div class="port-desc">${p.desc}</div><span class="port-proto" style="background:${proto_bg};color:${proto_c};">${p.proto}</span>`;
+            pg.appendChild(d);
+        });
+
+        const fb={
+            q1:{c:'✅ صح! DNS Query = Port 53 / UDP. سريع ومفيش حاجة للـ Connection. (DNS Zone Transfer = TCP)',w:'❌ غلط! DNS القياسي على Port 53 / UDP. السرعة أهم من الـ Reliability هنا.'},
+            q2:{c:'✅ صح! UDP ما عندوش Seq، ACK، Window، Options — فما فيش حقول ليهم. Header بسيط = 4 حقول × 2 byte = 8 bytes.',w:'❌ غلط! UDP 8 bytes لأنه بسيط: Port + Port + Length + Checksum. مفيش Sequence، ACK، Window.'}
+        };
+        function ans(el,qid,correct){ const q=document.getElementById(qid); if(q.dataset.answered)return; q.dataset.answered='true'; q.querySelectorAll('.quiz-option').forEach(o=>o.style.pointerEvents='none'); el.classList.add(correct?'correct':'wrong'); const f=document.getElementById('fb-'+qid); f.textContent=correct?fb[qid].c:fb[qid].w; f.className='quiz-feedback show '+(correct?'correct-fb':'wrong-fb'); }
+    </script>
+</body>
+</html>

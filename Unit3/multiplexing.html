@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Multiplexing — التعددية | Network Mastery</title>
+    <meta name="description" content="FDM وTDM وWDM — كيف كابل واحد بيشيل آلاف الاتصالات في نفس الوقت.">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&family=Inter:wght@400;500;600;700;800&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    <link href="../css/global-net.css" rel="stylesheet">
+    <style>
+        body{background:#020617;color:#E2E8F0;font-family:'Inter',sans-serif;}
+        .lesson-nav-bar{position:fixed;top:0;left:0;right:0;z-index:100;background:rgba(2,6,23,0.88);backdrop-filter:blur(20px);border-bottom:1px solid rgba(255,255,255,0.06);height:64px;display:flex;align-items:center;padding:0 1.5rem;}
+        .nav-inner{max-width:1280px;margin:0 auto;width:100%;display:flex;align-items:center;justify-content:space-between;}
+        .nav-brand{display:flex;align-items:center;gap:0.75rem;font-weight:700;}
+        .back-btn{width:36px;height:36px;border-radius:10px;background:linear-gradient(135deg,#8B5CF6,#6D28D9);display:flex;align-items:center;justify-content:center;color:white;font-size:0.85rem;transition:transform 0.3s;}
+        .back-btn:hover{transform:scale(1.1);}
+        .lesson-hero{position:relative;padding:8rem 1.5rem 5rem;text-align:center;overflow:hidden;}
+        .glow-orb{position:absolute;border-radius:50%;filter:blur(128px);pointer-events:none;}
+        .glow-orb-1{width:500px;height:500px;top:-10%;right:-5%;background:rgba(139,92,246,0.12);}
+        .glow-orb-2{width:400px;height:400px;bottom:-20%;left:-10%;background:rgba(59,130,246,0.08);}
+        .lesson-badge{display:inline-flex;align-items:center;gap:0.5rem;padding:0.35rem 1rem;border-radius:50px;background:rgba(30,41,59,0.6);border:1px solid rgba(255,255,255,0.08);font-family:'Fira Code',monospace;font-size:0.78rem;color:#A78BFA;margin-bottom:1.5rem;}
+        .dot{width:6px;height:6px;border-radius:50%;background:#8B5CF6;animation:pulse-dot 2s ease infinite;}
+        .lesson-hero h1{font-size:clamp(2.5rem,5vw,4rem);font-weight:800;margin-bottom:1rem;}
+        .text-g{background:linear-gradient(135deg,#8B5CF6,#A78BFA);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;}
+        .subtitle{font-family:'Cairo',sans-serif;font-size:1.6rem;font-weight:700;color:var(--text-muted);direction:rtl;margin-bottom:1.5rem;}
+        .desc{color:var(--text-faint);max-width:640px;margin:0 auto;font-size:1.05rem;font-family:'Cairo',sans-serif;direction:rtl;line-height:1.9;}
+
+        /* MUX visual grid */
+        .mux-visual{display:grid;gap:0.3rem;margin:1.5rem 0;direction:ltr;}
+        .mux-row{display:flex;align-items:center;gap:0.5rem;}
+        .mux-src{font-family:'Fira Code',monospace;font-size:0.75rem;width:60px;text-align:right;color:var(--text-faint);}
+        .mux-slots{display:flex;gap:2px;flex:1;}
+        .mux-slot{height:24px;border-radius:4px;flex:1;transition:opacity 0.3s;}
+        .mux-pipe{width:8px;background:rgba(255,255,255,0.1);border-radius:4px;margin:0 0.25rem;}
+
+        /* Timeline-style TDM */
+        .tdm-timeline{display:flex;border-radius:8px;overflow:hidden;margin:1rem 0;direction:ltr;}
+        .tdm-slot{flex:1;height:40px;display:flex;align-items:center;justify-content:center;font-family:'Fira Code',monospace;font-size:0.7rem;font-weight:700;transition:all 0.3s;}
+
+        /* WDM wavelength visual */
+        .wdm-fiber{position:relative;height:80px;background:rgba(0,0,0,0.3);border-radius:12px;overflow:hidden;margin:1rem 0;}
+        .wdm-beam{position:absolute;height:6px;border-radius:3px;top:50%;animation:beamFlow 3s linear infinite;}
+        @keyframes beamFlow{from{left:-10%;}to{left:110%;}}
+
+        .lesson-bottom-nav{display:flex;justify-content:space-between;align-items:center;gap:1rem;padding:2rem 0;border-top:1px solid var(--border-subtle);margin-top:3rem;}
+        .lesson-bottom-nav a{display:flex;align-items:center;gap:0.5rem;padding:0.75rem 1.5rem;border-radius:12px;background:rgba(255,255,255,0.04);border:1px solid var(--border-subtle);transition:all 0.3s ease;font-weight:600;font-size:0.9rem;}
+        .lesson-bottom-nav a:hover{background:rgba(139,92,246,0.1);border-color:rgba(139,92,246,0.3);transform:translateY(-2px);}
+    </style>
+</head>
+<body>
+    <nav class="lesson-nav-bar">
+        <div class="nav-inner">
+            <a href="../index.html" class="nav-brand">
+                <div class="back-btn"><i class="fas fa-arrow-left"></i></div>
+                <span>Multi<span style="color:#8B5CF6;">plexing</span></span>
+            </a>
+        </div>
+    </nav>
+    <div class="progress-bar-container"><div class="progress-bar-fill" id="reading-progress" style="background:linear-gradient(90deg,#8B5CF6,#A78BFA);"></div></div>
+
+    <header class="lesson-hero">
+        <div class="glow-orb glow-orb-1"></div><div class="glow-orb glow-orb-2"></div>
+        <div style="position:relative;z-index:1;">
+            <div class="lesson-badge" data-aos="fade-down"><span class="dot"></span>UNIT 3 • Lesson 3</div>
+            <h1 data-aos="fade-up" data-aos-delay="150"><span class="text-g">Multiplexing</span></h1>
+            <div class="subtitle" data-aos="fade-up" data-aos-delay="300">التعددية — كابل واحد، آلاف الاتصالات</div>
+            <p class="desc" data-aos="fade-up" data-aos-delay="450">كابل الفايبر تحت البحر بيشيل ملايين المكالمات في نفس الوقت. السر: Multiplexing.</p>
+        </div>
+    </header>
+
+    <!-- Why Multiplexing -->
+    <section class="lesson-section">
+        <div class="section-header" data-aos="fade-up">
+            <h2><i class="fas fa-compress-arrows-alt" style="color:#8B5CF6;margin-left:0.5rem;"></i> المشكلة والحل</h2>
+            <p class="en-sub">One Medium, Many Signals — How?</p>
+        </div>
+        <div class="glass-card" style="padding:1.8rem;" data-aos="fade-up" data-aos-delay="100">
+            <div class="rtl-block">
+                <p style="color:#E2E8F0;font-size:1rem;margin-bottom:1rem;line-height:1.9;">كابل Fiber Optic واحد بين القاهرة والإسكندرية — ده مش هيكفي لو كل اتصال أخد الكابل لنفسه. بدل كده، الـ Multiplexer بياخد آلاف الإشارات ويحشرها كلها في كابل واحد في نفس الوقت.</p>
+                <p style="color:#94A3B8;font-size:0.9rem;line-height:1.8;">الطرف التاني عنده <strong>Demultiplexer</strong> بيفصل الإشارات تاني ويوصل كل واحدة لصاحبها.</p>
+                <div class="law-box">
+                    📡 <strong>Multiplexing</strong> = إرسال إشارات متعددة على نفس الوسيط في نفس الوقت بطرق مختلفة.
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- FDM -->
+    <section class="lesson-section alt-bg">
+        <div class="section-inner">
+            <div class="section-header" data-aos="fade-up">
+                <h2><i class="fas fa-signal" style="color:#22D3EE;margin-left:0.5rem;"></i> FDM — تقسيم التردد</h2>
+                <p class="en-sub">Frequency Division Multiplexing</p>
+            </div>
+            <div class="glass-card" style="padding:1.8rem;" data-aos="fade-up" data-aos-delay="100">
+                <div class="rtl-block" style="margin-bottom:1.5rem;">
+                    <p style="color:#CBD5E1;font-size:0.98rem;line-height:1.8;">كل مستخدم بياخد نطاق ترددي (Frequency Band) مختلف. زي الراديو — FM 90.5 وFM 95.3 في الهواء في نفس الوقت بس كل واحد على تردد مختلف.</p>
+                    <div class="nt-fact" style="background:rgba(6,182,212,0.06);border:1px solid rgba(6,182,212,0.15);border-left:3px solid #06B6D4;border-radius:0 10px 10px 0;padding:0.8rem 1rem;margin-top:0.75rem;font-size:0.85rem;color:#94A3B8;">
+                        📻 <strong>في مصر:</strong> راديو الشرق الأوسط على 557 kHz بيستخدم نفس الهواء مع Nile FM على 104.2 MHz — ده FDM في الحياة اليومية!
+                    </div>
+                </div>
+
+                <!-- FDM Visual -->
+                <div style="background:rgba(0,0,0,0.3);border-radius:12px;padding:1.2rem;direction:ltr;">
+                    <div style="display:flex;flex-direction:column;gap:6px;">
+                        <div style="display:flex;align-items:center;gap:0.5rem;">
+                            <div style="width:60px;font-family:'Fira Code',monospace;font-size:0.7rem;color:#F472B6;text-align:right;">CH 1</div>
+                            <div style="flex:1;height:20px;background:linear-gradient(90deg,rgba(244,114,182,0.6),rgba(244,114,182,0.2));border-radius:4px;position:relative;">
+                                <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:0.65rem;color:#F472B6;font-family:'Fira Code',monospace;">88-92 MHz</div>
+                            </div>
+                        </div>
+                        <div style="display:flex;align-items:center;gap:0.5rem;">
+                            <div style="width:60px;font-family:'Fira Code',monospace;font-size:0.7rem;color:#A78BFA;text-align:right;">CH 2</div>
+                            <div style="flex:1;height:20px;background:linear-gradient(90deg,rgba(167,139,250,0.6),rgba(167,139,250,0.2));border-radius:4px;position:relative;margin-left:15%;">
+                                <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:0.65rem;color:#A78BFA;font-family:'Fira Code',monospace;">98-102 MHz</div>
+                            </div>
+                        </div>
+                        <div style="display:flex;align-items:center;gap:0.5rem;">
+                            <div style="width:60px;font-family:'Fira Code',monospace;font-size:0.7rem;color:#22D3EE;text-align:right;">CH 3</div>
+                            <div style="flex:1;height:20px;background:linear-gradient(90deg,rgba(34,211,238,0.6),rgba(34,211,238,0.2));border-radius:4px;position:relative;margin-left:38%;">
+                                <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:0.65rem;color:#22D3EE;font-family:'Fira Code',monospace;">108-112 MHz</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div style="display:flex;justify-content:space-between;font-size:0.65rem;color:var(--text-ghost);font-family:'Fira Code',monospace;margin-top:0.5rem;">
+                        <span>Frequency →</span><span>Higher Frequency</span>
+                    </div>
+                </div>
+
+                <div style="display:flex;flex-wrap:wrap;gap:0.5rem;margin-top:1rem;">
+                    <span style="font-size:0.78rem;font-family:'Cairo',sans-serif;direction:rtl;color:#34D399;background:rgba(16,185,129,0.1);padding:0.2rem 0.6rem;border-radius:6px;">✅ بسيط التطبيق</span>
+                    <span style="font-size:0.78rem;font-family:'Cairo',sans-serif;direction:rtl;color:#34D399;background:rgba(16,185,129,0.1);padding:0.2rem 0.6rem;border-radius:6px;">✅ للإشارات الأنالوجية</span>
+                    <span style="font-size:0.78rem;font-family:'Cairo',sans-serif;direction:rtl;color:#F87171;background:rgba(239,68,68,0.1);padding:0.2rem 0.6rem;border-radius:6px;">❌ إضاعة Band إذا المستخدم خامل</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- TDM -->
+    <section class="lesson-section">
+        <div class="section-header" data-aos="fade-up">
+            <h2><i class="fas fa-stopwatch" style="color:#A78BFA;margin-left:0.5rem;"></i> TDM — تقسيم الوقت</h2>
+            <p class="en-sub">Time Division Multiplexing</p>
+        </div>
+        <div class="glass-card" style="padding:1.8rem;" data-aos="fade-up" data-aos-delay="100">
+            <div class="rtl-block" style="margin-bottom:1.5rem;">
+                <p style="color:#CBD5E1;font-size:0.98rem;line-height:1.8;">كل مستخدم بياخد "وردية" زمنية (Time Slot). الكنال بيستخدمه كل مستخدم بالدور سريعاً جداً — الوردية بتتكرر بسرعة كفاية عشان تبان Continuous للمستخدم.</p>
+            </div>
+
+            <!-- TDM Timeline Animation -->
+            <div style="margin:1rem 0;">
+                <div style="font-family:'Fira Code',monospace;font-size:0.72rem;color:var(--text-faint);direction:ltr;margin-bottom:0.4rem;">Time →</div>
+                <div class="tdm-timeline" id="tdm-anim">
+                    <div class="tdm-slot" style="background:rgba(244,114,182,0.7);">A</div>
+                    <div class="tdm-slot" style="background:rgba(167,139,250,0.7);">B</div>
+                    <div class="tdm-slot" style="background:rgba(34,211,238,0.7);">C</div>
+                    <div class="tdm-slot" style="background:rgba(251,191,36,0.7);">D</div>
+                    <div class="tdm-slot" style="background:rgba(244,114,182,0.4);">A</div>
+                    <div class="tdm-slot" style="background:rgba(167,139,250,0.4);">B</div>
+                    <div class="tdm-slot" style="background:rgba(34,211,238,0.4);">C</div>
+                    <div class="tdm-slot" style="background:rgba(251,191,36,0.4);">D</div>
+                    <div class="tdm-slot" style="background:rgba(244,114,182,0.2);">A</div>
+                    <div class="tdm-slot" style="background:rgba(167,139,250,0.2);">B</div>
+                    <div class="tdm-slot" style="background:rgba(34,211,238,0.2);">C</div>
+                    <div class="tdm-slot" style="background:rgba(251,191,36,0.2);">D</div>
+                </div>
+                <div style="display:flex;justify-content:flex-start;gap:0.75rem;margin-top:0.4rem;direction:ltr;">
+                    <span style="font-size:0.7rem;font-family:'Fira Code',monospace;">Frame 1</span>
+                    <span style="font-size:0.7rem;font-family:'Fira Code',monospace;margin-left:25%;">Frame 2</span>
+                    <span style="font-size:0.7rem;font-family:'Fira Code',monospace;margin-left:25%;">Frame 3</span>
+                </div>
+            </div>
+
+            <div class="rtl-block" style="margin-top:1rem;">
+                <p style="color:#94A3B8;font-size:0.88rem;line-height:1.8;margin-bottom:0.75rem;">هناك نوعان: <strong style="color:#A78BFA;">STDM</strong> (Synchronous) — كل مستخدم Space ثابت حتى لو خامل. <strong style="color:#22D3EE;">ATDM</strong> (Asynchronous/Statistical) — بيوزع الـ Slots للمشغولين بس.</p>
+                <div class="nt-fact" style="background:rgba(139,92,246,0.06);border:1px solid rgba(139,92,246,0.15);border-left:3px solid #8B5CF6;border-radius:0 10px 10px 0;padding:0.8rem 1rem;margin-top:0.75rem;font-size:0.85rem;color:#94A3B8;">
+                    📞 <strong>الشبكات التليفونية:</strong> شبكة الـ T1 (24 قناة) والـ E1 (30 قناة) الأمريكية والأوروبية بتستخدم TDM — الأساسية في الاتصالات للعشرين سنة الماضية.
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- WDM -->
+    <section class="lesson-section alt-bg">
+        <div class="section-inner">
+            <div class="section-header" data-aos="fade-up">
+                <h2><i class="fas fa-rainbow" style="color:#F472B6;margin-left:0.5rem;"></i> WDM — تعدد الأطوال الموجية</h2>
+                <p class="en-sub">Wavelength Division Multiplexing — Fiber Optic Magic</p>
+            </div>
+            <div class="glass-card" style="padding:1.8rem;" data-aos="fade-up" data-aos-delay="100">
+                <div class="rtl-block" style="margin-bottom:1.5rem;">
+                    <p style="color:#CBD5E1;font-size:0.98rem;line-height:1.8;">مخصوص للـ Fiber Optic. بدل خيط ضوء واحد — بنبعت ضوء بألوان (أطوال موجية) مختلفة في نفس الخيط. كل لون = قناة مستقلة. (الضوء المرئي طيف — زي قوس قزح!)</p>
+                    <p style="color:#94A3B8;font-size:0.88rem;margin-top:0.5rem;"><strong style="color:#F472B6;">DWDM</strong> (Dense WDM) بيقدر يحشر 80+ قناة في خيط واحد — كل قناة 100 Gbps. مجموع 8 Tbps في خيط بسماكة شعرة!</p>
+                </div>
+
+                <!-- WDM Fiber Visual -->
+                <div class="wdm-fiber">
+                    <div style="position:absolute;left:5%;top:50%;transform:translateY(-50%);font-size:0.65rem;font-family:'Fira Code',monospace;color:var(--text-ghost);">MUX</div>
+                    <div class="wdm-beam" style="background:#EF4444;width:80%;margin-top:-20px;animation-duration:2s;opacity:0.8;"></div>
+                    <div class="wdm-beam" style="background:#F59E0B;width:80%;margin-top:-8px;animation-duration:2.3s;animation-delay:0.2s;opacity:0.8;"></div>
+                    <div class="wdm-beam" style="background:#10B981;width:80%;animation-duration:1.8s;animation-delay:0.4s;opacity:0.8;"></div>
+                    <div class="wdm-beam" style="background:#3B82F6;width:80%;margin-top:8px;animation-duration:2.1s;animation-delay:0.6s;opacity:0.8;"></div>
+                    <div class="wdm-beam" style="background:#8B5CF6;width:80%;margin-top:20px;animation-duration:2.4s;animation-delay:0.1s;opacity:0.8;"></div>
+                    <div style="position:absolute;right:5%;top:50%;transform:translateY(-50%);font-size:0.65rem;font-family:'Fira Code',monospace;color:var(--text-ghost);">DEMUX</div>
+                </div>
+                <div style="font-size:0.75rem;font-family:'Cairo',sans-serif;direction:rtl;color:var(--text-muted);text-align:center;margin-top:0.5rem;">5 أطوال موجية (ألوان) في خيط فايبر واحد — 5 قنوات مستقلة</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Comparison -->
+    <section class="lesson-section" id="quiz">
+        <div data-aos="fade-up" style="overflow-x:auto;margin-bottom:2rem;">
+            <table class="comparison-table">
+                <thead><tr><th>النوع</th><th>المعيار</th><th>للـ</th><th>المثال</th></tr></thead>
+                <tbody>
+                    <tr><td style="color:#22D3EE;font-weight:700;">FDM</td><td class="rtl-block">التردد</td><td class="rtl-block">أنالوج</td><td>Radio FM / Cable TV</td></tr>
+                    <tr><td style="color:#A78BFA;font-weight:700;">TDM</td><td class="rtl-block">الوقت</td><td class="rtl-block">رقمي</td><td>T1/E1 Telephone</td></tr>
+                    <tr><td style="color:#F472B6;font-weight:700;">WDM</td><td class="rtl-block">الطول الموجي</td><td class="rtl-block">Fiber فقط</td><td>Undersea Cables</td></tr>
+                    <tr><td style="color:#34D399;font-weight:700;">CDM</td><td class="rtl-block">الكود</td><td class="rtl-block">Wireless</td><td>3G CDMA</td></tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="section-header" data-aos="fade-up">
+            <h2><i class="fas fa-brain" style="color:#8B5CF6;margin-left:0.5rem;"></i> اختبر نفسك</h2>
+        </div>
+        <div class="quiz-container" data-aos="fade-up">
+            <div class="quiz-question" id="q1">
+                <h4>الكابلات البحرية الضوئية بين القارات بتستخدم أنهي نوع Multiplexing؟</h4>
+                <div class="quiz-options">
+                    <div class="quiz-option" onclick="ans(this,'q1',false)">FDM</div>
+                    <div class="quiz-option" onclick="ans(this,'q1',false)">TDM</div>
+                    <div class="quiz-option" onclick="ans(this,'q1',true)">DWDM (Wavelength Division)</div>
+                    <div class="quiz-option" onclick="ans(this,'q1',false)">CDM</div>
+                </div>
+                <div class="quiz-feedback" id="fb-q1"></div>
+            </div>
+            <div class="quiz-question" id="q2">
+                <h4>الـ TDM STDM بيديك Slot حتى لو أنت خامل — ليه ده مشكلة؟</h4>
+                <div class="quiz-options">
+                    <div class="quiz-option" onclick="ans(this,'q2',false)">لأنه بطيء</div>
+                    <div class="quiz-option" onclick="ans(this,'q2',true)">لأنه بيضيع Bandwidth — الـ Slot فاضي ومحدش تاني بيستفيد منه</div>
+                    <div class="quiz-option" onclick="ans(this,'q2',false)">لأن الـ Clock مش متزامن</div>
+                    <div class="quiz-option" onclick="ans(this,'q2',false)">مش مشكلة</div>
+                </div>
+                <div class="quiz-feedback" id="fb-q2"></div>
+            </div>
+        </div>
+    </section>
+
+    <section class="lesson-section">
+        <div class="lesson-bottom-nav">
+            <a href="signal_encoding.html"><i class="fas fa-arrow-left"></i><span>Signal Encoding</span></a>
+            <div style="text-align:center;color:var(--text-faint);font-size:0.85rem;">Unit 3 • Lesson 3</div>
+            <a href="switching_transmission.html"><span>Switching</span><i class="fas fa-arrow-right"></i></a>
+        </div>
+    </section>
+
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <script>
+        AOS.init({duration:800,once:true,offset:100});
+        window.addEventListener('scroll',()=>{ document.getElementById('reading-progress').style.width=(window.scrollY/(document.documentElement.scrollHeight-window.innerHeight))*100+'%'; });
+        const fb={
+            q1:{c:'✅ صح! DWDM (Dense Wavelength Division Multiplexing) — الكابلات البحرية بتشيل 80+ قناة ضوئية في خيط واحد.',w:'❌ غلط! الكابلات البحرية الفايبر تستخدم DWDM — كل لون ضوء = قناة مستقلة.'},
+            q2:{c:'✅ صح! الـ STDM بيحجز Slot ثابت لكل مستخدم. لو المستخدم مش بيبعت بيانات — الـ Slot فاضي ومضاع.',w:'❌ غلط! المشكلة هي الإهدار — Slot محجوز لمستخدم خامل بيمنع الآخرين من استخدامه.'}
+        };
+        function ans(el,qid,correct){ const q=document.getElementById(qid); if(q.dataset.answered)return; q.dataset.answered='true'; q.querySelectorAll('.quiz-option').forEach(o=>o.style.pointerEvents='none'); el.classList.add(correct?'correct':'wrong'); const f=document.getElementById('fb-'+qid); f.textContent=correct?fb[qid].c:fb[qid].w; f.className='quiz-feedback show '+(correct?'correct-fb':'wrong-fb'); }
+    </script>
+</body>
+</html>

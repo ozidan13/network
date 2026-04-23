@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ICMP & ARP — النداء والاستجواب | Network Mastery</title>
+    <meta name="description" content="ARP: كيف بتعرف MAC من IP؟ ICMP: ping و traceroute من جوه.">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&family=Inter:wght@400;500;600;700;800&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    <link href="../css/global-net.css" rel="stylesheet">
+    <style>
+        body{background:#020617;color:#E2E8F0;font-family:'Inter',sans-serif;}
+        .lesson-nav-bar{position:fixed;top:0;left:0;right:0;z-index:100;background:rgba(2,6,23,0.88);backdrop-filter:blur(20px);border-bottom:1px solid rgba(255,255,255,0.06);height:64px;display:flex;align-items:center;padding:0 1.5rem;}
+        .nav-inner{max-width:1280px;margin:0 auto;width:100%;display:flex;align-items:center;justify-content:space-between;}
+        .nav-brand{display:flex;align-items:center;gap:0.75rem;font-weight:700;}
+        .back-btn{width:36px;height:36px;border-radius:10px;background:linear-gradient(135deg,#10B981,#059669);display:flex;align-items:center;justify-content:center;color:white;font-size:0.85rem;transition:transform 0.3s;}
+        .back-btn:hover{transform:scale(1.1);}
+        .lesson-hero{position:relative;padding:8rem 1.5rem 5rem;text-align:center;overflow:hidden;}
+        .glow-orb{position:absolute;border-radius:50%;filter:blur(128px);pointer-events:none;}
+        .glow-orb-1{width:500px;height:500px;top:-10%;right:-5%;background:rgba(16,185,129,0.12);}
+        .glow-orb-2{width:400px;height:400px;bottom:-20%;left:-10%;background:rgba(6,182,212,0.06);}
+        .lesson-badge{display:inline-flex;align-items:center;gap:0.5rem;padding:0.35rem 1rem;border-radius:50px;background:rgba(30,41,59,0.6);border:1px solid rgba(255,255,255,0.08);font-family:'Fira Code',monospace;font-size:0.78rem;color:#34D399;margin-bottom:1.5rem;}
+        .dot{width:6px;height:6px;border-radius:50%;background:#10B981;animation:pulse-dot 2s ease infinite;}
+        .lesson-hero h1{font-size:clamp(2.5rem,5vw,4rem);font-weight:800;margin-bottom:1rem;}
+        .text-g{background:linear-gradient(135deg,#10B981,#06B6D4);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;}
+        .subtitle{font-family:'Cairo',sans-serif;font-size:1.6rem;font-weight:700;color:var(--text-muted);direction:rtl;margin-bottom:1.5rem;}
+        .desc{color:var(--text-faint);max-width:640px;margin:0 auto;font-size:1.05rem;font-family:'Cairo',sans-serif;direction:rtl;line-height:1.9;}
+
+        /* ARP simulation */
+        .arp-sim{background:rgba(0,0,0,0.3);border:1px solid var(--border-subtle);border-radius:14px;padding:1.5rem;direction:ltr;font-family:'Fira Code',monospace;font-size:0.82rem;}
+        .arp-step{display:flex;align-items:center;gap:0.75rem;padding:0.5rem;border-radius:8px;margin-bottom:0.4rem;opacity:0;transition:opacity 0.5s;}
+        .arp-step.visible{opacity:1;}
+        .arp-arrow{color:#34D399;font-size:1.1rem;}
+        .arp-msg{color:#E2E8F0;}
+        .arp-msg span{color:#FBBF24;}
+
+        /* ARP Table */
+        .arp-table-display{width:100%;border-collapse:collapse;font-size:0.8rem;direction:ltr;}
+        .arp-table-display th{background:rgba(16,185,129,0.1);color:#34D399;padding:0.4rem 0.6rem;border:1px solid rgba(16,185,129,0.15);font-family:'Fira Code',monospace;text-align:left;}
+        .arp-table-display td{padding:0.4rem 0.6rem;border:1px solid var(--border-subtle);font-family:'Fira Code',monospace;font-size:0.75rem;}
+
+        /* Ping sim */
+        .ping-output{background:rgba(0,0,0,0.4);border:1px solid var(--border-subtle);border-radius:10px;padding:1rem;font-family:'Fira Code',monospace;direction:ltr;font-size:0.8rem;min-height:80px;}
+        .ping-line{opacity:0;transition:opacity 0.3s;color:#34D399;margin-bottom:0.1rem;}
+        .ping-line.visible{opacity:1;}
+        .ping-line.err{color:#F87171;}
+
+        .lesson-bottom-nav{display:flex;justify-content:space-between;align-items:center;gap:1rem;padding:2rem 0;border-top:1px solid var(--border-subtle);margin-top:3rem;}
+        .lesson-bottom-nav a{display:flex;align-items:center;gap:0.5rem;padding:0.75rem 1.5rem;border-radius:12px;background:rgba(255,255,255,0.04);border:1px solid var(--border-subtle);transition:all 0.3s ease;font-weight:600;font-size:0.9rem;}
+        .lesson-bottom-nav a:hover{background:rgba(16,185,129,0.1);border-color:rgba(16,185,129,0.3);transform:translateY(-2px);}
+    </style>
+</head>
+<body>
+    <nav class="lesson-nav-bar">
+        <div class="nav-inner">
+            <a href="../index.html" class="nav-brand">
+                <div class="back-btn"><i class="fas fa-arrow-left"></i></div>
+                <span>ICMP<span style="color:#10B981;">&ARP</span></span>
+            </a>
+        </div>
+    </nav>
+    <div class="progress-bar-container"><div class="progress-bar-fill" id="reading-progress" style="background:linear-gradient(90deg,#10B981,#06B6D4);"></div></div>
+
+    <header class="lesson-hero">
+        <div class="glow-orb glow-orb-1"></div><div class="glow-orb glow-orb-2"></div>
+        <div style="position:relative;z-index:1;">
+            <div class="lesson-badge" data-aos="fade-down"><span class="dot"></span>UNIT 5 • Lesson 4</div>
+            <h1 data-aos="fade-up" data-aos-delay="150">ICMP &amp; <span class="text-g">ARP</span></h1>
+            <div class="subtitle" data-aos="fade-up" data-aos-delay="300">النداء والاستجواب في الشبكة</div>
+            <p class="desc" data-aos="fade-up" data-aos-delay="450">كل مرة بتعمل Ping — بتستخدم ICMP. وكل مرة موبايلك يتصل بـ Router — بيعمل ARP أول. البروتوكولان اللي ما بيتكلمش عنهم.</p>
+        </div>
+    </header>
+
+    <!-- ARP Section -->
+    <section class="lesson-section">
+        <div class="section-header" data-aos="fade-up">
+            <h2><i class="fas fa-magnifying-glass" style="color:#34D399;margin-left:0.5rem;"></i> ARP — من عنده الـ IP ده؟</h2>
+            <p class="en-sub">Address Resolution Protocol — IP → MAC Translation</p>
+        </div>
+        <div class="glass-card" style="padding:1.8rem;" data-aos="fade-up">
+            <div class="rtl-block" style="margin-bottom:1.5rem;">
+                <p style="color:#E2E8F0;font-size:1rem;line-height:1.9;">الـ IP بيحدد الجهاز على مستوى الإنترنت. بس الـ Ethernet Frame بيحتاج MAC Address. الـ ARP هو اللي بيحوّل IP لـ MAC على الـ Local Network.</p>
+            </div>
+
+            <!-- ARP steps animated -->
+            <div class="arp-sim" id="arp-sim">
+                <div class="arp-step" id="a1"><span class="arp-arrow">1.</span><span class="arp-msg">PC-A يعرف IP المطلوب: <span>192.168.1.10</span> — بس ما يعرفش MAC</span></div>
+                <div class="arp-step" id="a2"><span class="arp-arrow">2.</span><span class="arp-msg">🔊 ARP Broadcast: "من عنده <span>192.168.1.10</span>؟ أنا <span>AA:BB:CC:11:22:33</span>"</span></div>
+                <div class="arp-step" id="a3"><span class="arp-arrow">3.</span><span class="arp-msg">كل الأجهزة على الشبكة استقبلت الـ Broadcast</span></div>
+                <div class="arp-step" id="a4"><span class="arp-arrow">4.</span><span class="arp-msg">PC-B صاحب <span>192.168.1.10</span> يرد: "أنا! MAC بتاعي: <span>DD:EE:FF:44:55:66</span>"</span></div>
+                <div class="arp-step" id="a5"><span class="arp-arrow">5.</span><span class="arp-msg">PC-A حفظ الـ MAC في ARP Cache ✅</span></div>
+            </div>
+            <button onclick="animateARP()" style="margin-top:0.75rem;padding:0.5rem 1.2rem;border-radius:8px;background:rgba(16,185,129,0.15);border:1px solid rgba(16,185,129,0.3);color:#34D399;font-family:'Cairo',sans-serif;cursor:pointer;transition:all 0.3s;">▶ تشغيل ARP Demo</button>
+
+            <!-- ARP Table -->
+            <div style="margin-top:1.5rem;">
+                <div class="rtl-block" style="font-size:0.88rem;color:#CBD5E1;margin-bottom:0.75rem;"><strong>ARP Cache Table (على PC-A):</strong></div>
+                <table class="arp-table-display">
+                    <thead><tr><th>IP Address</th><th>MAC Address</th><th>Type</th><th>Age</th></tr></thead>
+                    <tbody>
+                        <tr><td>192.168.1.1</td><td>FF:EE:DD:CC:BB:AA</td><td style="color:#34D399;">Dynamic</td><td>180s</td></tr>
+                        <tr><td style="color:#FBBF24;" id="arp-new-row">192.168.1.10</td><td style="color:#FBBF24;" id="arp-new-mac">???</td><td style="color:#94A3B8;">—</td><td>—</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </section>
+
+    <!-- ICMP Section -->
+    <section class="lesson-section alt-bg">
+        <div class="section-inner">
+            <div class="section-header" data-aos="fade-up">
+                <h2><i class="fas fa-satellite-dish" style="color:#22D3EE;margin-left:0.5rem;"></i> ICMP — رسائل التحكم</h2>
+                <p class="en-sub">Internet Control Message Protocol — The Diagnostic Layer</p>
+            </div>
+            <div class="glass-card" style="padding:1.8rem;" data-aos="fade-up">
+                <div class="rtl-block" style="margin-bottom:1.5rem;">
+                    <p style="color:#CBD5E1;font-size:0.98rem;line-height:1.8;">ICMP مش لنقل البيانات — لنقل <strong style="color:#22D3EE;">رسائل التشخيص والتحكم</strong>. لو الـ Router ما قدرش يوصل Packet — بيرد برسالة ICMP بدل إنه يصمت.</p>
+                </div>
+                <div class="problem-grid" style="margin:0 0 1rem;">
+                    <div style="background:rgba(6,182,212,0.06);border:1px solid rgba(6,182,212,0.15);border-radius:12px;padding:1rem;">
+                        <div style="color:#22D3EE;font-weight:700;font-family:'Fira Code';direction:ltr;font-size:0.82rem;margin-bottom:0.4rem;">Echo Request/Reply</div>
+                        <p class="rtl-block" style="font-size:0.82rem;color:var(--text-muted);">هو الـ Ping. بتبعت Echo Request وبتستنى Echo Reply. RTT = Round Trip Time.</p>
+                    </div>
+                    <div style="background:rgba(245,158,11,0.06);border:1px solid rgba(245,158,11,0.15);border-radius:12px;padding:1rem;">
+                        <div style="color:#FBBF24;font-weight:700;font-family:'Fira Code';direction:ltr;font-size:0.82rem;margin-bottom:0.4rem;">Time Exceeded (TTL=0)</div>
+                        <p class="rtl-block" style="font-size:0.82rem;color:var(--text-muted);">الـ Traceroute بيستخدمه. كل Router بيقلل TTL بـ 1. لو وصل صفر → Time Exceeded → بيعرف المسار.</p>
+                    </div>
+                    <div style="background:rgba(239,68,68,0.06);border:1px solid rgba(239,68,68,0.15);border-radius:12px;padding:1rem;">
+                        <div style="color:#F87171;font-weight:700;font-family:'Fira Code';direction:ltr;font-size:0.82rem;margin-bottom:0.4rem;">Destination Unreachable</div>
+                        <p class="rtl-block" style="font-size:0.82rem;color:var(--text-muted);">الـ Router أو Host مش قادر يوصّل الـ Packet. كودات مختلفة: Network، Host، Port، Protocol Unreachable.</p>
+                    </div>
+                    <div style="background:rgba(139,92,246,0.06);border:1px solid rgba(139,92,246,0.15);border-radius:12px;padding:1rem;">
+                        <div style="color:#A78BFA;font-weight:700;font-family:'Fira Code';direction:ltr;font-size:0.82rem;margin-bottom:0.4rem;">Redirect</div>
+                        <p class="rtl-block" style="font-size:0.82rem;color:var(--text-muted);">الـ Router بيقول للـ Host: "مسار أحسن موجود — ابعت هناك."</p>
+                    </div>
+                </div>
+
+                <!-- Ping simulator -->
+                <div>
+                    <div style="display:flex;gap:0.75rem;align-items:center;flex-wrap:wrap;margin-bottom:0.75rem;">
+                        <input id="ping-target" type="text" value="8.8.8.8" style="flex:1;min-width:120px;background:rgba(0,0,0,0.3);border:1px solid rgba(6,182,212,0.2);border-radius:8px;color:#E2E8F0;font-family:'Fira Code',monospace;font-size:0.85rem;padding:0.4rem 0.75rem;outline:none;">
+                        <button onclick="runPing()" style="padding:0.4rem 1rem;border-radius:8px;background:rgba(6,182,212,0.15);border:1px solid rgba(6,182,212,0.3);color:#22D3EE;font-family:'Fira Code',monospace;font-size:0.82rem;cursor:pointer;">ping</button>
+                    </div>
+                    <div class="ping-output" id="ping-out"></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Unit 5 Complete -->
+    <section class="lesson-section" id="quiz">
+        <div class="section-header" data-aos="fade-up">
+            <h2><i class="fas fa-brain" style="color:#10B981;margin-left:0.5rem;"></i> اختبر نفسك</h2>
+        </div>
+        <div class="quiz-container" data-aos="fade-up">
+            <div class="quiz-question" id="q1">
+                <h4>ARP Request بيُرسل كـ؟</h4>
+                <div class="quiz-options">
+                    <div class="quiz-option" onclick="ans(this,'q1',false)">Unicast</div>
+                    <div class="quiz-option" onclick="ans(this,'q1',true)">Broadcast (FF:FF:FF:FF:FF:FF)</div>
+                    <div class="quiz-option" onclick="ans(this,'q1',false)">Multicast</div>
+                    <div class="quiz-option" onclick="ans(this,'q1',false)">Anycast</div>
+                </div>
+                <div class="quiz-feedback" id="fb-q1"></div>
+            </div>
+            <div class="quiz-question" id="q2">
+                <h4>Traceroute بيستخدم ICMP إزاي؟</h4>
+                <div class="quiz-options">
+                    <div class="quiz-option" onclick="ans(this,'q2',false)">بيبعت Echo Request بـ TTL عالي</div>
+                    <div class="quiz-option" onclick="ans(this,'q2',true)">بيبعت Packets بـ TTL متزايد (1,2,3…) — كل Router بيرد بـ Time Exceeded</div>
+                    <div class="quiz-option" onclick="ans(this,'q2',false)">بيستخدم ARP للمسار</div>
+                    <div class="quiz-option" onclick="ans(this,'q2',false)">بيسأل كل Router عن Routing Table</div>
+                </div>
+                <div class="quiz-feedback" id="fb-q2"></div>
+            </div>
+        </div>
+    </section>
+
+    <section class="lesson-section">
+        <div class="glass-card" style="padding:2rem;text-align:center;border-color:rgba(16,185,129,0.3);margin-bottom:2rem;" data-aos="zoom-in">
+            <div style="font-size:3rem;margin-bottom:1rem;">🎓</div>
+            <h3 style="color:#34D399;font-family:'Cairo',sans-serif;">أنهيت الوحدة الخامسة!</h3>
+            <p class="rtl-block" style="color:#CBD5E1;margin:1rem 0;">Network Layer — IP، Subnetting، Routing، ICMP & ARP. دلوقتي الـ Transport Layer!</p>
+            <a href="../Unit6/tcp_deep.html" style="display:inline-flex;align-items:center;gap:0.75rem;padding:0.9rem 2rem;border-radius:14px;background:linear-gradient(135deg,#10B981,#059669);color:white;font-weight:800;transition:all 0.3s;text-decoration:none;">
+                الوحدة السادسة: Transport Layer <i class="fas fa-arrow-right"></i>
+            </a>
+        </div>
+        <div class="lesson-bottom-nav">
+            <a href="routing_basics.html"><i class="fas fa-arrow-left"></i><span>Routing</span></a>
+            <div style="text-align:center;color:var(--text-faint);font-size:0.85rem;">Unit 5 Complete ✅</div>
+            <a href="../Unit6/tcp_deep.html"><span>Unit 6 →</span><i class="fas fa-arrow-right"></i></a>
+        </div>
+    </section>
+
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <script>
+        AOS.init({duration:800,once:true,offset:100});
+        window.addEventListener('scroll',()=>{ document.getElementById('reading-progress').style.width=(window.scrollY/(document.documentElement.scrollHeight-window.innerHeight))*100+'%'; });
+
+        function animateARP(){
+            const steps=['a1','a2','a3','a4','a5'];
+            steps.forEach(id=>document.getElementById(id).classList.remove('visible'));
+            document.getElementById('arp-new-mac').textContent='???';
+            document.getElementById('arp-new-mac').style.color='#FBBF24';
+            steps.forEach((id,i)=>{
+                setTimeout(()=>{
+                    document.getElementById(id).classList.add('visible');
+                    if(id==='a5'){ document.getElementById('arp-new-mac').textContent='DD:EE:FF:44:55:66'; document.getElementById('arp-new-mac').style.color='#34D399'; }
+                },i*1200);
+            });
+        }
+
+        function runPing(){
+            const target=document.getElementById('ping-target').value||'8.8.8.8';
+            const out=document.getElementById('ping-out');
+            out.innerHTML='';
+            const lines=[
+                {text:`Pinging ${target} with 32 bytes of data:`,delay:100},
+                {text:`Reply from ${target}: bytes=32 time=${Math.floor(Math.random()*20+10)}ms TTL=117`,delay:600,good:true},
+                {text:`Reply from ${target}: bytes=32 time=${Math.floor(Math.random()*20+10)}ms TTL=117`,delay:1200,good:true},
+                {text:`Reply from ${target}: bytes=32 time=${Math.floor(Math.random()*20+12)}ms TTL=117`,delay:1800,good:true},
+                {text:`Reply from ${target}: bytes=32 time=${Math.floor(Math.random()*20+10)}ms TTL=117`,delay:2400,good:true},
+                {text:``,delay:3000},
+                {text:`Ping statistics for ${target}:`,delay:3100},
+                {text:`  Packets: Sent = 4, Received = 4, Lost = 0 (0% loss)`,delay:3200,good:true},
+            ];
+            lines.forEach(l=>{
+                setTimeout(()=>{
+                    const d=document.createElement('div');
+                    d.className='ping-line'+(l.err?' err':'');
+                    d.textContent=l.text;
+                    out.appendChild(d);
+                    setTimeout(()=>d.classList.add('visible'),50);
+                    out.scrollTop=out.scrollHeight;
+                },l.delay);
+            });
+        }
+
+        const fb={
+            q1:{c:'✅ صح! ARP Request = Broadcast. الـ MAC Destination = FF:FF:FF:FF:FF:FF عشان يوصل لكل الأجهزة على الـ LAN.',w:'❌ غلط! ARP Request = Broadcast — لأن المرسل ما يعرفش MAC الوجهة (ده هدف ARP أصلاً).'},
+            q2:{c:'✅ صح! Traceroute بيبعت Packets بـ TTL=1 (يموت عند R1)، TTL=2 (عند R2)، إلخ. كل Router بيرد بـ ICMP Time Exceeded.',w:'❌ غلط! Traceroute بيبعت TTL متزايد (1,2,3…). كل Router بيقلل TTL بـ 1، لما يوصل صفر بيرد بـ ICMP Time Exceeded → بيكشف الـ Hop.'}
+        };
+        function ans(el,qid,correct){ const q=document.getElementById(qid); if(q.dataset.answered)return; q.dataset.answered='true'; q.querySelectorAll('.quiz-option').forEach(o=>o.style.pointerEvents='none'); el.classList.add(correct?'correct':'wrong'); const f=document.getElementById('fb-'+qid); f.textContent=correct?fb[qid].c:fb[qid].w; f.className='quiz-feedback show '+(correct?'correct-fb':'wrong-fb'); }
+    </script>
+</body>
+</html>

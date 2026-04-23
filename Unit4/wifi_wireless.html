@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wireless LAN — الشبكات اللاسلكية | Network Mastery</title>
+    <meta name="description" content="WiFi 802.11 — CSMA/CA، الأمان، الأجيال من a/b/g/n/ac/ax.">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&family=Inter:wght@400;500;600;700;800&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    <link href="../css/global-net.css" rel="stylesheet">
+    <style>
+        body{background:#020617;color:#E2E8F0;font-family:'Inter',sans-serif;}
+        .lesson-nav-bar{position:fixed;top:0;left:0;right:0;z-index:100;background:rgba(2,6,23,0.88);backdrop-filter:blur(20px);border-bottom:1px solid rgba(255,255,255,0.06);height:64px;display:flex;align-items:center;padding:0 1.5rem;}
+        .nav-inner{max-width:1280px;margin:0 auto;width:100%;display:flex;align-items:center;justify-content:space-between;}
+        .nav-brand{display:flex;align-items:center;gap:0.75rem;font-weight:700;}
+        .back-btn{width:36px;height:36px;border-radius:10px;background:linear-gradient(135deg,#F59E0B,#D97706);display:flex;align-items:center;justify-content:center;color:white;font-size:0.85rem;transition:transform 0.3s;}
+        .back-btn:hover{transform:scale(1.1);}
+        .lesson-hero{position:relative;padding:8rem 1.5rem 5rem;text-align:center;overflow:hidden;}
+        .glow-orb{position:absolute;border-radius:50%;filter:blur(128px);pointer-events:none;}
+        .glow-orb-1{width:500px;height:500px;top:-10%;right:-5%;background:rgba(245,158,11,0.1);}
+        .glow-orb-2{width:400px;height:400px;bottom:-20%;left:-10%;background:rgba(16,185,129,0.07);}
+        .lesson-badge{display:inline-flex;align-items:center;gap:0.5rem;padding:0.35rem 1rem;border-radius:50px;background:rgba(30,41,59,0.6);border:1px solid rgba(255,255,255,0.08);font-family:'Fira Code',monospace;font-size:0.78rem;color:#FBBF24;margin-bottom:1.5rem;}
+        .dot{width:6px;height:6px;border-radius:50%;background:#F59E0B;animation:pulse-dot 2s ease infinite;}
+        .lesson-hero h1{font-size:clamp(2.5rem,5vw,4rem);font-weight:800;margin-bottom:1rem;}
+        .text-g{background:linear-gradient(135deg,#F59E0B,#34D399);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;}
+        .subtitle{font-family:'Cairo',sans-serif;font-size:1.6rem;font-weight:700;color:var(--text-muted);direction:rtl;margin-bottom:1.5rem;}
+        .desc{color:var(--text-faint);max-width:640px;margin:0 auto;font-size:1.05rem;font-family:'Cairo',sans-serif;direction:rtl;line-height:1.9;}
+
+        /* WiFi generation cards */
+        .wifi-gen{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:0.75rem;margin:1.5rem 0;}
+        .wg-card{background:rgba(15,23,42,0.7);border:1px solid var(--border-subtle);border-radius:14px;padding:1.2rem;transition:all 0.3s;}
+        .wg-card:hover{transform:translateY(-3px);}
+        .wg-gen{font-family:'Fira Code',monospace;font-size:0.7rem;font-weight:700;margin-bottom:0.25rem;direction:ltr;padding:0.15rem 0.5rem;border-radius:4px;display:inline-block;}
+        .wg-std{font-family:'Fira Code',monospace;font-size:1rem;font-weight:900;direction:ltr;margin:0.3rem 0;}
+        .wg-speed{font-size:0.85rem;font-weight:700;direction:ltr;font-family:'Fira Code',monospace;}
+        .wg-detail{font-family:'Cairo',sans-serif;direction:rtl;font-size:0.78rem;color:var(--text-muted);margin-top:0.3rem;line-height:1.6;}
+
+        /* Signal range visual */
+        .range-viz{position:relative;height:180px;background:rgba(0,0,0,0.3);border-radius:14px;overflow:hidden;display:flex;align-items:center;justify-content:center;margin:1.5rem 0;}
+        .range-ring{position:absolute;border-radius:50%;border:1px solid;animation:ringPulse 3s ease-out infinite;}
+        @keyframes ringPulse{0%{opacity:0.8;transform:scale(0.3);}100%{opacity:0;transform:scale(1);}}
+        .range-router{font-size:2rem;z-index:10;position:relative;}
+
+        .lesson-bottom-nav{display:flex;justify-content:space-between;align-items:center;gap:1rem;padding:2rem 0;border-top:1px solid var(--border-subtle);margin-top:3rem;}
+        .lesson-bottom-nav a{display:flex;align-items:center;gap:0.5rem;padding:0.75rem 1.5rem;border-radius:12px;background:rgba(255,255,255,0.04);border:1px solid var(--border-subtle);transition:all 0.3s ease;font-weight:600;font-size:0.9rem;}
+        .lesson-bottom-nav a:hover{background:rgba(245,158,11,0.1);border-color:rgba(245,158,11,0.3);transform:translateY(-2px);}
+    </style>
+</head>
+<body>
+    <nav class="lesson-nav-bar">
+        <div class="nav-inner">
+            <a href="../index.html" class="nav-brand">
+                <div class="back-btn"><i class="fas fa-arrow-left"></i></div>
+                <span>Wire<span style="color:#F59E0B;">less</span></span>
+            </a>
+        </div>
+    </nav>
+    <div class="progress-bar-container"><div class="progress-bar-fill" id="reading-progress" style="background:linear-gradient(90deg,#F59E0B,#34D399);"></div></div>
+
+    <header class="lesson-hero">
+        <div class="glow-orb glow-orb-1"></div><div class="glow-orb glow-orb-2"></div>
+        <div style="position:relative;z-index:1;">
+            <div class="lesson-badge" data-aos="fade-down"><span class="dot"></span>UNIT 4 • Lesson 4</div>
+            <h1 data-aos="fade-up" data-aos-delay="150">Wireless <span class="text-g">LAN</span></h1>
+            <div class="subtitle" data-aos="fade-up" data-aos-delay="300">الشبكات اللاسلكية — WiFi</div>
+            <p class="desc" data-aos="fade-up" data-aos-delay="450">3 مليار جهاز متصل بـ WiFi الآن. بس معظمهم ما يفهمشوا ليه 5 GHz أسرع وأقل مدى، أو ليه كلمة السر مش كافية لحمايتك.</p>
+        </div>
+    </header>
+
+    <!-- CSMA/CA vs CSMA/CD -->
+    <section class="lesson-section">
+        <div class="section-header" data-aos="fade-up">
+            <h2><i class="fas fa-wifi" style="color:#F59E0B;margin-left:0.5rem;"></i> CSMA/CA — مش CD</h2>
+            <p class="en-sub">Collision Avoidance — Not Detection (Wireless Can't Detect)</p>
+        </div>
+        <div class="glass-card" style="padding:1.8rem;" data-aos="fade-up">
+            <div class="rtl-block">
+                <p style="color:#E2E8F0;font-size:1rem;margin-bottom:1rem;line-height:1.9;">الـ Ethernet بيستخدم <strong>CSMA/CD</strong> (Detection). الـ WiFi بيستخدم <strong style="color:#FBBF24;">CSMA/CA</strong> (Avoidance). ليه الفرق؟</p>
+                <p style="color:#94A3B8;font-size:0.9rem;line-height:1.8;margin-bottom:1rem;">في Wireless — الجهاز مش قادر يسمع ويبعت في نفس الوقت (Half Duplex الهواء). يعني مش قادر يكتشف الـ Collision وهي بتحصل. الحل: <strong>تجنب الـ Collision من الأساس</strong>.</p>
+                <div style="display:flex;flex-direction:column;gap:0.6rem;">
+                    <div style="display:flex;align-items:flex-start;gap:0.75rem;padding:0.75rem;background:rgba(245,158,11,0.06);border:1px solid rgba(245,158,11,0.15);border-radius:10px;">
+                        <div style="color:#FBBF24;font-weight:900;width:24px;flex-shrink:0;font-family:'Fira Code';">1</div>
+                        <div class="rtl-block" style="font-size:0.88rem;"><strong style="color:#FBBF24;">Sense:</strong> اسمع — هل الهواء فاضي؟ (Carrier Sense)</div>
+                    </div>
+                    <div style="display:flex;align-items:flex-start;gap:0.75rem;padding:0.75rem;background:rgba(245,158,11,0.06);border:1px solid rgba(245,158,11,0.15);border-radius:10px;">
+                        <div style="color:#FBBF24;font-weight:900;width:24px;flex-shrink:0;font-family:'Fira Code';">2</div>
+                        <div class="rtl-block" style="font-size:0.88rem;"><strong style="color:#FBBF24;">Wait (DIFS):</strong> انتظر فترة ثابتة حتى بعد ما الهواء يتفرغ</div>
+                    </div>
+                    <div style="display:flex;align-items:flex-start;gap:0.75rem;padding:0.75rem;background:rgba(245,158,11,0.06);border:1px solid rgba(245,158,11,0.15);border-radius:10px;">
+                        <div style="color:#FBBF24;font-weight:900;width:24px;flex-shrink:0;font-family:'Fira Code';">3</div>
+                        <div class="rtl-block" style="font-size:0.88rem;"><strong style="color:#FBBF24;">Backoff:</strong> اختر وقت عشوائي (Contention Window) وانتظره</div>
+                    </div>
+                    <div style="display:flex;align-items:flex-start;gap:0.75rem;padding:0.75rem;background:rgba(16,185,129,0.06);border:1px solid rgba(16,185,129,0.15);border-radius:10px;">
+                        <div style="color:#34D399;font-weight:900;width:24px;flex-shrink:0;font-family:'Fira Code';">4</div>
+                        <div class="rtl-block" style="font-size:0.88rem;"><strong style="color:#34D399;">Send + ACK:</strong> لو الهواء لسه فاضي → ابعت. المستقبل بيرد بـ ACK للتأكيد</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- WiFi Generations -->
+    <section class="lesson-section alt-bg">
+        <div class="section-inner">
+            <div class="section-header" data-aos="fade-up">
+                <h2><i class="fas fa-signal" style="color:#34D399;margin-left:0.5rem;"></i> أجيال WiFi</h2>
+                <p class="en-sub">From 802.11b (1999) to WiFi 7 (2024)</p>
+            </div>
+            <div class="wifi-gen" data-aos="fade-up" data-aos-delay="100">
+                <div class="wg-card" style="border-color:rgba(100,116,139,0.3);">
+                    <div class="wg-gen" style="background:rgba(100,116,139,0.2);color:#94A3B8;">WiFi 1</div>
+                    <div class="wg-std" style="color:#94A3B8;">802.11b</div>
+                    <div class="wg-speed" style="color:#64748B;">11 Mbps</div>
+                    <div class="wg-detail">1999 — أول WiFi شائع. 2.4 GHz فقط.</div>
+                </div>
+                <div class="wg-card" style="border-color:rgba(100,116,139,0.2);">
+                    <div class="wg-gen" style="background:rgba(100,116,139,0.15);color:#94A3B8;">WiFi 2</div>
+                    <div class="wg-std" style="color:#94A3B8;">802.11a</div>
+                    <div class="wg-speed" style="color:#64748B;">54 Mbps</div>
+                    <div class="wg-detail">1999 — 5 GHz. أسرع بس مدى أقل.</div>
+                </div>
+                <div class="wg-card" style="border-color:rgba(251,191,36,0.2);">
+                    <div class="wg-gen" style="background:rgba(251,191,36,0.1);color:#FBBF24;">WiFi 3</div>
+                    <div class="wg-std" style="color:#FBBF24;">802.11g</div>
+                    <div class="wg-speed" style="color:#FBBF24;">54 Mbps</div>
+                    <div class="wg-detail">2003 — 2.4 GHz. الأشيع في بيوت مصر 2005–2012.</div>
+                </div>
+                <div class="wg-card" style="border-color:rgba(245,158,11,0.3);">
+                    <div class="wg-gen" style="background:rgba(245,158,11,0.15);color:#F59E0B;">WiFi 4</div>
+                    <div class="wg-std" style="color:#F59E0B;">802.11n</div>
+                    <div class="wg-speed" style="color:#F59E0B;">600 Mbps</div>
+                    <div class="wg-detail">2009 — Dual Band. MIMO. أول WiFi سريع حقيقي.</div>
+                </div>
+                <div class="wg-card" style="border-color:rgba(16,185,129,0.3);">
+                    <div class="wg-gen" style="background:rgba(16,185,129,0.15);color:#34D399;">WiFi 5</div>
+                    <div class="wg-std" style="color:#34D399;">802.11ac</div>
+                    <div class="wg-speed" style="color:#34D399;">3.5 Gbps</div>
+                    <div class="wg-detail">2014 — 5 GHz only. MU-MIMO. الشائع حالياً.</div>
+                </div>
+                <div class="wg-card" style="border-color:rgba(139,92,246,0.4);box-shadow:0 0 20px rgba(139,92,246,0.08);">
+                    <div class="wg-gen" style="background:rgba(139,92,246,0.2);color:#A78BFA;">WiFi 6</div>
+                    <div class="wg-std" style="color:#A78BFA;">802.11ax</div>
+                    <div class="wg-speed" style="color:#A78BFA;">9.6 Gbps</div>
+                    <div class="wg-detail">2019 — 2.4+5 GHz. OFDMA. للأماكن الزحمة.</div>
+                </div>
+                <div class="wg-card" style="border-color:rgba(236,72,153,0.4);box-shadow:0 0 20px rgba(236,72,153,0.05);">
+                    <div class="wg-gen" style="background:rgba(236,72,153,0.15);color:#F472B6;">WiFi 7</div>
+                    <div class="wg-std" style="color:#F472B6;">802.11be</div>
+                    <div class="wg-speed" style="color:#F472B6;">46 Gbps</div>
+                    <div class="wg-detail">2024 — Multi-Link Operation. جاهز للـ AR/VR.</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 2.4 vs 5 GHz -->
+    <section class="lesson-section">
+        <div class="section-header" data-aos="fade-up">
+            <h2><i class="fas fa-scale-balanced" style="color:#FBBF24;margin-left:0.5rem;"></i> 2.4 GHz ضد 5 GHz</h2>
+            <p class="en-sub">The Trade-off Every WiFi User Should Understand</p>
+        </div>
+        <div class="cost-compare" data-aos="fade-up">
+            <div class="cost-card" style="border-color:rgba(251,191,36,0.3);background:rgba(251,191,36,0.04);">
+                <h5 style="color:#FBBF24;">📡 2.4 GHz</h5>
+                <div class="cost-item">✅ مدى أطول — يخترق الجدران أحسن</div>
+                <div class="cost-item">✅ أفضل في الأماكن الكبيرة</div>
+                <div class="cost-item">❌ أبطأ (نظرياً)</div>
+                <div class="cost-item">❌ أكثر ازدحاماً (Interference)</div>
+                <div class="cost-item">📌 3 قنوات غير متداخلة فقط</div>
+            </div>
+            <div class="cost-card" style="border-color:rgba(139,92,246,0.3);background:rgba(139,92,246,0.04);">
+                <h5 style="color:#A78BFA;">🚀 5 GHz</h5>
+                <div class="cost-item">✅ أسرع بكتير</div>
+                <div class="cost-item">✅ قنوات أكثر (24 قناة)</div>
+                <div class="cost-item">✅ أقل ازدحاماً</div>
+                <div class="cost-item">❌ مدى أقصر</div>
+                <div class="cost-item">❌ لا يخترق الجدران بشكل جيد</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Security -->
+    <section class="lesson-section alt-bg">
+        <div class="section-inner">
+            <div class="section-header" data-aos="fade-up">
+                <h2><i class="fas fa-shield-halved" style="color:#EF4444;margin-left:0.5rem;"></i> أمان الـ WiFi</h2>
+                <p class="en-sub">WEP → WPA → WPA2 → WPA3</p>
+            </div>
+            <div class="glass-card" style="padding:1.5rem;" data-aos="fade-up">
+                <div data-aos="fade-up" style="overflow-x:auto;">
+                    <table class="comparison-table">
+                        <thead><tr><th>المعيار</th><th>السنة</th><th>التشفير</th><th>الأمان</th><th>التوصية</th></tr></thead>
+                        <tbody>
+                            <tr><td style="font-family:'Fira Code';direction:ltr;color:#F87171;">WEP</td><td>1997</td><td>RC4 40-bit</td><td style="color:#F87171;">❌ منكسر</td><td class="rtl-block" style="color:#F87171;">لا تستخدم إطلاقاً</td></tr>
+                            <tr><td style="font-family:'Fira Code';direction:ltr;color:#FBBF24;">WPA</td><td>2003</td><td>TKIP</td><td style="color:#FBBF24;">⚠️ ضعيف</td><td class="rtl-block" style="color:#FBBF24;">قديم</td></tr>
+                            <tr><td style="font-family:'Fira Code';direction:ltr;color:#34D399;">WPA2</td><td>2004</td><td>AES-CCMP</td><td style="color:#34D399;">✅ آمن</td><td class="rtl-block" style="color:#34D399;">الحد الأدنى</td></tr>
+                            <tr><td style="font-family:'Fira Code';direction:ltr;color:#A78BFA;">WPA3</td><td>2018</td><td>SAE + AES-256</td><td style="color:#A78BFA;">⭐ الأقوى</td><td class="rtl-block" style="color:#A78BFA;">الأفضل الآن</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="warning-box" style="margin-top:1rem;">
+                    <div class="rtl-block" style="font-size:0.88rem;">⚠️ <strong>مهم:</strong> كلمة السر القوية على WPA2 لوحدها مش كفاية — المهاجم ممكن يعمل Evil Twin AP (Router وهمي). WPA3 بيحل ده بـ SAE (Simultaneous Authentication of Equals).</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="lesson-section" id="quiz">
+        <div class="section-header" data-aos="fade-up">
+            <h2><i class="fas fa-brain" style="color:#F59E0B;margin-left:0.5rem;"></i> اختبر نفسك</h2>
+        </div>
+        <div class="quiz-container" data-aos="fade-up">
+            <div class="quiz-question" id="q1">
+                <h4>ليه WiFi بيستخدم CSMA/CA مش CSMA/CD؟</h4>
+                <div class="quiz-options">
+                    <div class="quiz-option" onclick="ans(this,'q1',false)">لأن CSMA/CD أقدم</div>
+                    <div class="quiz-option" onclick="ans(this,'q1',true)">لأن الجهاز اللاسلكي مش قادر يكتشف Collision وهو بيبعت في نفس اللحظة</div>
+                    <div class="quiz-option" onclick="ans(this,'q1',false)">لأن CA أسرع</div>
+                    <div class="quiz-option" onclick="ans(this,'q1',false)">لا فرق — نفس الشيء</div>
+                </div>
+                <div class="quiz-feedback" id="fb-q1"></div>
+            </div>
+            <div class="quiz-question" id="q2">
+                <h4>Router بيتك على 5 GHz — الحوش بعيد. الحل؟</h4>
+                <div class="quiz-options">
+                    <div class="quiz-option" onclick="ans(this,'q2',false)">تشتري Router 5G جديد</div>
+                    <div class="quiz-option" onclick="ans(this,'q2',true)">تتصل بـ 2.4 GHz — مدى أطول ويخترق الجدران أحسن</div>
+                    <div class="quiz-option" onclick="ans(this,'q2',false)">تشغل VPN</div>
+                    <div class="quiz-option" onclick="ans(this,'q2',false)">تغير كلمة السر</div>
+                </div>
+                <div class="quiz-feedback" id="fb-q2"></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Unit 4 Complete -->
+    <section class="lesson-section">
+        <div class="glass-card" style="padding:2rem;text-align:center;border-color:rgba(245,158,11,0.25);margin-bottom:2rem;" data-aos="zoom-in">
+            <div style="font-size:3rem;margin-bottom:1rem;">🎓</div>
+            <h3 style="color:#FBBF24;margin-bottom:1rem;font-family:'Cairo',sans-serif;">أنهيت الوحدة الرابعة!</h3>
+            <p class="rtl-block" style="color:#CBD5E1;margin-bottom:1.5rem;">Data Link Layer — Ethernet، Switches، VLANs، Error Detection، وWiFi. الجاية: الـ Network Layer!</p>
+            <a href="../Unit5/ip_addressing.html" style="display:inline-flex;align-items:center;gap:0.75rem;padding:0.9rem 2rem;border-radius:14px;background:linear-gradient(135deg,#F59E0B,#FBBF24);color:#020617;font-weight:800;font-size:1rem;transition:all 0.3s ease;text-decoration:none;">
+                <span>الوحدة الخامسة: Network Layer</span>
+                <i class="fas fa-arrow-right"></i>
+            </a>
+        </div>
+        <div class="lesson-bottom-nav">
+            <a href="error_detection.html"><i class="fas fa-arrow-left"></i><span>Error Detection</span></a>
+            <div style="text-align:center;color:var(--text-faint);font-size:0.85rem;">Unit 4 Complete ✅</div>
+            <a href="../Unit5/ip_addressing.html"><span>Unit 5 →</span><i class="fas fa-arrow-right"></i></a>
+        </div>
+    </section>
+
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <script>
+        AOS.init({duration:800,once:true,offset:100});
+        window.addEventListener('scroll',()=>{ document.getElementById('reading-progress').style.width=(window.scrollY/(document.documentElement.scrollHeight-window.innerHeight))*100+'%'; });
+        const fb={
+            q1:{c:'✅ صح! Half Duplex في الهواء — الجهاز مش قادر يبعت ويسمع في نفس الوقت — فمش قادر يكتشف Collision.',w:'❌ غلط! السبب فيزيائي: في Wireless، الجهاز ما يقدرش يبعت ويسمع في نفس اللحظة (Half Duplex) — من ثم CA بدل CD.'},
+            q2:{c:'✅ صح! 2.4 GHz موجاته أطول — تخترق الجدران وتوصل مسافات أطول من 5 GHz.',w:'❌ غلط! المشكلة مسافة وجدران — 2.4 GHz أفضل هنا. 5 GHz أسرع لكن مدى أقصر.'}
+        };
+        function ans(el,qid,correct){ const q=document.getElementById(qid); if(q.dataset.answered)return; q.dataset.answered='true'; q.querySelectorAll('.quiz-option').forEach(o=>o.style.pointerEvents='none'); el.classList.add(correct?'correct':'wrong'); const f=document.getElementById('fb-'+qid); f.textContent=correct?fb[qid].c:fb[qid].w; f.className='quiz-feedback show '+(correct?'correct-fb':'wrong-fb'); }
+    </script>
+</body>
+</html>

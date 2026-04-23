@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Subnetting — التقسيم الشبكي | Network Mastery</title>
+    <meta name="description" content="Subnet Mask، CIDR Notation، وحاسبة Subnet تفاعلية">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&family=Inter:wght@400;500;600;700;800&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    <link href="../css/global-net.css" rel="stylesheet">
+    <style>
+        body{background:#020617;color:#E2E8F0;font-family:'Inter',sans-serif;}
+        .lesson-nav-bar{position:fixed;top:0;left:0;right:0;z-index:100;background:rgba(2,6,23,0.88);backdrop-filter:blur(20px);border-bottom:1px solid rgba(255,255,255,0.06);height:64px;display:flex;align-items:center;padding:0 1.5rem;}
+        .nav-inner{max-width:1280px;margin:0 auto;width:100%;display:flex;align-items:center;justify-content:space-between;}
+        .nav-brand{display:flex;align-items:center;gap:0.75rem;font-weight:700;}
+        .back-btn{width:36px;height:36px;border-radius:10px;background:linear-gradient(135deg,#10B981,#059669);display:flex;align-items:center;justify-content:center;color:white;font-size:0.85rem;transition:transform 0.3s;}
+        .back-btn:hover{transform:scale(1.1);}
+        .lesson-hero{position:relative;padding:8rem 1.5rem 5rem;text-align:center;overflow:hidden;}
+        .glow-orb{position:absolute;border-radius:50%;filter:blur(128px);pointer-events:none;}
+        .glow-orb-1{width:500px;height:500px;top:-10%;right:-5%;background:rgba(16,185,129,0.12);}
+        .glow-orb-2{width:400px;height:400px;bottom:-20%;left:-10%;background:rgba(5,150,105,0.06);}
+        .lesson-badge{display:inline-flex;align-items:center;gap:0.5rem;padding:0.35rem 1rem;border-radius:50px;background:rgba(30,41,59,0.6);border:1px solid rgba(255,255,255,0.08);font-family:'Fira Code',monospace;font-size:0.78rem;color:#34D399;margin-bottom:1.5rem;}
+        .dot{width:6px;height:6px;border-radius:50%;background:#10B981;animation:pulse-dot 2s ease infinite;}
+        .lesson-hero h1{font-size:clamp(2.5rem,5vw,4rem);font-weight:800;margin-bottom:1rem;}
+        .text-g{background:linear-gradient(135deg,#10B981,#34D399);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;}
+        .subtitle{font-family:'Cairo',sans-serif;font-size:1.6rem;font-weight:700;color:var(--text-muted);direction:rtl;margin-bottom:1.5rem;}
+        .desc{color:var(--text-faint);max-width:640px;margin:0 auto;font-size:1.05rem;font-family:'Cairo',sans-serif;direction:rtl;line-height:1.9;}
+
+        /* Subnet Calculator */
+        .calc-wrap{background:rgba(15,23,42,0.8);border:1px solid rgba(16,185,129,0.2);border-radius:20px;padding:2rem;}
+        .calc-input-row{display:flex;gap:0.75rem;flex-wrap:wrap;margin-bottom:1.5rem;align-items:center;}
+        .ip-input{flex:1;min-width:160px;background:rgba(0,0,0,0.3);border:1px solid rgba(16,185,129,0.2);border-radius:10px;color:#E2E8F0;font-family:'Fira Code',monospace;font-size:1rem;padding:0.6rem 0.9rem;outline:none;transition:border-color 0.3s;}
+        .ip-input:focus{border-color:#10B981;}
+        .cidr-sel{background:rgba(0,0,0,0.3);border:1px solid rgba(16,185,129,0.2);border-radius:10px;color:#34D399;font-family:'Fira Code',monospace;font-size:1rem;padding:0.6rem 0.9rem;outline:none;cursor:pointer;}
+        .calc-btn{padding:0.6rem 1.5rem;border-radius:10px;background:linear-gradient(135deg,#10B981,#059669);color:white;font-weight:700;font-family:'Cairo',sans-serif;border:none;cursor:pointer;font-size:0.95rem;transition:all 0.3s;}
+        .calc-btn:hover{opacity:0.9;transform:translateY(-1px);}
+        .calc-results{display:none;gap:0.6rem;flex-direction:column;}
+        .calc-results.show{display:flex;}
+        .calc-row{display:flex;justify-content:space-between;align-items:center;padding:0.6rem 0.75rem;background:rgba(16,185,129,0.04);border:1px solid rgba(16,185,129,0.1);border-radius:8px;}
+        .calc-key{font-family:'Cairo',sans-serif;direction:rtl;font-size:0.85rem;color:#94A3B8;}
+        .calc-val{font-family:'Fira Code',monospace;direction:ltr;font-size:0.88rem;color:#34D399;font-weight:700;}
+
+        /* Mask visual */
+        .mask-viz{display:flex;gap:3px;direction:ltr;margin:1rem 0;align-items:center;flex-wrap:wrap;}
+        .mv-bit{width:20px;height:20px;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:0.55rem;font-weight:900;font-family:'Fira Code';}
+        .mv-net{background:rgba(16,185,129,0.35);color:#34D399;}
+        .mv-host{background:rgba(30,41,59,0.6);color:#475569;}
+        .mv-sep{width:2px;height:20px;background:rgba(255,255,255,0.15);border-radius:1px;}
+
+        .lesson-bottom-nav{display:flex;justify-content:space-between;align-items:center;gap:1rem;padding:2rem 0;border-top:1px solid var(--border-subtle);margin-top:3rem;}
+        .lesson-bottom-nav a{display:flex;align-items:center;gap:0.5rem;padding:0.75rem 1.5rem;border-radius:12px;background:rgba(255,255,255,0.04);border:1px solid var(--border-subtle);transition:all 0.3s ease;font-weight:600;font-size:0.9rem;}
+        .lesson-bottom-nav a:hover{background:rgba(16,185,129,0.1);border-color:rgba(16,185,129,0.3);transform:translateY(-2px);}
+    </style>
+</head>
+<body>
+    <nav class="lesson-nav-bar">
+        <div class="nav-inner">
+            <a href="../index.html" class="nav-brand">
+                <div class="back-btn"><i class="fas fa-arrow-left"></i></div>
+                <span>Sub<span style="color:#10B981;">net</span></span>
+            </a>
+        </div>
+    </nav>
+    <div class="progress-bar-container"><div class="progress-bar-fill" id="reading-progress" style="background:linear-gradient(90deg,#10B981,#34D399);"></div></div>
+
+    <header class="lesson-hero">
+        <div class="glow-orb glow-orb-1"></div><div class="glow-orb glow-orb-2"></div>
+        <div style="position:relative;z-index:1;">
+            <div class="lesson-badge" data-aos="fade-down"><span class="dot"></span>UNIT 5 • Lesson 2</div>
+            <h1 data-aos="fade-up" data-aos-delay="150">Sub<span class="text-g">netting</span></h1>
+            <div class="subtitle" data-aos="fade-up" data-aos-delay="300">تقسيم الشبكات — المهارة الأساسية</div>
+            <p class="desc" data-aos="fade-up" data-aos-delay="450">شركة طلبت /8 Subnet يعني 16 مليون IP لأنها ما بتعرفش Subnetting. نتيجة: حجزت موارد تستحق مليارات. Subnetting = توفير.</p>
+        </div>
+    </header>
+
+    <!-- What is Subnetting -->
+    <section class="lesson-section">
+        <div class="section-header" data-aos="fade-up">
+            <h2><i class="fas fa-scissors" style="color:#10B981;margin-left:0.5rem;"></i> ليه نقسم الشبكات؟</h2>
+            <p class="en-sub">Four Reasons Every Network Engineer Must Know</p>
+        </div>
+        <div class="glass-card" style="padding:1.8rem;" data-aos="fade-up">
+            <div class="problem-grid" style="margin:0;">
+                <div class="solution-card" style="border-color:rgba(16,185,129,0.2);">
+                    <div class="icon" style="background:rgba(16,185,129,0.1);color:#34D399;">🔒</div>
+                    <h4>الأمان</h4>
+                    <p class="rtl-block" style="font-size:0.85rem;">الـ Finance Subnet منعزلة عن الـ HR Subnet. Breach في  قسم لا ينتشر للتاني.</p>
+                </div>
+                <div class="solution-card" style="border-color:rgba(16,185,129,0.2);">
+                    <div class="icon" style="background:rgba(16,185,129,0.1);color:#34D399;">📡</div>
+                    <h4>تقليل الـ Broadcast</h4>
+                    <p class="rtl-block" style="font-size:0.85rem;">شبكة 1000 جهاز = Broadcast يوصل للكل. تقسيمها لـ 10 Subnets = كل Broadcast في 100 جهاز بس.</p>
+                </div>
+                <div class="solution-card" style="border-color:rgba(16,185,129,0.2);">
+                    <div class="icon" style="background:rgba(16,185,129,0.1);color:#34D399;">💰</div>
+                    <h4>توفير IPs</h4>
+                    <p class="rtl-block" style="font-size:0.85rem;">بدل طلب /24 (254 host) لـ 10 أجهزة — تاخد /28 (14 host). ما تبتذلش عناوين IP.</p>
+                </div>
+                <div class="solution-card" style="border-color:rgba(16,185,129,0.2);">
+                    <div class="icon" style="background:rgba(16,185,129,0.1);color:#34D399;">🏢</div>
+                    <h4>التنظيم</h4>
+                    <p class="rtl-block" style="font-size:0.85rem;">الـ IT Dept على 10.1.0.0/24، الـ HR على 10.2.0.0/24. سهل Troubleshooting وإدارة.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Subnet Mask Visual -->
+    <section class="lesson-section alt-bg">
+        <div class="section-inner">
+            <div class="section-header" data-aos="fade-up">
+                <h2><i class="fas fa-mask" style="color:#34D399;margin-left:0.5rem;"></i> الـ Subnet Mask</h2>
+                <p class="en-sub">The Mask Tells You Where Network Ends and Host Begins</p>
+            </div>
+            <div class="glass-card" style="padding:1.8rem;" data-aos="fade-up">
+                <div class="rtl-block" style="margin-bottom:1.5rem;">
+                    <p style="color:#CBD5E1;font-size:0.98rem;line-height:1.8;">الـ Subnet Mask عبارة عن 32 bit: الـ 1s بتمثّل الجزء الخاص بالـ Network، والـ 0s بتمثّل جزء الـ Host. <strong style="color:#34D399;">/24</strong> يعني أول 24 bit = Network وباقي 8 bits = Host.</p>
+                </div>
+                <div style="font-family:'Cairo',sans-serif;direction:rtl;margin-bottom:0.5rem;font-size:0.85rem;color:#94A3B8;">اضغط على الـ prefix لتغيير شكل الـ Mask:</div>
+                <div style="display:flex;gap:0.5rem;flex-wrap:wrap;margin-bottom:1rem;">
+                    <button class="sig-btn active" onclick="setMask(8)">/8</button>
+                    <button class="sig-btn" onclick="setMask(16)">/16</button>
+                    <button class="sig-btn" onclick="setMask(24)">/24</button>
+                    <button class="sig-btn" onclick="setMask(25)">/25</button>
+                    <button class="sig-btn" onclick="setMask(28)">/28</button>
+                    <button class="sig-btn" onclick="setMask(30)">/30</button>
+                </div>
+                <div class="mask-viz" id="mask-viz"></div>
+                <div id="mask-info" class="crc-demo" style="margin-top:0.75rem;font-family:'Fira Code',monospace;font-size:0.85rem;direction:ltr;"></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Interactive Subnet Calculator -->
+    <section class="lesson-section">
+        <div class="section-header" data-aos="fade-up">
+            <h2><i class="fas fa-calculator" style="color:#34D399;margin-left:0.5rem;"></i> حاسبة الـ Subnet</h2>
+            <p class="en-sub">Calculate Any Subnet in Seconds</p>
+        </div>
+        <div class="calc-wrap" data-aos="fade-up">
+            <div class="calc-input-row">
+                <input type="text" class="ip-input" id="ip-in" placeholder="192.168.1.0" value="192.168.10.0">
+                <select class="cidr-sel" id="cidr-in">
+                    <option>/8</option><option>/16</option><option>/20</option><option>/22</option>
+                    <option>/24" selected>/24</option><option>/25</option><option>/26</option>
+                    <option>/27</option><option>/28</option><option>/29</option><option>/30</option>
+                </select>
+                <button class="calc-btn" onclick="calcSubnet()">احسب</button>
+            </div>
+            <div class="calc-results" id="calc-out"></div>
+        </div>
+    </section>
+
+    <!-- VLSM quick note -->
+    <section class="lesson-section alt-bg">
+        <div class="section-inner">
+            <div class="section-header" data-aos="fade-up">
+                <h2><i class="fas fa-puzzle-piece" style="color:#A78BFA;margin-left:0.5rem;"></i> VLSM — Subnetting بالذكاء</h2>
+                <p class="en-sub">Variable Length Subnet Masking — Different Subnets, Different Sizes</p>
+            </div>
+            <div class="glass-card" style="padding:1.8rem;" data-aos="fade-up">
+                <div class="rtl-block">
+                    <p style="color:#CBD5E1;font-size:0.98rem;line-height:1.8;margin-bottom:1rem;">بدل ما كل الـ Subnets بنفس الحجم — VLSM بيخليك تعطي كل Subnet الحجم اللي يناسبه بالظبط.</p>
+                    <div style="background:rgba(0,0,0,0.3);border-radius:10px;padding:1rem;direction:ltr;font-family:'Fira Code',monospace;font-size:0.8rem;">
+                        <div style="color:#FBBF24;margin-bottom:0.3rem;">الشركة: 10.0.0.0/8</div>
+                        <div style="color:#34D399;margin-bottom:0.2rem;">├── IT (500 hosts):    10.1.0.0/23  (510 usable)</div>
+                        <div style="color:#34D399;margin-bottom:0.2rem;">├── HR (50 hosts):     10.1.2.0/26  (62 usable)</div>
+                        <div style="color:#34D399;margin-bottom:0.2rem;">├── Finance (20 hosts): 10.1.2.64/27 (30 usable)</div>
+                        <div style="color:#60A5FA;margin-bottom:0.2rem;">└── WAN Link (2 hosts): 10.1.2.96/30 (2 usable)</div>
+                    </div>
+                    <p style="color:#94A3B8;font-size:0.85rem;margin-top:0.75rem;">كل شبكة أخدت بالظبط اللي تحتاجه — ما فيش IP مضاع.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="lesson-section" id="quiz">
+        <div class="section-header" data-aos="fade-up">
+            <h2><i class="fas fa-brain" style="color:#10B981;margin-left:0.5rem;"></i> اختبر نفسك</h2>
+        </div>
+        <div class="quiz-container" data-aos="fade-up">
+            <div class="quiz-question" id="q1">
+                <h4>192.168.5.0/26 — كام host يقدر يتصل؟</h4>
+                <div class="quiz-options">
+                    <div class="quiz-option" onclick="ans(this,'q1',false)">64</div>
+                    <div class="quiz-option" onclick="ans(this,'q1',true)">62</div>
+                    <div class="quiz-option" onclick="ans(this,'q1',false)">30</div>
+                    <div class="quiz-option" onclick="ans(this,'q1',false)">126</div>
+                </div>
+                <div class="quiz-feedback" id="fb-q1"></div>
+            </div>
+            <div class="quiz-question" id="q2">
+                <h4>إيه الـ Broadcast لـ 10.1.1.0/28؟</h4>
+                <div class="quiz-options">
+                    <div class="quiz-option" onclick="ans(this,'q2',false)">10.1.1.14</div>
+                    <div class="quiz-option" onclick="ans(this,'q2',true)">10.1.1.15</div>
+                    <div class="quiz-option" onclick="ans(this,'q2',false)">10.1.1.0</div>
+                    <div class="quiz-option" onclick="ans(this,'q2',false)">10.1.1.255</div>
+                </div>
+                <div class="quiz-feedback" id="fb-q2"></div>
+            </div>
+        </div>
+    </section>
+
+    <section class="lesson-section">
+        <div class="lesson-bottom-nav">
+            <a href="ip_addressing.html"><i class="fas fa-arrow-left"></i><span>IP Addressing</span></a>
+            <div style="text-align:center;color:var(--text-faint);font-size:0.85rem;">Unit 5 • Lesson 2</div>
+            <a href="routing_basics.html"><span>Routing</span><i class="fas fa-arrow-right"></i></a>
+        </div>
+    </section>
+
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <script>
+        AOS.init({duration:800,once:true,offset:100});
+        window.addEventListener('scroll',()=>{ document.getElementById('reading-progress').style.width=(window.scrollY/(document.documentElement.scrollHeight-window.innerHeight))*100+'%'; });
+
+        let currentMask=24;
+        function setMask(n){
+            currentMask=n;
+            document.querySelectorAll('.sig-btn').forEach(b=>b.classList.remove('active'));
+            event.target.classList.add('active');
+            renderMask(n);
+        }
+        function renderMask(n){
+            const viz=document.getElementById('mask-viz');
+            viz.innerHTML='';
+            for(let i=0;i<32;i++){
+                if(i>0&&i%8===0){const s=document.createElement('div');s.className='mv-sep';viz.appendChild(s);}
+                const b=document.createElement('div');
+                b.className='mv-bit '+(i<n?'mv-net':'mv-host');
+                b.textContent=i<n?'1':'0';
+                viz.appendChild(b);
+            }
+            // Subnet info
+            const hosts=Math.pow(2,32-n)-2;
+            const nets=Math.pow(2,n>8?n-8:n);
+            const maskOctets=[];
+            for(let o=0;o<4;o++){
+                let v=0;
+                for(let b=0;b<8;b++){ if(o*8+b<n) v+=Math.pow(2,7-b); }
+                maskOctets.push(v);
+            }
+            document.getElementById('mask-info').innerHTML=
+                `<span style="color:#64748B;">Prefix:  </span><span style="color:#34D399;">/${n}</span>\n` +
+                `<span style="color:#64748B;">Mask:    </span><span style="color:#22D3EE;">${maskOctets.join('.')}</span>\n` +
+                `<span style="color:#64748B;">Hosts:   </span><span style="color:#FBBF24;">${hosts.toLocaleString()} usable</span>\n` +
+                `<span style="color:#64748B;">Subnets: </span><span style="color:#A78BFA;">${nets.toLocaleString()} (from /8 base)</span>`;
+        }
+        renderMask(24);
+
+        function calcSubnet(){
+            const ipStr=document.getElementById('ip-in').value.trim();
+            const cidrStr=document.getElementById('cidr-in').value.replace('/','');
+            const prefix=parseInt(cidrStr);
+            const parts=ipStr.split('.').map(Number);
+            if(parts.length!==4||parts.some(p=>isNaN(p)||p<0||p>255)){alert('IP غلط!');return;}
+
+            const ipNum=(parts[0]<<24)|(parts[1]<<16)|(parts[2]<<8)|parts[3];
+            const maskNum=prefix===0?0:(-1<<(32-prefix))>>>0;
+            const netNum=ipNum&maskNum;
+            const bcNum=netNum|(~maskNum>>>0);
+            const firstHost=netNum+1;
+            const lastHost=bcNum-1;
+            const hosts=Math.pow(2,32-prefix)-2;
+
+            function toIP(n){ return [(n>>>24)&255,(n>>>16)&255,(n>>>8)&255,n&255].join('.'); }
+            function toMask(n){ return toIP(n); }
+
+            const rows=[
+                ['الـ Network Address','Network ID',toIP(netNum)],
+                ['أول Host','First Usable',toIP(firstHost)],
+                ['آخر Host','Last Usable',toIP(lastHost)],
+                ['Broadcast','Broadcast',toIP(bcNum)],
+                ['Subnet Mask','Subnet Mask',toMask(maskNum)],
+                ['عدد الـ Hosts','Usable Hosts',hosts.toLocaleString()],
+                ['الـ CIDR','CIDR',`${toIP(netNum)}/${prefix}`]
+            ];
+
+            const out=document.getElementById('calc-out');
+            out.innerHTML=rows.map(([ar,en,val])=>`<div class="calc-row"><span class="calc-key">${ar} <span style="font-size:0.7rem;color:#475569;">(${en})</span></span><span class="calc-val">${val}</span></div>`).join('');
+            out.classList.add('show');
+        }
+        calcSubnet();
+
+        const fb={
+            q1:{c:'✅ صح! /26 = 2^(32-26) = 64 IPs، -2 (Network+Broadcast) = 62 Hosts.',w:'❌ /26 = 2^6 = 64 IPs. منهم -2 (Network ID + Broadcast) = 62 Hosts.'},
+            q2:{c:'✅ صح! /28 = 16 IPs per block. 10.1.1.0/28 → Network=10.1.1.0, Broadcast=10.1.1.15.',w:'❌ /28 = 16 IPs. Block: 10.1.1.0 – 10.1.1.15. الـ Broadcast = آخر عنوان = 10.1.1.15.'}
+        };
+        function ans(el,qid,correct){ const q=document.getElementById(qid); if(q.dataset.answered)return; q.dataset.answered='true'; q.querySelectorAll('.quiz-option').forEach(o=>o.style.pointerEvents='none'); el.classList.add(correct?'correct':'wrong'); const f=document.getElementById('fb-'+qid); f.textContent=correct?fb[qid].c:fb[qid].w; f.className='quiz-feedback show '+(correct?'correct-fb':'wrong-fb'); }
+    </script>
+</body>
+</html>
