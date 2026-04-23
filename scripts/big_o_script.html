@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>سكريبت الشرح - Big O Notation | تحليل التعقيد</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
+    <style>
+        *{box-sizing:border-box}
+        body{font-family:'Cairo',sans-serif;background:linear-gradient(135deg,#0a0a1a,#0f1a2e,#0a1628);min-height:100vh;margin:0;padding:2rem 1rem;color:#e0e0e0;direction:rtl}
+        .container{max-width:940px;margin:0 auto}
+        h1{text-align:center;color:#fff;font-size:2rem;margin-bottom:.5rem;text-shadow:0 0 30px rgba(245,158,11,.4)}
+        .subtitle{text-align:center;color:#64748b;font-size:.95rem;margin-bottom:2.5rem}
+        .section{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:16px;padding:1.5rem 2rem;margin-bottom:1.5rem;backdrop-filter:blur(10px);transition:all .3s}
+        .section:hover{border-color:rgba(245,158,11,.35);box-shadow:0 8px 32px rgba(245,158,11,.10);transform:translateY(-2px)}
+        .section-title{font-size:1.2rem;font-weight:700;color:#fbbf24;margin-bottom:1rem;display:flex;align-items:center;gap:.5rem;cursor:pointer;user-select:none}
+        .section-title::before{content:"🎬"}
+        .section-title .toggle-icon{margin-right:auto;margin-left:0;color:#64748b;font-size:.85rem;transition:transform .3s}
+        .script-body{overflow:hidden;transition:max-height .4s ease}
+        .script-text{font-size:1.12rem;line-height:2.2;color:#f0f4f8;background:rgba(0,0,0,.25);padding:1.2rem 1.5rem;border-radius:10px;border-right:4px solid #f59e0b}
+        .note{font-size:.92rem;color:#fbbf24;margin-top:1rem;padding:.6rem 1.1rem;background:rgba(251,191,36,.07);border-radius:8px;border-right:3px solid #fbbf24;line-height:1.8}
+        .note::before{content:"📌 ملاحظة: ";font-weight:bold}
+        .code-box{font-size:.92rem;color:#a5f3fc;margin-top:1rem;padding:1rem 1.2rem;background:rgba(0,0,0,.45);border-radius:8px;border-right:3px solid #06b6d4;line-height:1.7;direction:ltr;text-align:left;font-family:'Fira Code','Consolas',monospace;overflow-x:auto;white-space:pre-wrap}
+        .code-box::before{content:"💻 الكود: ";font-weight:bold;color:#22d3ee;display:block;direction:rtl;text-align:right;font-family:'Cairo',sans-serif;margin-bottom:.5rem;font-size:.9rem}
+        .formula-note{font-size:1.05rem;color:#d1fae5;margin-top:1rem;padding:1rem 1.2rem;background:rgba(16,185,129,.07);border-radius:8px;border-right:3px solid #10b981;line-height:1.9;direction:ltr;text-align:center}
+        .formula-note::before{content:"🔢 المعادلة: ";font-weight:bold;color:#34d399;display:block;direction:rtl;text-align:right;font-size:.95rem;margin-bottom:.5rem}
+        .law-box{font-size:.95rem;color:#e0f2fe;margin-top:1rem;padding:.8rem 1.2rem;background:rgba(59,130,246,.08);border-radius:8px;border-right:3px solid #3b82f6;line-height:1.9}
+        .law-box::before{content:"📖 القاعدة: ";font-weight:bold;color:#60a5fa;display:block;margin-bottom:.5rem}
+        .camera-cue{font-size:.85rem;color:#fca5a5;display:block;margin:.5rem 0;font-weight:bold;background:rgba(239,68,68,.1);padding:.3rem .5rem;border-radius:4px;border-right:2px solid #ef4444}
+        .vfx-cue{font-size:.85rem;color:#93c5fd;display:block;margin:.5rem 0;font-weight:bold;background:rgba(59,130,246,.1);padding:.3rem .5rem;border-radius:4px;border-right:2px solid #3b82f6}
+        .sfx-cue{font-size:.85rem;color:#d8b4fe;display:block;margin:.5rem 0;font-weight:bold;background:rgba(168,85,247,.1);padding:.3rem .5rem;border-radius:4px;border-right:2px solid #a855f7}
+        .highlight{color:#34d399;font-weight:700}
+        .hl-blue{color:#60a5fa;font-weight:700}
+        .hl-amber{color:#fbbf24;font-weight:700}
+        .hl-red{color:#f87171;font-weight:700}
+        .hl-cyan{color:#22d3ee;font-weight:700}
+        .hl-purple{color:#a78bfa;font-weight:700}
+        .english{direction:ltr;display:inline-block;font-family:'Segoe UI',sans-serif;color:#93c5fd;font-style:italic;font-weight:bold}
+        a.back-btn{display:inline-flex;align-items:center;gap:.5rem;margin-bottom:2rem;padding:.7rem 1.4rem;background:rgba(245,158,11,.1);border:1px solid rgba(245,158,11,.3);border-radius:8px;color:#fbbf24;text-decoration:none;font-size:.9rem;transition:all .3s}
+        a.back-btn:hover{background:rgba(245,158,11,.25);color:#fff}
+        .section-divider{text-align:center;color:#475569;font-size:.8rem;margin:1rem 0 1.5rem;letter-spacing:.1em}
+        .section-divider::before,.section-divider::after{content:" ── "}
+        .term-def{background:rgba(139,92,246,.08);border-right:3px solid #8b5cf6;padding:.5rem 1rem;border-radius:6px;margin:.5rem 0;font-size:.95rem;line-height:1.8}
+        .term-def strong{color:#c4b5fd}
+        .complexity-card{margin:.8rem 0;padding:1rem 1.2rem;border-radius:10px;line-height:1.9}
+        .complexity-card.best{background:rgba(16,185,129,.06);border-right:4px solid #10b981}
+        .complexity-card.good{background:rgba(6,182,212,.06);border-right:4px solid #06b6d4}
+        .complexity-card.ok{background:rgba(59,130,246,.06);border-right:4px solid #3b82f6}
+        .complexity-card.fair{background:rgba(245,158,11,.06);border-right:4px solid #f59e0b}
+        .complexity-card.bad{background:rgba(249,115,22,.06);border-right:4px solid #f97316}
+        .complexity-card.worst{background:rgba(239,68,68,.06);border-right:4px solid #ef4444}
+        .toc{background:rgba(15,23,42,.6);border:1px solid rgba(245,158,11,.2);border-radius:12px;padding:1.2rem 1.8rem;margin-bottom:2rem}
+        .toc h3{color:#fbbf24;font-size:1rem;margin-bottom:.8rem}
+        .toc a{display:block;color:#94a3b8;text-decoration:none;padding:.25rem 0;font-size:.9rem;transition:color .2s}
+        .toc a:hover{color:#fbbf24}
+        .toc a::before{content:"• ";color:#f59e0b}
+        .comparison-table{width:100%;border-collapse:collapse;margin:.8rem 0;font-size:.9rem}
+        .comparison-table th{background:rgba(245,158,11,.1);color:#fbbf24;padding:.5rem;text-align:right;border:1px solid rgba(255,255,255,.06)}
+        .comparison-table td{padding:.5rem;border:1px solid rgba(255,255,255,.06);color:#cbd5e1}
+        .comparison-table tr:hover{background:rgba(255,255,255,.02)}
+    </style>
+</head>
+<body>
+<div class="container">
+    <a href="binary_search_script.html" class="back-btn"><i class="fas fa-arrow-right"></i> الدرس السابق</a>
+    <a href="../index.html" class="back-btn" style="margin-right:.75rem"><i class="fas fa-home"></i> الصفحة الرئيسية</a>
+    <h1>📜 سكريبت الشرح — Big O Notation</h1>
+    <p class="subtitle">تحليل التعقيد · الأسبوع الأول · الدرس التاني</p>
+
+    <!-- TOC -->
+    <div class="toc">
+        <h3>📋 محتويات السكريبت</h3>
+        <a href="#hook">الهوك: سباق مستحيل بين حمامة وانترنت</a>
+        <a href="#what">يعني إيه أصلا Big O؟</a>
+        <a href="#worst">ليه دايماً أسوأ الاحتمالات؟</a>
+        <a href="#classes">عائلات التعقيد الستة — وحوش الكود</a>
+        <a href="#battle">الجدول المرعب: لما الأرقام بتعض</a>
+        <a href="#tips">إزاي تقرأ الكود وتعرف التعقيد؟</a>
+        <a href="#outro">الختام</a>
+    </div>
+
+    <!-- ═══════ HOOK ═══════ -->
+    <div class="section-divider" id="hook">الهوك</div>
+    <div class="section"><div class="section-title" onclick="toggleSection(this)">سباق غريب: حمامة زاجل ضد إنترنت ألياف بصرية<span class="toggle-icon"><i class="fas fa-chevron-down"></i></span></div><div class="script-body"><div class="script-text">
+        <span class="camera-cue">🎥 [بتبص للكاميرا بتعجب، بتميل راسك كأنك بتسمع نكتة]</span>
+        <span class="sfx-cue">🔊 [SFX: صوت حمامة 🐦]</span>
+        في سنة 2009... شركة إنترنت في جنوب أفريقيا طلعت في الطالعة وقالت إن الإنترنت بتاعها سرعتة خيالية. 
+        <br><br>
+        واحد من العملاء — اللي كان متعذب بالإنترنت البطيء — قرر يعمل حاجة <strong class="hl-red">مجنونة</strong>.
+        <br><br>
+        قرر يعمل سباق. <strong class="hl-amber">بين الإنترنت... وبين حمامة زاجل!</strong>
+        <br><br>
+        <span class="vfx-cue">✨ [VFX: شاشة مقسومة — حمامة شايلة فلاش ميموري على الشمال / كابل فايبر على اليمين]</span>
+        <span class="camera-cue">🎥 [بتقرب من الكاميرا]</span>
+        العميل ده جاب فلاشة (USB) حط عليها داتا حجمها 4 جيجابايت. وربطها في رجل حمامة اسمها "وينستون". 
+        وطيّر وينستون يودي الفلاشة لمدينة تانية على بُعد 80 كيلومتر. 
+        وفي نفس اللحظة... داس "Upload" عشان يبعت نفس الـ 4 جيجا عبر الإنترنت السريع بتاع الشركة.
+        <br><br>
+        <span class="camera-cue">🎥 [بتبتسم ابتسامة ماكرة]</span>
+        <span class="sfx-cue">🔊 [SFX: موسيقى تشويق — ticking clock]</span>
+        تفتكروا مين اللي كسب؟
+        <br><br>
+        <span class="vfx-cue">✨ [VFX: كلمة "WINNER" فوق الحمامة]</span>
+        วินستون! الحمامة وينستون مش بس كسبت... دي لما وصلت وقرأت الفلاشة، كان الإنترنت يا دوب عمل Upload لـ <strong class="hl-red">4% بس</strong> من الداتا!
+        <br><br>
+        <span class="camera-cue">🎥 [بتقعد ورا مكتب]</span>
+        هتقولي إيه علاقة الحمامة دي بالبرمجة؟ هقولك علاقة وثيقة.
+        <br>لأننا النهاردة مش هنتكلم عن "السرعة" بالمعنى اللي إنت فاهمه.
+        <br>هنتكلم عن <strong class="hl-amber">إزاي السرعة بتتغير لما حجم الداتا يكبر</strong>.
+        <br><br>
+        هنتكلم عن الحاجة اللي بتفرق بين مبرمج محترف... ومبرمج الحمام السريع أسرع من الكود بتاعه.
+        <br><br>
+        <span class="vfx-cue">✨ [VFX: العنوان بيظهر زي ختم على الشاشة: "Big O Notation — القياس اللي غيّر كل حاجة"]</span>
+        <span class="sfx-cue">🔊 [SFX: Introduction Theme]</span>
+    </div></div></div>
+
+    <!-- ═══════ WHAT ═══════ -->
+    <div class="section-divider" id="what">المفهوم</div>
+    <div class="section"><div class="section-title" onclick="toggleSection(this)">يعني إيه Big O بالظبط؟ ולيه مش بالثانية؟<span class="toggle-icon"><i class="fas fa-chevron-down"></i></span></div><div class="script-body"><div class="script-text">
+        <span class="camera-cue">🎥 [بتمشي وتتكلم بإيدك]</span>
+        لو سألتك سؤال: السكريبت ده بياخد كام ثانية؟ هتقولي والله على حسابات اللابتوب بتاعي بياخد كذا.
+        <br>بس أنا لو شغلته على سيرفرات جوجل المُرعبة... ممكن ياخد كسر من الملي ثانية.
+        <br>ولو شغلته على تليفون أبو قرص قديم... هياخد سنة ونصف.
+        <br><br>
+        <span class="hl-amber">استحالة نقيس سرعة الكود بـ "الثواني". لأن الثواني بتعتمد على "الهاردوير".</span>
+        <br><br>
+        <strong class="hl-cyan">إحنا كـ "هندسة" محتاجين مقياس مُحايد.</strong>
+        مقياس بيعتمد على المُعادلات الرياضية، مش على نوع المعالج بتاعك.
+        <br><br>
+        <span class="vfx-cue">✨ [VFX: حرف O كبير بيظهر وفيه كود شغال جواه]</span>
+        هنا جي <strong class="hl-blue"><span class="english">Big O Notation</span></strong>.
+        <br><br>
+        الـ Big O دي أداة رياضية بتجاوب على سؤال واحد بس:
+        <strong class="highlight" style="font-size:1.2rem">"لما حجم الداتا يعلى ويكبر جداً... الكود ده هيهنّج ويفطس في قد ايه؟"</strong>
+        <br><br>
+        <div class="term-def"><strong>Big O:</strong> بتوصف <strong>معدل النمو</strong> <span class="english">(Growth Rate)</span> بتاع الكود. म्हणजे لما الديك <span class="english">Input</span> أكبر... <strong>بكام ضعف الشغل بيزيد؟</strong></div>
+        <br>
+        <strong class="hl-purple">وحرف الـ "n":</strong>
+        <br>دايماً هتشوف حرف n. 
+        <br>n ده هو القلق كله. هو "حجم الداتا". لو عندك مصفوفة فيها ألف عنصر ← n = ألف. فيسبوك عنده 3 مليار مستخدم ← n = 3 مليار.
+    </div></div></div>
+
+    <!-- ═══════ WORST CASE ═══════ -->
+    <div class="section-divider" id="worst">أسوأ احتمال مقدّر</div>
+    <div class="section"><div class="section-title" onclick="toggleSection(this)">ليه دايماً متقوقعين في الـ Worst Case؟<span class="toggle-icon"><i class="fas fa-chevron-down"></i></span></div><div class="script-body"><div class="script-text">
+        <span class="camera-cue">🎥 [بتبص للكاميرا بتشاؤم مصطنع]</span>
+        لما المبرمجين بييجوا يتكلموا عن الـ Big O... دايماً بيتكلموا عن أسوأ سيناريو. 
+        <br><br>
+        <strong class="hl-red">ليه الحزن ده؟</strong>
+        <br>تخيل أنا بدور على اسم "حسين" في لستة أسامي. 
+        <br>لو حسين ده أول اسم → دي اسمها <span class="english">Best Case</span>. كود سريع ومفيش أحسن من كده.
+        <br><br>
+        بس في هندسة البرمجيات... إحنا مبنعملش حسابنا على الحظ. بنبني على إن الدنيا هتخبط فينا.
+        <br>إحنا عايزين نعرف: <strong class="hl-amber">لو حسين ده كان آخر اسم في اللستة، أو ملوش وجود أصلاً... السيرفر هياخد وقت أد ايه لحد ما يعيط؟</strong>
+        <br><br>
+        عشان كده الـ Big O بيركز دايماً على <strong class="hl-red"><span class="english">Worst Case</span> (أسوأ حالة)</strong>.
+    </div></div></div>
+
+    <!-- ═══════ CLASSES ═══════ -->
+    <div class="section-divider" id="classes">العائلات الستة</div>
+    <div class="section"><div class="section-title" onclick="toggleSection(this)">عائلات التعقيد الستة — وحوش الكود<span class="toggle-icon"><i class="fas fa-chevron-down"></i></span></div><div class="script-body"><div class="script-text">
+        <span class="camera-cue">🎥 [بتقف قدام شاشة فيها الـ 6 أنواع زي كأنهم وحوش بتتحول]</span>
+        <span class="sfx-cue">🔊 [SFX: صوت قلابات — swoosh x 6]</span>
+        عالم الخوارزميات متقسم لـ 6 عائلات. من العيلة الفخمة جداً السريعة... لحد العيلة الكارثية اللي بتخرّب أي حاجة تمسكها. 
+        <br>تعالوا نتعرف عليهم:
+
+        <!-- O(1) -->
+        <div class="complexity-card best">
+        <strong style="color:#34d399;font-size:1.3rem">① الثائر الأسرع: <span class="english">O(1) - Constant Time</span> ⚡</strong>
+        <br><br>
+        <span class="camera-cue">🎥 [بتتكلم باستمتاع]</span>
+        ده البرنس. الداتا 10 عناصر؟ بياخد ثانية. الداتا 10 مليار عنصر؟ بياخد ثانية. <strong class="hl-cyan">الوقت مش بيكبر أصلاً. ثابت.</strong>
+        <br><br>
+        <strong class="hl-amber">التشبيه:</strong> زي ما تفتح كتاب على صفحة رقم 50. مش هتفرق الكتاب 100 صفحة ولا 10 آلاف.
+        <div class="code-box">// O(1)
+function getFirstPlayer(players) {
+    return players[0]; // عملية واحدة، مهما كان عدد الـ players
+}</div>
+        </div>
+
+        <!-- O(log n) -->
+        <div class="complexity-card good">
+        <strong style="color:#22d3ee;font-size:1.3rem">② العبقري المكّار: <span class="english">O(log n) - Logarithmic Time</span> 🚀</strong>
+        <br><br>
+        ده اللي اتكلمنا عنه الدرس اللي فات في <span class="english">Binary Search</span>. ده اللي بيقلّل الشغل للنص مع كل حركة. 
+        <br><br>
+        لو הדاتا كبرت 10 مليون ضعف... الوقت بتاعه هيزيد <strong class="hl-cyan">حاجات بسيطة جداً لا تذكر</strong>.
+        </div>
+
+        <!-- O(n) -->
+        <div class="complexity-card ok">
+        <strong style="color:#60a5fa;font-size:1.3rem">③ الموظف الملتزم: <span class="english">O(n) - Linear Time</span> 📏</strong>
+        <br><br>
+        <span class="camera-cue">🎥 [بتعمل حركة موظف بيمضي حضور وانصراف]</span>
+        ده اللي بيمشي خطوة خطوة. الداتا زادت الضعف؟ هياخد وقت الضعف. علاقة طردية كلاسيكية.
+        <br><br>
+        <strong class="hl-amber">التشبيه:</strong> راجل بيقرا كتاب صفحة صفحة.
+        <div class="code-box">// O(n)
+function search(arr, name) {
+    for (let i = 0; i < arr.length; i++) {
+        if(arr[i] === name) return true;
+    }
+}</div>
+        </div>
+
+        <!-- O(n log n) -->
+        <div class="complexity-card fair">
+        <strong style="color:#fbbf24;font-size:1.3rem">④ المدير الكُفء: <span class="english">O(n log n)</span> 📊</strong>
+        <br><br>
+        ده أحسن ما يمكن الوصول ليه لما نيجي "نرتّب" حاجات <span class="english">(Sorting)</span>. بطيء شوية عن الـ O(n)، بس أحسن بمراحل من الكوارث اللي تحت.
+        <br>أمثلة: <span class="english">Merge Sort, Quick Sort</span>.
+        </div>
+
+        <!-- O(n^2) -->
+        <div class="complexity-card bad">
+        <strong style="color:#f97316;font-size:1.3rem">⑤ الغبي المجتهد: <span class="english">O(n²) - Quadratic Time</span> 🐌</strong>
+        <br><br>
+        <span class="camera-cue">🎥 [بتمسك راسك كأنك مصدع]</span>
+        ده الكابوس الأول للمبرمجين. ده اللي بيقارن كل عنصر... بكل عنصر تاني. يعني لو عندك 100 عنصر، هيعمل 10,000 خطوة. 
+        <br>لو عندك ألف؟ <strong class="hl-red">مليون خطوة.</strong>
+        <br><br>
+        غالباً بيحصل لما تكتب <strong class="hl-amber">لوب جوه لوب (Nested Loops)</strong>.
+        <div class="code-box">// O(n²) ❌
+for(let i=0; i<arr.length; i++) {
+    for(let j=0; j<arr.length; j++) {
+        // كارثة بتطبخ هنا
+    }
+}</div>
+        </div>
+
+        <!-- O(2^n) -->
+        <div class="complexity-card worst">
+        <strong style="color:#ef4444;font-size:1.3rem">⑥ الوحش النووي: <span class="english">O(2ⁿ) - Exponential Time</span> 💥</strong>
+        <br><br>
+        <span class="camera-cue">🎥 [بتقرب من الكاميرا، وبتهمس]</span>
+        لو كودك فيه التعقيد ده... أوعدك، إن لو الداتا كبرت لـ 50 عنصر بس... الكود هيفضل شغال لحد ما <strong class="hl-red">الشمس تطفى</strong>.
+        <br>حرفياً، الرقم بيكبر لدرجة إن السنين مش هتكفي العمليات دي.
+        <br>مثال: خوارزمية بتحل مشكلة بانها تجرب <strong>كل الاحتمالات الممكنة</strong> في الكون.
+        </div>
+    </div></div></div>
+
+    <!-- ═══════ THE BATTLE/TABLE ═══════ -->
+    <div class="section-divider" id="battle">الجدول المرعب</div>
+    <div class="section"><div class="section-title" onclick="toggleSection(this)">الأرقام بتعض: الجدول اللي هيلخص كل حاجة<span class="toggle-icon"><i class="fas fa-chevron-down"></i></span></div><div class="script-body"><div class="script-text">
+        <span class="camera-cue">🎥 [بتشاور على شاشة كبيرة عليها الجدول، وبتخبط عليها بإيدك]</span>
+        <span class="sfx-cue">🔊 [SFX: خبطة قوية]</span>
+        مش مصدقني؟ كلام نظري؟ طب بص على الجدول ده.
+        <br>هفترض معاك إن الداتا <span class="english">(n) = 1,000</span>.
+        <br><br>
+        <table class="comparison-table">
+            <tr><th>عيلة الـ Big O</th><th>لما الـ n=1,000 .. الكود هيعمل كام خطوة؟</th></tr>
+            <tr><td style="color:#34d399;font-weight:bold"><span class="english">O(1)</span></td><td><strong style="color:#34d399">1 خطوة واحدة</strong></td></tr>
+            <tr><td style="color:#22d3ee;font-weight:bold"><span class="english">O(log n)</span></td><td><strong style="color:#22d3ee">10 خطوات</strong></td></tr>
+            <tr><td style="color:#60a5fa;font-weight:bold"><span class="english">O(n)</span></td><td><strong style="color:#60a5fa">1,000 خطوة</strong> (مش وحش)</td></tr>
+            <tr><td style="color:#fbbf24;font-weight:bold"><span class="english">O(n log n)</span></td><td><strong style="color:#fbbf24">10,000 خطوة</strong> (ماشي حاله)</td></tr>
+            <tr><td style="color:#f97316;font-weight:bold"><span class="english">O(n²)</span></td><td><strong style="color:#f97316">1,000,000 خطوة</strong> (بدأنا نعك!) ⚠️</td></tr>
+            <tr><td style="color:#ef4444;font-weight:bold"><span class="english">O(2ⁿ)</span></td><td><strong style="color:#ef4444">رقم فيه أكتر من 300 صفر!! الشاشة مش هتكفي!!</strong> 💀🔥</td></tr>
+        </table>
+        <br>
+        <span class="camera-cue">🎥 [بتسكت. بتبص للكاميرا.]</span>
+        وضحت الرؤية؟ اختيارك للخوارزمية ممكن يودي البروجكت في داهية.
+    </div></div></div>
+
+    <!-- ═══════ TIPS ═══════ -->
+    <div class="section-divider" id="tips">نصائح عملية</div>
+    <div class="section"><div class="section-title" onclick="toggleSection(this)">إزاي تقرأ الكود وتعرف التعقيد في ثواني؟<span class="toggle-icon"><i class="fas fa-chevron-down"></i></span></div><div class="script-body"><div class="script-text">
+        <span class="camera-cue">🎥 [بتتكلم بسرعة وثقة]</span>
+        طيب عشان منبقاش أكاديميين وبس... أول ما تبص على أي كود، إزاي تعرف التعقيد بتاعه بطرفة عين؟
+        <br><br>
+        <span class="vfx-cue">✨ [VFX: Rules popping up on screen dynamically]</span>
+        <strong class="hl-cyan">قاعدة 1:</strong> شفت <span class="english">Loop</span> واحد بيلف على الداتا؟ → <strong class="hl-blue">O(n)</strong>.
+        <br><br>
+        <strong class="hl-cyan">قاعدة 2:</strong> شفت <span class="english">Loop</span> جواه <span class="english">Loop</span>؟ → <strong class="hl-red">O(n²)</strong>.
+        <br><br>
+        <strong class="hl-cyan">قاعدة 3:</strong> شفت حاجة بتقسم الداتا للنص في كل مرة (زي Binary Search)؟ → <strong class="hl-amber">O(log n)</strong>.
+        <br><br>
+        <strong class="hl-cyan">قاعدة 4: الثوابت ملهاش لازمة:</strong> 
+        <br>يعني إيه؟ لو عندك <span class="english">Loop</span> بيلف 100 مرة بس مش بيعتمد على <span class="english">n</span> (مثلاً n زادت بس هو برضه هيلف 100 مرة) → ده <strong class="highlight">O(1)</strong> مقنع!
+        <br>طب لو عندك 2 لوب ورا بعض (مش جوه بعض)؟ يبقى <span class="english">O(2n)</span>... بس في هندسة البرمجيات بنشيل الأرقام، فبيبقى برضة <strong class="hl-blue">O(n)</strong>.
+        <br><br>
+        إحنا مبنهتمش بالتفاصيل التافهة. بنهتم بالصورة الكبيرة. بالـ <strong class="highlight">معدل الانفجار</strong> بتاع الكود!
+    </div></div></div>
+
+    <!-- ═══════ OUTRO ═══════ -->
+    <div class="section-divider" id="outro">الختام</div>
+    <div class="section"><div class="section-title" onclick="toggleSection(this)">في الحلقة القادمة... أول خوارزمية ترتيب!<span class="toggle-icon"><i class="fas fa-chevron-down"></i></span></div><div class="script-body"><div class="script-text">
+        <span class="camera-cue">🎥 [Medium Shot، باصص للكاميرا بنظرة هادية وفيها ترقب]</span>
+        <span class="sfx-cue">🔊 [SFX: Outro music starts building up]</span>
+        عرفت ليه قصة الحمامة والإنترنت مقياس مش كويس؟
+        <br>لأن الحمامة كانت هي الخوارزمية الفخمة اللي ما بتتاثرش بحجم الداتا... سرعتها وقتها كان <span class="english">O(1)</span>. لو حطيت فيها جيجا او 1000 الجيجا، الحمامة هطير في نفس الوقت المعين.
+        <br>اما الانترنت فكان <span class="english">O(n)</span>.
+        <br><br>
+        <span class="camera-cue">🎥 [بتقرب من الكاميرا]</span>
+        دلوقتي أنت معاك <strong>السلاح الجبار</strong>. أنت مبقتش بتكتب كود وبس.
+        <br>أنت بقيت قادر "تبُص" للكود وتعرف هو هيعيش ولا هيموت.
+        <br><br>
+        <span class="vfx-cue">✨ [VFX: عنوان الدرس القادم "Selection Sort"]</span>
+        الحلقة الجاية هندخل في عالم الـ <span class="english">Sorting</span>.
+        هندرس <span class="english">Selection Sort</span>... وهنشوف <span class="english">O(n²)</span> بعنينا وهو بيلهث عشان يرتبلنا شوية أرقام.
+        <br><br>
+        <strong class="hl-amber">سلام يا صديقي.</strong>
+        <br><br>
+        <span class="sfx-cue">🔊 [SFX: Whoosh + Music cuts out]</span>
+        <span class="camera-cue">🎥 [✌️ — القطع للأسود]</span>
+    </div></div></div>
+
+    <div style="text-align:center;margin-top:2rem;color:#475569;font-size:.85rem;padding-bottom:2rem">
+        Algorithms & Data Structures — الأسبوع الأول: Big O Notation · بشمهندس أسامة زينهم
+    </div>
+</div>
+<script>
+function toggleSection(t){const b=t.nextElementSibling,i=t.querySelector('.toggle-icon i'),o=b.style.maxHeight&&b.style.maxHeight!=='0px';if(o){b.style.maxHeight='0px';b.style.overflow='hidden';i.className='fas fa-chevron-left'}else{b.style.maxHeight=b.scrollHeight+500+'px';b.style.overflow='visible';i.className='fas fa-chevron-down'}}
+document.querySelectorAll('.script-body').forEach(b=>{b.style.maxHeight='none';b.style.overflow='visible'});
+document.querySelectorAll('.toc a').forEach(link=>{link.addEventListener('click',e=>{e.preventDefault();const target=document.querySelector(link.getAttribute('href'));if(target)target.scrollIntoView({behavior:'smooth',block:'start'})})});
+</script>
+</body>
+</html>

@@ -1,0 +1,663 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Network Mastery — إتقان الشبكات</title>
+    <meta name="description" content="منصة تعليمية تفاعلية لتعلم الشبكات من الصفر حتى الاحتراف. تعلم OSI, TCP/IP, Routing, Security بالعربي المصري.">
+
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&family=Inter:wght@400;500;600;700;800&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+    <!-- Icons -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <!-- AOS Animations -->
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    <!-- Global CSS -->
+    <link href="css/global-net.css" rel="stylesheet">
+
+    <style>
+        body {
+            font-family: 'Cairo', sans-serif;
+            background: #020617;
+            color: #E2E8F0;
+        }
+
+        #particle-canvas {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        /* ── Hero ── */
+        .hero-section {
+            position: relative;
+            min-height: 60vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 8rem 1.5rem 4rem;
+            overflow: hidden;
+        }
+        .hero-title {
+            font-size: clamp(2.5rem, 6vw, 4.5rem);
+            font-weight: 800;
+            margin-bottom: 1rem;
+            line-height: 1.2;
+            font-family: 'Inter', sans-serif;
+            direction: ltr;
+            unicode-bidi: isolate;
+        }
+        .hero-subtitle {
+            font-size: clamp(1rem, 2vw, 1.3rem);
+            color: var(--text-muted);
+            max-width: 700px;
+            margin: 1rem auto 2rem;
+            line-height: 2;
+        }
+
+        /* ── Stats Bar ── */
+        .stats-bar {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            flex-wrap: wrap;
+            margin-top: 2rem;
+        }
+        .stat-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.3rem;
+        }
+        .stat-number {
+            font-family: 'Inter', sans-serif;
+            font-size: 2rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #06B6D4, #3B82F6);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            direction: ltr;
+            unicode-bidi: isolate;
+        }
+        .stat-label { font-size: 0.85rem; color: var(--text-faint); }
+
+        /* ── Units Grid ── */
+        .units-container {
+            display: grid;
+            gap: 1.5rem;
+            padding: 0;
+        }
+        @media (min-width: 1200px) {
+            .units-container { grid-template-columns: repeat(5, 1fr); }
+        }
+        @media (max-width: 1199px) and (min-width: 768px) {
+            .units-container { grid-template-columns: repeat(2, 1fr); }
+        }
+        @media (max-width: 767px) {
+            .units-container { grid-template-columns: 1fr; }
+        }
+
+        /* ── Unit Card ── */
+        .unit-card {
+            position: relative;
+            background: rgba(15, 23, 42, 0.7);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 20px;
+            padding: 1.5rem;
+            transition: all 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+            overflow: hidden;
+        }
+        .unit-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 20%; right: 20%;
+            height: 2px;
+            border-radius: 1px;
+            background: linear-gradient(90deg, transparent, var(--unit-color), transparent);
+            opacity: 0;
+            transition: opacity 0.4s ease;
+        }
+        .unit-card:hover::before { opacity: 1; }
+        .unit-card:hover {
+            border-color: rgba(255, 255, 255, 0.12);
+            transform: translateY(-6px);
+            box-shadow: 0 20px 60px -15px var(--unit-glow);
+        }
+
+        .unit-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1.2rem;
+        }
+        .unit-number {
+            width: 48px; height: 48px;
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Inter', sans-serif;
+            font-size: 1.3rem;
+            font-weight: 800;
+            color: white;
+            flex-shrink: 0;
+        }
+        .unit-info { flex: 1; }
+        .unit-title { font-size: 1.1rem; font-weight: 700; color: var(--text-primary); margin-bottom: 0.15rem; }
+        .unit-subtitle { font-size: 0.8rem; font-family: 'Inter', sans-serif; color: var(--text-faint); direction: ltr; unicode-bidi: isolate; }
+        .unit-level { font-size: 0.65rem; padding: 0.2rem 0.6rem; border-radius: 20px; font-weight: 600; display: inline-block; margin-top: 0.3rem; }
+
+        /* Lessons List */
+        .lessons-list { display: flex; flex-direction: column; gap: 0.4rem; }
+        .lesson-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.55rem 0.75rem;
+            border-radius: 10px;
+            transition: all 0.25s ease;
+            cursor: pointer;
+            text-decoration: none;
+            color: var(--text-body);
+        }
+        .lesson-item:hover {
+            background: rgba(255, 255, 255, 0.05);
+            transform: translateX(6px);
+        }
+        .lesson-icon {
+            width: 32px; height: 32px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.75rem;
+            flex-shrink: 0;
+        }
+        .lesson-text { flex: 1; }
+        .lesson-name { font-family: 'Inter', sans-serif; font-size: 0.82rem; font-weight: 600; color: var(--text-primary); direction: ltr; unicode-bidi: isolate; }
+        .lesson-desc { font-size: 0.72rem; color: var(--text-faint); margin-top: 0.1rem; }
+        .lesson-arrow { color: var(--text-ghost); font-size: 0.7rem; transition: transform 0.3s ease; }
+        .lesson-item:hover .lesson-arrow { transform: translateX(-4px); color: var(--text-muted); }
+
+        /* Per-Unit Colors */
+        .unit-1 { --unit-color: var(--unit-1); --unit-glow: var(--unit-1-glow); }
+        .unit-1 .unit-number { background: linear-gradient(135deg, var(--unit-1), var(--unit-1-dark)); }
+        .unit-1 .lesson-icon { background: rgba(6,182,212,0.1); color: var(--unit-1-light); }
+        .unit-1 .unit-level { background: rgba(6,182,212,0.15); color: var(--unit-1-light); }
+
+        .unit-2 { --unit-color: var(--unit-2); --unit-glow: var(--unit-2-glow); }
+        .unit-2 .unit-number { background: linear-gradient(135deg, var(--unit-2), var(--unit-2-dark)); }
+        .unit-2 .lesson-icon { background: rgba(59,130,246,0.1); color: var(--unit-2-light); }
+        .unit-2 .unit-level { background: rgba(59,130,246,0.15); color: var(--unit-2-light); }
+
+        .unit-3 { --unit-color: var(--unit-3); --unit-glow: var(--unit-3-glow); }
+        .unit-3 .unit-number { background: linear-gradient(135deg, var(--unit-3), var(--unit-3-dark)); }
+        .unit-3 .lesson-icon { background: rgba(139,92,246,0.1); color: var(--unit-3-light); }
+        .unit-3 .unit-level { background: rgba(139,92,246,0.15); color: var(--unit-3-light); }
+
+        .unit-4 { --unit-color: var(--unit-4); --unit-glow: var(--unit-4-glow); }
+        .unit-4 .unit-number { background: linear-gradient(135deg, var(--unit-4), var(--unit-4-dark)); }
+        .unit-4 .lesson-icon { background: rgba(245,158,11,0.1); color: var(--unit-4-light); }
+        .unit-4 .unit-level { background: rgba(245,158,11,0.15); color: var(--unit-4-light); }
+
+        .unit-5 { --unit-color: var(--unit-5); --unit-glow: var(--unit-5-glow); }
+        .unit-5 .unit-number { background: linear-gradient(135deg, var(--unit-5), var(--unit-5-dark)); }
+        .unit-5 .lesson-icon { background: rgba(16,185,129,0.1); color: var(--unit-5-light); }
+        .unit-5 .unit-level { background: rgba(16,185,129,0.15); color: var(--unit-5-light); }
+
+        .unit-6 { --unit-color: var(--unit-6); --unit-glow: var(--unit-6-glow); }
+        .unit-6 .unit-number { background: linear-gradient(135deg, var(--unit-6), var(--unit-6-dark)); }
+        .unit-6 .lesson-icon { background: rgba(239,68,68,0.1); color: var(--unit-6-light); }
+        .unit-6 .unit-level { background: rgba(239,68,68,0.15); color: var(--unit-6-light); }
+
+        .unit-7 { --unit-color: var(--unit-7); --unit-glow: var(--unit-7-glow); }
+        .unit-7 .unit-number { background: linear-gradient(135deg, var(--unit-7), var(--unit-7-dark)); }
+        .unit-7 .lesson-icon { background: rgba(249,115,22,0.1); color: var(--unit-7-light); }
+        .unit-7 .unit-level { background: rgba(249,115,22,0.15); color: var(--unit-7-light); }
+
+        .unit-8 { --unit-color: var(--unit-8); --unit-glow: var(--unit-8-glow); }
+        .unit-8 .unit-number { background: linear-gradient(135deg, var(--unit-8), var(--unit-8-dark)); }
+        .unit-8 .lesson-icon { background: rgba(236,72,153,0.1); color: var(--unit-8-light); }
+        .unit-8 .unit-level { background: rgba(236,72,153,0.15); color: var(--unit-8-light); }
+
+        .unit-9 { --unit-color: var(--unit-9); --unit-glow: var(--unit-9-glow); }
+        .unit-9 .unit-number { background: linear-gradient(135deg, var(--unit-9), var(--unit-9-dark)); }
+        .unit-9 .lesson-icon { background: rgba(20,184,166,0.1); color: var(--unit-9-light); }
+        .unit-9 .unit-level { background: rgba(20,184,166,0.15); color: var(--unit-9-light); }
+
+        .unit-10 { --unit-color: var(--unit-10); --unit-glow: var(--unit-10-glow); }
+        .unit-10 .unit-number { background: linear-gradient(135deg, var(--unit-10), var(--unit-10-dark)); }
+        .unit-10 .lesson-icon { background: rgba(217,70,239,0.1); color: var(--unit-10-light); }
+        .unit-10 .unit-level { background: rgba(217,70,239,0.15); color: var(--unit-10-light); }
+
+        /* ── Footer ── */
+        .portal-footer {
+            text-align: center;
+            padding: 3rem 1.5rem;
+            color: var(--text-ghost);
+            font-size: 0.85rem;
+            border-top: 1px solid var(--border-subtle);
+            margin-top: 4rem;
+        }
+        .portal-footer .heart { color: #EF4444; }
+
+        /* ── Network Logo ── */
+        .net-logo {
+            width: 72px; height: 72px;
+            border-radius: 20px;
+            background: linear-gradient(135deg, #06B6D4 0%, #3B82F6 50%, #8B5CF6 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8rem;
+            color: white;
+            margin: 0 auto 1.5rem;
+            box-shadow: 0 0 50px rgba(6, 182, 212, 0.35), 0 0 100px rgba(59, 130, 246, 0.15);
+            animation: logoFloat 4s ease-in-out infinite;
+        }
+        @keyframes logoFloat {
+            0%, 100% { transform: translateY(0) rotate(0deg); }
+            50% { transform: translateY(-8px) rotate(2deg); }
+        }
+
+        .platform-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.4rem 1.2rem;
+            border-radius: 50px;
+            background: rgba(6, 182, 212, 0.08);
+            border: 1px solid rgba(6, 182, 212, 0.2);
+            font-size: 0.8rem;
+            color: #22D3EE;
+            font-family: 'Fira Code', monospace;
+            direction: ltr;
+            margin-bottom: 1.5rem;
+        }
+        .badge-dot {
+            width: 6px; height: 6px;
+            border-radius: 50%;
+            background: #06B6D4;
+            animation: pulse-dot 2s ease infinite;
+        }
+    </style>
+</head>
+<body>
+    <!-- Particle Canvas -->
+    <canvas id="particle-canvas"></canvas>
+
+    <!-- Aurora Glows -->
+    <div class="aurora aurora-1"></div>
+    <div class="aurora aurora-2"></div>
+    <div class="aurora aurora-3"></div>
+
+    <!-- ═══════════════════════════════════════════ -->
+    <!-- HERO SECTION -->
+    <!-- ═══════════════════════════════════════════ -->
+    <section class="hero-section" id="hero">
+        <div style="position: relative; z-index: 1;">
+            <div class="net-logo" data-aos="zoom-in" data-aos-duration="600">
+                <i class="fas fa-network-wired"></i>
+            </div>
+            <div class="platform-badge" data-aos="fade-down" data-aos-delay="100">
+                <span class="badge-dot"></span>
+                Zero to Hero Platform — v1.0
+            </div>
+            <h1 class="hero-title" data-aos="fade-up" data-aos-delay="200">
+                <span class="text-gradient-net">Network</span> Mastery
+            </h1>
+            <p class="hero-subtitle" data-aos="fade-up" data-aos-delay="400">
+                منصة تعليمية تفاعلية لتعلم الشبكات من الصفر حتى الاحتراف.
+                <br>
+                <span style="font-family: 'Inter', sans-serif; font-size: 0.9rem; color: var(--text-faint); direction: ltr; display: inline-block;">
+                    OSI • TCP/IP • Routing • Security • CCNA Prep — Zero to Hero
+                </span>
+            </p>
+
+            <!-- Stats -->
+            <div class="stats-bar" data-aos="fade-up" data-aos-delay="600">
+                <div class="stat-item">
+                    <span class="stat-number">10</span>
+                    <span class="stat-label">وحدات</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-number">43</span>
+                    <span class="stat-label">درس تفاعلي</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-number">7</span>
+                    <span class="stat-label">أدوات تفاعلية</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-number">100+</span>
+                    <span class="stat-label">تمرين عملي</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ═══════════════════════════════════════════ -->
+    <!-- UNITS GRID -->
+    <!-- ═══════════════════════════════════════════ -->
+    <main class="container" style="position: relative; z-index: 1; padding-bottom: 2rem;">
+        <div class="units-container">
+
+            <!-- ══════════ UNIT 1 ══════════ -->
+            <div class="unit-card unit-1" data-aos="fade-up" data-aos-delay="0" id="unit-card-1">
+                <div class="unit-header">
+                    <div class="unit-number">1</div>
+                    <div class="unit-info">
+                        <div class="unit-title">عالم الشبكات</div>
+                        <div class="unit-subtitle">The World of Networks</div>
+                        <span class="unit-level">🟢 مبتدئ</span>
+                    </div>
+                </div>
+                <div class="lessons-list">
+                    <a href="Unit1/why_networks.html" class="lesson-item" id="lesson-1-1">
+                        <div class="lesson-icon"><i class="fas fa-question-circle"></i></div>
+                        <div class="lesson-text">
+                            <div class="lesson-name">Why Networks?</div>
+                            <div class="lesson-desc">ليه محتاجين شبكات؟</div>
+                        </div>
+                        <i class="fas fa-chevron-left lesson-arrow"></i>
+                    </a>
+                    <a href="Unit1/network_types.html" class="lesson-item" id="lesson-1-2">
+                        <div class="lesson-icon"><i class="fas fa-layer-group"></i></div>
+                        <div class="lesson-text">
+                            <div class="lesson-name">Network Types</div>
+                            <div class="lesson-desc">PAN → LAN → MAN → WAN</div>
+                        </div>
+                        <i class="fas fa-chevron-left lesson-arrow"></i>
+                    </a>
+                    <a href="Unit1/network_topologies.html" class="lesson-item" id="lesson-1-3">
+                        <div class="lesson-icon"><i class="fas fa-sitemap"></i></div>
+                        <div class="lesson-text">
+                            <div class="lesson-name">Topologies</div>
+                            <div class="lesson-desc">طوبولوجيا الشبكات</div>
+                        </div>
+                        <i class="fas fa-chevron-left lesson-arrow"></i>
+                    </a>
+                    <a href="Unit1/network_hardware.html" class="lesson-item" id="lesson-1-4">
+                        <div class="lesson-icon"><i class="fas fa-server"></i></div>
+                        <div class="lesson-text">
+                            <div class="lesson-name">Network Hardware</div>
+                            <div class="lesson-desc">عتاد الشبكات</div>
+                        </div>
+                        <i class="fas fa-chevron-left lesson-arrow"></i>
+                    </a>
+                    <a href="Unit1/network_history.html" class="lesson-item" id="lesson-1-5">
+                        <div class="lesson-icon"><i class="fas fa-clock-rotate-left"></i></div>
+                        <div class="lesson-text">
+                            <div class="lesson-name">Network History</div>
+                            <div class="lesson-desc">من ARPANET لحد 5G</div>
+                        </div>
+                        <i class="fas fa-chevron-left lesson-arrow"></i>
+                    </a>
+                </div>
+            </div>
+
+            <!-- ══════════ UNIT 2 ══════════ -->
+            <div class="unit-card unit-2" data-aos="fade-up" data-aos-delay="100" id="unit-card-2">
+                <div class="unit-header">
+                    <div class="unit-number">2</div>
+                    <div class="unit-info">
+                        <div class="unit-title">نماذج OSI و TCP/IP</div>
+                        <div class="unit-subtitle">Reference Models</div>
+                        <span class="unit-level">🔵 مبتدئ</span>
+                    </div>
+                </div>
+                <div class="lessons-list">
+                    <a href="Unit2/osi_model.html" class="lesson-item" id="lesson-2-1"><div class="lesson-icon"><i class="fas fa-layer-group"></i></div><div class="lesson-text"><div class="lesson-name">OSI Model</div><div class="lesson-desc">نموذج الـ 7 طبقات</div></div><i class="fas fa-chevron-left lesson-arrow"></i></a>
+                    <a href="Unit2/tcp_ip_model.html" class="lesson-item" id="lesson-2-2"><div class="lesson-icon"><i class="fas fa-network-wired"></i></div><div class="lesson-text"><div class="lesson-name">TCP/IP Model</div><div class="lesson-desc">النموذج العملي</div></div><i class="fas fa-chevron-left lesson-arrow"></i></a>
+                    <a href="Unit2/encapsulation.html" class="lesson-item" id="lesson-2-3"><div class="lesson-icon"><i class="fas fa-box"></i></div><div class="lesson-text"><div class="lesson-name">Encapsulation</div><div class="lesson-desc">التغليف وإزالة التغليف</div></div><i class="fas fa-chevron-left lesson-arrow"></i></a>
+                    <a href="Unit2/protocols_intro.html" class="lesson-item" id="lesson-2-4"><div class="lesson-icon"><i class="fas fa-handshake"></i></div><div class="lesson-text"><div class="lesson-name">Protocols Intro</div><div class="lesson-desc">مقدمة في البروتوكولات</div></div><i class="fas fa-chevron-left lesson-arrow"></i></a>
+                    <a href="Unit2/addressing_basics.html" class="lesson-item" id="lesson-2-5"><div class="lesson-icon"><i class="fas fa-address-card"></i></div><div class="lesson-text"><div class="lesson-name">Addressing Basics</div><div class="lesson-desc">أساسيات العناوين</div></div><i class="fas fa-chevron-left lesson-arrow"></i></a>
+                </div>
+            </div>
+
+            <!-- ══════════ UNIT 3 ══════════ -->
+            <div class="unit-card unit-3" data-aos="fade-up" data-aos-delay="200" id="unit-card-3">
+                <div class="unit-header">
+                    <div class="unit-number">3</div>
+                    <div class="unit-info">
+                        <div class="unit-title">الطبقة الفيزيائية</div>
+                        <div class="unit-subtitle">Physical Layer</div>
+                        <span class="unit-level">🟣 مبتدئ ← متوسط</span>
+                    </div>
+                </div>
+                <div class="lessons-list">
+                    <a href="Unit3/transmission_media.html" class="lesson-item" id="lesson-3-1"><div class="lesson-icon"><i class="fas fa-plug"></i></div><div class="lesson-text"><div class="lesson-name">Transmission Media</div><div class="lesson-desc">وسائط النقل</div></div><i class="fas fa-chevron-left lesson-arrow"></i></a>
+                    <a href="Unit3/signal_encoding.html" class="lesson-item" id="lesson-3-2"><div class="lesson-icon"><i class="fas fa-wave-square"></i></div><div class="lesson-text"><div class="lesson-name">Signal Encoding</div><div class="lesson-desc">الإشارات والترميز</div></div><i class="fas fa-chevron-left lesson-arrow"></i></a>
+                    <a href="Unit3/multiplexing.html" class="lesson-item" id="lesson-3-3"><div class="lesson-icon"><i class="fas fa-code-branch"></i></div><div class="lesson-text"><div class="lesson-name">Multiplexing</div><div class="lesson-desc">المضاعفة</div></div><i class="fas fa-chevron-left lesson-arrow"></i></a>
+                    <a href="Unit3/switching_transmission.html" class="lesson-item" id="lesson-3-4"><div class="lesson-icon"><i class="fas fa-random"></i></div><div class="lesson-text"><div class="lesson-name">Switching Types</div><div class="lesson-desc">أنواع التبديل</div></div><i class="fas fa-chevron-left lesson-arrow"></i></a>
+                </div>
+            </div>
+
+            <!-- ══════════ UNIT 4 ══════════ -->
+            <div class="unit-card unit-4" data-aos="fade-up" data-aos-delay="300" id="unit-card-4">
+                <div class="unit-header">
+                    <div class="unit-number">4</div>
+                    <div class="unit-info">
+                        <div class="unit-title">طبقة الوصول للبيانات</div>
+                        <div class="unit-subtitle">Data Link Layer</div>
+                        <span class="unit-level">🟡 متوسط</span>
+                    </div>
+                </div>
+                <div class="lessons-list">
+                    <a href="Unit4/framing_error.html" class="lesson-item" id="lesson-4-1"><div class="lesson-icon"><i class="fas fa-rectangle-list"></i></div><div class="lesson-text"><div class="lesson-name">Framing & Error</div><div class="lesson-desc">التأطير واكتشاف الأخطاء</div></div><i class="fas fa-chevron-left lesson-arrow"></i></a>
+                    <a href="Unit4/mac_addresses.html" class="lesson-item" id="lesson-4-2"><div class="lesson-icon"><i class="fas fa-fingerprint"></i></div><div class="lesson-text"><div class="lesson-name">MAC & Ethernet</div><div class="lesson-desc">عناوين MAC</div></div><i class="fas fa-chevron-left lesson-arrow"></i></a>
+                    <a href="Unit4/switching_vlans.html" class="lesson-item" id="lesson-4-3"><div class="lesson-icon"><i class="fas fa-object-group"></i></div><div class="lesson-text"><div class="lesson-name">Switching & VLANs</div><div class="lesson-desc">السويتش والـ VLANs</div></div><i class="fas fa-chevron-left lesson-arrow"></i></a>
+                    <a href="Unit4/spanning_tree.html" class="lesson-item" id="lesson-4-4"><div class="lesson-icon"><i class="fas fa-tree"></i></div><div class="lesson-text"><div class="lesson-name">Spanning Tree</div><div class="lesson-desc">بروتوكول STP</div></div><i class="fas fa-chevron-left lesson-arrow"></i></a>
+                    <a href="Unit4/wifi_wireless.html" class="lesson-item" id="lesson-4-5"><div class="lesson-icon"><i class="fas fa-wifi"></i></div><div class="lesson-text"><div class="lesson-name">WiFi & Wireless</div><div class="lesson-desc">الشبكات اللاسلكية</div></div><i class="fas fa-chevron-left lesson-arrow"></i></a>
+                </div>
+            </div>
+
+            <!-- ══════════ UNIT 5 ══════════ -->
+            <div class="unit-card unit-5" data-aos="fade-up" data-aos-delay="400" id="unit-card-5">
+                <div class="unit-header">
+                    <div class="unit-number">5</div>
+                    <div class="unit-info">
+                        <div class="unit-title">طبقة الشبكة</div>
+                        <div class="unit-subtitle">Network Layer</div>
+                        <span class="unit-level">🟢 متوسط — أكاديمي</span>
+                    </div>
+                </div>
+                <div class="lessons-list">
+                    <a href="Unit5/ip_addressing.html" class="lesson-item" id="lesson-5-1"><div class="lesson-icon"><i class="fas fa-map-marker-alt"></i></div><div class="lesson-text"><div class="lesson-name">IP Addressing</div><div class="lesson-desc">عناوين IP</div></div><i class="fas fa-chevron-left lesson-arrow"></i></a>
+                    <a href="Unit5/subnetting.html" class="lesson-item" id="lesson-5-2"><div class="lesson-icon"><i class="fas fa-calculator"></i></div><div class="lesson-text"><div class="lesson-name">Subnetting ⭐</div><div class="lesson-desc">التقسيم الشبكي</div></div><i class="fas fa-chevron-left lesson-arrow"></i></a>
+                    <a href="Unit5/ipv6.html" class="lesson-item" id="lesson-5-3"><div class="lesson-icon"><i class="fas fa-globe"></i></div><div class="lesson-text"><div class="lesson-name">IPv6</div><div class="lesson-desc">الجيل الجديد</div></div><i class="fas fa-chevron-left lesson-arrow"></i></a>
+                    <a href="Unit5/routing_basics.html" class="lesson-item" id="lesson-5-4"><div class="lesson-icon"><i class="fas fa-route"></i></div><div class="lesson-text"><div class="lesson-name">Routing Basics</div><div class="lesson-desc">أساسيات التوجيه</div></div><i class="fas fa-chevron-left lesson-arrow"></i></a>
+                    <a href="Unit5/routing_protocols.html" class="lesson-item" id="lesson-5-5"><div class="lesson-icon"><i class="fas fa-diagram-project"></i></div><div class="lesson-text"><div class="lesson-name">Routing Protocols</div><div class="lesson-desc">RIP, OSPF, BGP</div></div><i class="fas fa-chevron-left lesson-arrow"></i></a>
+                    <a href="Unit5/nat_dhcp.html" class="lesson-item" id="lesson-5-6"><div class="lesson-icon"><i class="fas fa-arrows-left-right"></i></div><div class="lesson-text"><div class="lesson-name">NAT & DHCP</div><div class="lesson-desc">ترجمة العناوين</div></div><i class="fas fa-chevron-left lesson-arrow"></i></a>
+                </div>
+            </div>
+
+            <!-- ══════════ UNIT 6 ══════════ -->
+            <div class="unit-card unit-6" data-aos="fade-up" data-aos-delay="0" id="unit-card-6">
+                <div class="unit-header">
+                    <div class="unit-number">6</div>
+                    <div class="unit-info">
+                        <div class="unit-title">طبقة النقل</div>
+                        <div class="unit-subtitle">Transport Layer</div>
+                        <span class="unit-level">🔴 متوسط ← متقدم</span>
+                    </div>
+                </div>
+                <div class="lessons-list">
+                    <a href="Unit6/tcp_udp.html" class="lesson-item" id="lesson-6-1"><div class="lesson-icon"><i class="fas fa-exchange-alt"></i></div><div class="lesson-text"><div class="lesson-name">TCP vs UDP</div><div class="lesson-desc">المقارنة الكبرى</div></div><i class="fas fa-chevron-left lesson-arrow"></i></a>
+                    <a href="Unit6/tcp_connection.html" class="lesson-item" id="lesson-6-2"><div class="lesson-icon"><i class="fas fa-handshake"></i></div><div class="lesson-text"><div class="lesson-name">TCP Connection</div><div class="lesson-desc">3-Way Handshake</div></div><i class="fas fa-chevron-left lesson-arrow"></i></a>
+                    <a href="Unit6/flow_congestion.html" class="lesson-item" id="lesson-6-3"><div class="lesson-icon"><i class="fas fa-sliders"></i></div><div class="lesson-text"><div class="lesson-name">Flow Control</div><div class="lesson-desc">التحكم في التدفق</div></div><i class="fas fa-chevron-left lesson-arrow"></i></a>
+                    <a href="Unit6/ports_sockets.html" class="lesson-item" id="lesson-6-4"><div class="lesson-icon"><i class="fas fa-door-open"></i></div><div class="lesson-text"><div class="lesson-name">Ports & Sockets</div><div class="lesson-desc">المنافذ والـ Sockets</div></div><i class="fas fa-chevron-left lesson-arrow"></i></a>
+                </div>
+            </div>
+
+            <!-- ══════════ UNIT 7 ══════════ -->
+            <div class="unit-card unit-7" data-aos="fade-up" data-aos-delay="100" id="unit-card-7">
+                <div class="unit-header">
+                    <div class="unit-number">7</div>
+                    <div class="unit-info">
+                        <div class="unit-title">طبقة التطبيق</div>
+                        <div class="unit-subtitle">Application Layer</div>
+                        <span class="unit-level">🟠 متوسط ← متقدم</span>
+                    </div>
+                </div>
+                <div class="lessons-list">
+                    <a href="Unit7/http_https.html" class="lesson-item" id="lesson-7-1"><div class="lesson-icon"><i class="fas fa-globe"></i></div><div class="lesson-text"><div class="lesson-name">HTTP & HTTPS</div><div class="lesson-desc">بروتوكول الويب</div></div><i class="fas fa-chevron-left lesson-arrow"></i></a>
+                    <a href="Unit7/dns.html" class="lesson-item" id="lesson-7-2"><div class="lesson-icon"><i class="fas fa-magnifying-glass"></i></div><div class="lesson-text"><div class="lesson-name">DNS</div><div class="lesson-desc">نظام أسماء النطاقات</div></div><i class="fas fa-chevron-left lesson-arrow"></i></a>
+                    <a href="Unit7/email_protocols.html" class="lesson-item" id="lesson-7-3"><div class="lesson-icon"><i class="fas fa-envelope"></i></div><div class="lesson-text"><div class="lesson-name">Email Protocols</div><div class="lesson-desc">SMTP, POP3, IMAP</div></div><i class="fas fa-chevron-left lesson-arrow"></i></a>
+                    <a href="Unit7/ftp_ssh.html" class="lesson-item" id="lesson-7-4"><div class="lesson-icon"><i class="fas fa-terminal"></i></div><div class="lesson-text"><div class="lesson-name">FTP & SSH</div><div class="lesson-desc">نقل الملفات والوصول الآمن</div></div><i class="fas fa-chevron-left lesson-arrow"></i></a>
+                    <a href="Unit7/dhcp_snmp.html" class="lesson-item" id="lesson-7-5"><div class="lesson-icon"><i class="fas fa-gear"></i></div><div class="lesson-text"><div class="lesson-name">DHCP & SNMP</div><div class="lesson-desc">إدارة الشبكة</div></div><i class="fas fa-chevron-left lesson-arrow"></i></a>
+                </div>
+            </div>
+
+            <!-- ══════════ UNIT 8 ══════════ -->
+            <div class="unit-card unit-8" data-aos="fade-up" data-aos-delay="200" id="unit-card-8">
+                <div class="unit-header">
+                    <div class="unit-number">8</div>
+                    <div class="unit-info">
+                        <div class="unit-title">أمن الشبكات</div>
+                        <div class="unit-subtitle">Network Security</div>
+                        <span class="unit-level">🌸 متقدم</span>
+                    </div>
+                </div>
+                <div class="lessons-list">
+                    <a href="Unit8/security_concepts.html" class="lesson-item" id="lesson-8-1"><div class="lesson-icon"><i class="fas fa-shield-halved"></i></div><div class="lesson-text"><div class="lesson-name">Security Concepts</div><div class="lesson-desc">مفاهيم الأمن — CIA Triad</div></div><i class="fas fa-chevron-left lesson-arrow"></i></a>
+                    <a href="Unit8/cryptography.html" class="lesson-item" id="lesson-8-2"><div class="lesson-icon"><i class="fas fa-key"></i></div><div class="lesson-text"><div class="lesson-name">Cryptography</div><div class="lesson-desc">التشفير — AES, RSA</div></div><i class="fas fa-chevron-left lesson-arrow"></i></a>
+                    <a href="Unit8/firewalls_ids.html" class="lesson-item" id="lesson-8-3"><div class="lesson-icon"><i class="fas fa-fire"></i></div><div class="lesson-text"><div class="lesson-name">Firewalls & IDS</div><div class="lesson-desc">الجدران النارية</div></div><i class="fas fa-chevron-left lesson-arrow"></i></a>
+                    <a href="Unit8/vpn_tunneling.html" class="lesson-item" id="lesson-8-4"><div class="lesson-icon"><i class="fas fa-lock"></i></div><div class="lesson-text"><div class="lesson-name">VPN & Tunneling</div><div class="lesson-desc">الشبكات الخاصة</div></div><i class="fas fa-chevron-left lesson-arrow"></i></a>
+                    <a href="Unit8/ethical_hacking.html" class="lesson-item" id="lesson-8-5"><div class="lesson-icon"><i class="fas fa-user-secret"></i></div><div class="lesson-text"><div class="lesson-name">Ethical Hacking</div><div class="lesson-desc">الاختراق الأخلاقي</div></div><i class="fas fa-chevron-left lesson-arrow"></i></a>
+                </div>
+            </div>
+
+            <!-- ══════════ UNIT 9 ══════════ -->
+            <div class="unit-card unit-9" data-aos="fade-up" data-aos-delay="300" id="unit-card-9">
+                <div class="unit-header">
+                    <div class="unit-number">9</div>
+                    <div class="unit-info">
+                        <div class="unit-title">المهارات العملية</div>
+                        <div class="unit-subtitle">Practical Networking</div>
+                        <span class="unit-level">🌿 متوسط ← متقدم</span>
+                    </div>
+                </div>
+                <div class="lessons-list">
+                    <a href="Unit9/cisco_cli.html" class="lesson-item" id="lesson-9-1"><div class="lesson-icon"><i class="fas fa-terminal"></i></div><div class="lesson-text"><div class="lesson-name">Cisco IOS CLI</div><div class="lesson-desc">محاكي سيسكو</div></div><i class="fas fa-chevron-left lesson-arrow"></i></a>
+                    <a href="Unit9/packet_analysis.html" class="lesson-item" id="lesson-9-2"><div class="lesson-icon"><i class="fas fa-magnifying-glass-chart"></i></div><div class="lesson-text"><div class="lesson-name">Packet Analysis</div><div class="lesson-desc">محاكي Wireshark</div></div><i class="fas fa-chevron-left lesson-arrow"></i></a>
+                    <a href="Unit9/network_troubleshooting.html" class="lesson-item" id="lesson-9-3"><div class="lesson-icon"><i class="fas fa-wrench"></i></div><div class="lesson-text"><div class="lesson-name">Troubleshooting</div><div class="lesson-desc">استكشاف الأخطاء</div></div><i class="fas fa-chevron-left lesson-arrow"></i></a>
+                    <a href="Unit9/network_design.html" class="lesson-item" id="lesson-9-4"><div class="lesson-icon"><i class="fas fa-drafting-compass"></i></div><div class="lesson-text"><div class="lesson-name">Network Design</div><div class="lesson-desc">تصميم الشبكات</div></div><i class="fas fa-chevron-left lesson-arrow"></i></a>
+                    <a href="Unit9/cloud_networking.html" class="lesson-item" id="lesson-9-5"><div class="lesson-icon"><i class="fas fa-cloud"></i></div><div class="lesson-text"><div class="lesson-name">Cloud Networking</div><div class="lesson-desc">الشبكات السحابية</div></div><i class="fas fa-chevron-left lesson-arrow"></i></a>
+                </div>
+            </div>
+
+            <!-- ══════════ UNIT 10 ══════════ -->
+            <div class="unit-card unit-10" data-aos="fade-up" data-aos-delay="400" id="unit-card-10">
+                <div class="unit-header">
+                    <div class="unit-number">10</div>
+                    <div class="unit-info">
+                        <div class="unit-title">الكابستون والمسار</div>
+                        <div class="unit-subtitle">Capstone & Career</div>
+                        <span class="unit-level">🏆 كل المستويات</span>
+                    </div>
+                </div>
+                <div class="lessons-list">
+                    <a href="Unit10/capstone_design.html" class="lesson-item" id="lesson-10-1"><div class="lesson-icon"><i class="fas fa-diagram-project"></i></div><div class="lesson-text"><div class="lesson-name">Capstone: Network Design</div><div class="lesson-desc">مشروع تصميم شبكة كاملة</div></div><i class="fas fa-chevron-left lesson-arrow"></i></a>
+                    <a href="Unit10/capstone_analysis.html" class="lesson-item" id="lesson-10-2"><div class="lesson-icon"><i class="fas fa-chart-pie"></i></div><div class="lesson-text"><div class="lesson-name">Capstone: Traffic Analysis</div><div class="lesson-desc">مشروع تحليل الحركة</div></div><i class="fas fa-chevron-left lesson-arrow"></i></a>
+                    <a href="Unit10/certifications.html" class="lesson-item" id="lesson-10-3"><div class="lesson-icon"><i class="fas fa-certificate"></i></div><div class="lesson-text"><div class="lesson-name">Certifications</div><div class="lesson-desc">CCNA, Network+, Cloud</div></div><i class="fas fa-chevron-left lesson-arrow"></i></a>
+                    <a href="Unit10/career_guide.html" class="lesson-item" id="lesson-10-4"><div class="lesson-icon"><i class="fas fa-briefcase"></i></div><div class="lesson-text"><div class="lesson-name">Career Guide</div><div class="lesson-desc">المسار المهني</div></div><i class="fas fa-chevron-left lesson-arrow"></i></a>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="portal-footer">
+        <p>Network Mastery — إتقان الشبكات</p>
+        <p style="margin-top: 0.5rem;">Built with <span class="heart">❤</span> for Egyptian CS Students &amp; Network Engineers</p>
+    </footer>
+
+    <!-- SCRIPTS -->
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <script>
+        AOS.init({ duration: 800, once: true, offset: 100 });
+
+        // ── Floating Particles (Cyan & Blue) ──
+        const canvas = document.getElementById('particle-canvas');
+        const ctx = canvas.getContext('2d');
+        let particles = [];
+
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+        resizeCanvas();
+        window.addEventListener('resize', resizeCanvas);
+
+        class Particle {
+            constructor() {
+                this.x = Math.random() * canvas.width;
+                this.y = Math.random() * canvas.height;
+                this.size = Math.random() * 2 + 0.5;
+                this.speedX = (Math.random() - 0.5) * 0.4;
+                this.speedY = (Math.random() - 0.5) * 0.4;
+                this.hue = Math.random() > 0.5 ? 195 : 220; // cyan=195, blue=220
+                this.opacity = Math.random() * 0.35 + 0.1;
+            }
+            update() {
+                this.x += this.speedX;
+                this.y += this.speedY;
+                if (this.x < 0 || this.x > canvas.width) this.speedX *= -1;
+                if (this.y < 0 || this.y > canvas.height) this.speedY *= -1;
+            }
+            draw() {
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fillStyle = `hsla(${this.hue}, 85%, 65%, ${this.opacity})`;
+                ctx.fill();
+            }
+        }
+
+        const particleCount = Math.min(90, Math.floor(window.innerWidth / 14));
+        for (let i = 0; i < particleCount; i++) particles.push(new Particle());
+
+        function animateParticles() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            particles.forEach(p => { p.update(); p.draw(); });
+            for (let i = 0; i < particles.length; i++) {
+                for (let j = i + 1; j < particles.length; j++) {
+                    const dx = particles[i].x - particles[j].x;
+                    const dy = particles[i].y - particles[j].y;
+                    const dist = Math.sqrt(dx * dx + dy * dy);
+                    if (dist < 130) {
+                        ctx.beginPath();
+                        ctx.strokeStyle = `rgba(6, 182, 212, ${0.06 * (1 - dist / 130)})`;
+                        ctx.lineWidth = 0.6;
+                        ctx.moveTo(particles[i].x, particles[i].y);
+                        ctx.lineTo(particles[j].x, particles[j].y);
+                        ctx.stroke();
+                    }
+                }
+            }
+            requestAnimationFrame(animateParticles);
+        }
+        animateParticles();
+
+        // ── Card Tilt Effect ──
+        document.querySelectorAll('.unit-card').forEach(card => {
+            card.addEventListener('mousemove', e => {
+                const rect = card.getBoundingClientRect();
+                const x = (e.clientX - rect.left) / rect.width - 0.5;
+                const y = (e.clientY - rect.top) / rect.height - 0.5;
+                card.style.transform = `translateY(-6px) perspective(800px) rotateX(${-y * 4}deg) rotateY(${x * 4}deg)`;
+            });
+            card.addEventListener('mouseleave', () => {
+                card.style.transform = 'translateY(0)';
+            });
+        });
+    </script>
+</body>
+</html>

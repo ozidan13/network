@@ -1,0 +1,491 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Network Topologies — طوبولوجيا الشبكات | Network Mastery</title>
+    <meta name="description" content="تعلم طوبولوجيا الشبكات: Bus, Star, Ring, Mesh, Hybrid — مع محاكي تفاعلي لترى الفرق.">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&family=Inter:wght@400;500;600;700;800&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    <link href="../css/global-net.css" rel="stylesheet">
+    <style>
+        body { background:#020617; color:#E2E8F0; font-family:'Inter',sans-serif; }
+        .lesson-nav-bar { position:fixed; top:0; left:0; right:0; z-index:100; background:rgba(2,6,23,0.85); backdrop-filter:blur(16px); border-bottom:1px solid rgba(255,255,255,0.06); height:64px; display:flex; align-items:center; padding:0 1.5rem; }
+        .nav-inner { max-width:1280px; margin:0 auto; width:100%; display:flex; align-items:center; justify-content:space-between; }
+        .nav-brand { display:flex; align-items:center; gap:0.75rem; font-weight:700; }
+        .back-btn { width:36px; height:36px; border-radius:10px; background:linear-gradient(135deg,#06B6D4,#0891B2); display:flex; align-items:center; justify-content:center; color:white; font-size:0.85rem; transition:transform 0.3s; }
+        .back-btn:hover { transform:scale(1.1); }
+        .nav-links { display:flex; gap:2rem; font-size:0.85rem; font-family:'Cairo',sans-serif; color:var(--text-faint); }
+        .nav-links a { transition:color 0.3s; direction:rtl; }
+        .nav-links a:hover { color:#22D3EE; }
+        @media(max-width:768px){.nav-links{display:none;}}
+        .lesson-hero { position:relative; padding:8rem 1.5rem 5rem; text-align:center; overflow:hidden; }
+        .glow-orb { position:absolute; border-radius:50%; filter:blur(128px); pointer-events:none; }
+        .glow-orb-1 { width:500px; height:500px; top:-10%; right:-5%; background:rgba(6,182,212,0.12); }
+        .glow-orb-2 { width:400px; height:400px; bottom:-20%; left:-10%; background:rgba(59,130,246,0.08); }
+        .lesson-badge { display:inline-flex; align-items:center; gap:0.5rem; padding:0.35rem 1rem; border-radius:50px; background:rgba(30,41,59,0.6); border:1px solid rgba(255,255,255,0.08); font-family:'Fira Code',monospace; font-size:0.78rem; color:#22D3EE; margin-bottom:1.5rem; }
+        .dot { width:6px; height:6px; border-radius:50%; background:#06B6D4; animation:pulse-dot 2s ease infinite; }
+        .lesson-hero h1 { font-size:clamp(2.5rem,5vw,4rem); font-weight:800; margin-bottom:1rem; }
+        .text-g { background:linear-gradient(135deg,#06B6D4,#3B82F6); -webkit-background-clip:text; background-clip:text; -webkit-text-fill-color:transparent; }
+        .subtitle { font-family:'Cairo',sans-serif; font-size:1.6rem; font-weight:700; color:var(--text-muted); direction:rtl; margin-bottom:1.5rem; }
+        .desc { color:var(--text-faint); max-width:600px; margin:0 auto; font-size:1rem; font-family:'Cairo',sans-serif; direction:rtl; }
+        /* Topology Simulator */
+        .topo-simulator { background:rgba(0,0,0,0.35); border:1px solid var(--border-subtle); border-radius:16px; overflow:hidden; margin:2rem 0; }
+        #topo-canvas { width:100%; display:block; }
+        .topo-controls { display:flex; justify-content:center; gap:0.75rem; padding:1rem; border-top:1px solid var(--border-subtle); flex-wrap:wrap; background:rgba(0,0,0,0.2); }
+        .topo-btn { padding:0.45rem 1rem; border-radius:8px; border:1px solid var(--border-light); background:rgba(255,255,255,0.04); color:var(--text-body); font-family:'Cairo',sans-serif; font-size:0.82rem; font-weight:600; cursor:pointer; transition:all 0.3s ease; }
+        .topo-btn:hover, .topo-btn.active { background:rgba(6,182,212,0.15); border-color:#06B6D4; color:#22D3EE; }
+        /* Topo Detail Cards */
+        .topo-details { display:grid; grid-template-columns:repeat(auto-fit,minmax(280px,1fr)); gap:1.5rem; margin:2rem 0; }
+        .topo-card { background:rgba(15,23,42,0.6); border:1px solid var(--border-subtle); border-radius:16px; padding:1.5rem; transition:all 0.3s ease; }
+        .topo-card:hover { transform:translateY(-4px); border-color:var(--border-hover); }
+        .topo-card .tc-header { display:flex; align-items:center; gap:0.75rem; margin-bottom:1rem; }
+        .topo-icon { width:40px; height:40px; border-radius:10px; display:flex; align-items:center; justify-content:center; font-size:1rem; flex-shrink:0; }
+        .topo-card h4 { font-size:1rem; color:var(--text-primary); margin-bottom:0.75rem; }
+        .pros-cons { display:flex; gap:1rem; flex-wrap:wrap; }
+        .pros, .cons { flex:1; min-width:120px; }
+        .pros h5 { color:#34D399; font-size:0.8rem; margin-bottom:0.4rem; }
+        .cons h5 { color:#F87171; font-size:0.8rem; margin-bottom:0.4rem; }
+        .pros li, .cons li { font-size:0.78rem; color:var(--text-muted); font-family:'Cairo',sans-serif; direction:rtl; margin-bottom:0.25rem; line-height:1.5; }
+        .lesson-bottom-nav { display:flex; justify-content:space-between; align-items:center; gap:1rem; padding:2rem 0; border-top:1px solid var(--border-subtle); margin-top:3rem; }
+        .lesson-bottom-nav a { display:flex; align-items:center; gap:0.5rem; padding:0.75rem 1.5rem; border-radius:12px; background:rgba(255,255,255,0.04); border:1px solid var(--border-subtle); transition:all 0.3s ease; font-weight:600; font-size:0.9rem; }
+        .lesson-bottom-nav a:hover { background:rgba(6,182,212,0.1); border-color:rgba(6,182,212,0.3); transform:translateY(-2px); }
+    </style>
+</head>
+<body>
+    <nav class="lesson-nav-bar">
+        <div class="nav-inner">
+            <a href="../index.html" class="nav-brand">
+                <div class="back-btn"><i class="fas fa-arrow-left"></i></div>
+                <span>Net<span style="color:#06B6D4;">Topo</span></span>
+            </a>
+            <div class="nav-links">
+                <a href="#intro">المقدمة</a>
+                <a href="#simulator">المحاكي</a>
+                <a href="#details">التفاصيل</a>
+                <a href="#quiz">الاختبار</a>
+            </div>
+        </div>
+    </nav>
+    <div class="progress-bar-container">
+        <div class="progress-bar-fill" id="reading-progress"></div>
+    </div>
+
+    <header class="lesson-hero" id="intro">
+        <div class="glow-orb glow-orb-1"></div>
+        <div class="glow-orb glow-orb-2"></div>
+        <div style="position:relative;z-index:1;">
+            <div class="lesson-badge" data-aos="fade-down">
+                <span class="dot"></span>
+                UNIT 1 • Lesson 3
+            </div>
+            <h1 data-aos="fade-up" data-aos-delay="150">
+                Network <span class="text-g">Topologies</span>
+            </h1>
+            <div class="subtitle" data-aos="fade-up" data-aos-delay="300">طوبولوجيا الشبكات</div>
+            <p class="desc" data-aos="fade-up" data-aos-delay="450">
+                إزاي الأجهزة بتتربط مع بعض؟ Bus؟ Star؟ Ring؟ Mesh؟ كل واحدة ليها مزايا وعيوب — خليك تعرف الفرق!
+            </p>
+        </div>
+    </header>
+
+    <!-- Hook Story -->
+    <section class="lesson-section">
+        <div class="glass-card" style="padding:2rem;" data-aos="fade-up">
+            <div class="rtl-block" style="font-size:1.05rem;">
+                <p style="color:#E2E8F0; margin-bottom:1.5rem;">
+                    تخيل عزبة فيها ناس عايزين يتكلموا مع بعض... 🏘️
+                </p>
+                <p style="color:#CBD5E1; margin-bottom:1.5rem;">
+                    ممكن يبنوا <span class="hl-cyan">خط واحد يمشي على كل البيتوت</span> — ده زي الـ <span class="english">Bus</span>.<br>
+                    أو ممكن كل بيت يتوصل <span class="hl-amber">بمركزية واحدة</span> — ده زي الـ <span class="english">Star</span>.<br>
+                    أو كل بيت متوصل بكل البيتوت التانية — ده زي الـ <span class="english">Mesh</span>.
+                </p>
+                <p style="color:#94A3B8;">
+                    الـ <span class="english">Topology</span> هي طريقة ترتيب وتوصيل الأجهزة في الشبكة. كل طريقة بتأثر على الأداء والتكلفة والموثوقية.
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Interactive Topology Simulator -->
+    <section class="lesson-section alt-bg" id="simulator">
+        <div class="section-inner">
+            <div class="section-header" data-aos="fade-up">
+                <h2><i class="fas fa-sitemap" style="color:#06B6D4; margin-left:0.5rem;"></i> محاكي الطوبولوجيا</h2>
+                <p class="en-sub">Live Topology Builder — Click to Switch!</p>
+            </div>
+            <div class="topo-simulator" data-aos="fade-up" data-aos-delay="100">
+                <canvas id="topo-canvas" height="350"></canvas>
+                <div class="topo-controls">
+                    <button class="topo-btn active" onclick="setTopo('bus')">🚌 Bus</button>
+                    <button class="topo-btn" onclick="setTopo('star')">⭐ Star</button>
+                    <button class="topo-btn" onclick="setTopo('ring')">🔄 Ring</button>
+                    <button class="topo-btn" onclick="setTopo('mesh')">🕸️ Mesh</button>
+                    <button class="topo-btn" onclick="setTopo('hybrid')">🔀 Hybrid</button>
+                    <button class="topo-btn" onclick="simulateFail()" style="border-color:#EF4444; color:#F87171;">💥 فيه عطل</button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Topology Details -->
+    <section class="lesson-section" id="details">
+        <div class="section-header" data-aos="fade-up">
+            <h2><i class="fas fa-info-circle" style="color:#3B82F6; margin-left:0.5rem;"></i> تفاصيل كل طوبولوجيا</h2>
+            <p class="en-sub">Pros & Cons of Each Topology</p>
+        </div>
+        <div class="topo-details" data-aos="fade-up" data-aos-delay="100">
+            <!-- Bus -->
+            <div class="topo-card" style="border-color:rgba(245,158,11,0.2);">
+                <div class="tc-header">
+                    <div class="topo-icon" style="background:rgba(245,158,11,0.1); color:#FBBF24;">🚌</div>
+                    <div>
+                        <h4>Bus Topology</h4>
+                        <small style="color:#FBBF24; font-family:'Fira Code',monospace;">كابل واحد لكل الأجهزة</small>
+                    </div>
+                </div>
+                <div class="rtl-block" style="font-size:0.88rem; color:var(--text-muted); margin-bottom:1rem;">
+                    كل الأجهزة متوصلة بكابل واحد مشترك. لو أي جهاز بيبعت، الكل بيسمع — بس المقصود بيه بس بياخد.
+                </div>
+                <div class="pros-cons">
+                    <div class="pros">
+                        <h5>✅ المزايا</h5>
+                        <ul><li>تكلفة منخفضة</li><li>سهل التركيب</li><li>مناسب للشبكات الصغيرة</li></ul>
+                    </div>
+                    <div class="cons">
+                        <h5>❌ العيوب</h5>
+                        <ul><li>لو الكابل اتكسر — الكل وقف</li><li>بطيء مع كثرة الأجهزة</li><li>صعب فهم المشاكل</li></ul>
+                    </div>
+                </div>
+            </div>
+            <!-- Star -->
+            <div class="topo-card" style="border-color:rgba(6,182,212,0.2);">
+                <div class="tc-header">
+                    <div class="topo-icon" style="background:rgba(6,182,212,0.1); color:#22D3EE;">⭐</div>
+                    <div>
+                        <h4>Star Topology</h4>
+                        <small style="color:#22D3EE; font-family:'Fira Code',monospace;">كل جهاز متوصل بـ Hub/Switch مركزي</small>
+                    </div>
+                </div>
+                <div class="rtl-block" style="font-size:0.88rem; color:var(--text-muted); margin-bottom:1rem;">
+                    الأشيع في الشبكات الحديثة! كل جهاز متوصل مباشرة بالـ Switch. لو جهاز وقف — الباقيين شغالين.
+                </div>
+                <div class="pros-cons">
+                    <div class="pros">
+                        <h5>✅ المزايا</h5>
+                        <ul><li>إذا جهاز وقع مش بيأثر على الكل</li><li>سهل إضافة أجهزة جديدة</li><li>سهل عزل المشاكل</li></ul>
+                    </div>
+                    <div class="cons">
+                        <h5>❌ العيوب</h5>
+                        <ul><li>لو الـ Switch وقع — الكل وقف!</li><li>محتاج كابل لكل جهاز</li></ul>
+                    </div>
+                </div>
+            </div>
+            <!-- Ring -->
+            <div class="topo-card" style="border-color:rgba(139,92,246,0.2);">
+                <div class="tc-header">
+                    <div class="topo-icon" style="background:rgba(139,92,246,0.1); color:#A78BFA;">🔄</div>
+                    <div>
+                        <h4>Ring Topology</h4>
+                        <small style="color:#A78BFA; font-family:'Fira Code',monospace;">كل جهاز متوصل بالجهازين جنبيه</small>
+                    </div>
+                </div>
+                <div class="rtl-block" style="font-size:0.88rem; color:var(--text-muted); margin-bottom:1rem;">
+                    البيانات بتدور في اتجاه واحد زي الدوري! كل جهاز بيستقبل ويبعت للجهاز الجاي.
+                </div>
+                <div class="pros-cons">
+                    <div class="pros">
+                        <h5>✅ المزايا</h5>
+                        <ul><li>مفيش تعارض في الإرسال</li><li>أداء جيد بعدد معقول من الأجهزة</li></ul>
+                    </div>
+                    <div class="cons">
+                        <h5>❌ العيوب</h5>
+                        <ul><li>لو جهاز وقع — الشبكة اتكسرت</li><li>صعب إضافة أجهزة جديدة</li></ul>
+                    </div>
+                </div>
+            </div>
+            <!-- Mesh -->
+            <div class="topo-card" style="border-color:rgba(16,185,129,0.2);">
+                <div class="tc-header">
+                    <div class="topo-icon" style="background:rgba(16,185,129,0.1); color:#34D399;">🕸️</div>
+                    <div>
+                        <h4>Mesh Topology</h4>
+                        <small style="color:#34D399; font-family:'Fira Code',monospace;">كل جهاز متوصل بكل الأجهزة</small>
+                    </div>
+                </div>
+                <div class="rtl-block" style="font-size:0.88rem; color:var(--text-muted); margin-bottom:1rem;">
+                    أعلى موثوقية — مستخدم في الإنترنت نفسه! لو طريق اتقطع، البيانات بتلاقي طريق تاني.
+                </div>
+                <div class="pros-cons">
+                    <div class="pros">
+                        <h5>✅ المزايا</h5>
+                        <ul><li>موثوقية عالية جداً</li><li>مسارات بديلة للبيانات</li><li>مفيش نقطة فشل واحدة</li></ul>
+                    </div>
+                    <div class="cons">
+                        <h5>❌ العيوب</h5>
+                        <ul><li>تكلفة عالية جداً</li><li>تركيب معقد</li></ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Quiz -->
+    <section class="lesson-section alt-bg" id="quiz">
+        <div class="section-inner">
+            <div class="section-header" data-aos="fade-up">
+                <h2><i class="fas fa-brain" style="color:#8B5CF6; margin-left:0.5rem;"></i> اختبر نفسك</h2>
+                <p class="en-sub">Topology Quiz</p>
+            </div>
+            <div class="quiz-container" data-aos="fade-up" data-aos-delay="100">
+                <div class="quiz-question" id="q1">
+                    <h4>الطوبولوجيا الأشيع في شبكات المنازل والمكاتب الحديثة هي...</h4>
+                    <div class="quiz-options">
+                        <div class="quiz-option" onclick="ans(this,'q1',false)">Bus</div>
+                        <div class="quiz-option" onclick="ans(this,'q1',true)">Star</div>
+                        <div class="quiz-option" onclick="ans(this,'q1',false)">Ring</div>
+                        <div class="quiz-option" onclick="ans(this,'q1',false)">Mesh</div>
+                    </div>
+                    <div class="quiz-feedback" id="fb-q1"></div>
+                </div>
+                <div class="quiz-question" id="q2">
+                    <h4>في الـ Bus Topology لو الكابل اتكسر — إيه اللي بيحصل؟</h4>
+                    <div class="quiz-options">
+                        <div class="quiz-option" onclick="ans(this,'q2',false)">بس الأجهزة القريبة بتوقف</div>
+                        <div class="quiz-option" onclick="ans(this,'q2',true)">كل الشبكة بتوقف</div>
+                        <div class="quiz-option" onclick="ans(this,'q2',false)">مفيش حاجة بتحصل</div>
+                        <div class="quiz-option" onclick="ans(this,'q2',false)">بس الجهازين على طرفين الكابل</div>
+                    </div>
+                    <div class="quiz-feedback" id="fb-q2"></div>
+                </div>
+                <div class="quiz-question" id="q3">
+                    <h4>الـ Mesh Topology بتُستخدم في...</h4>
+                    <div class="quiz-options">
+                        <div class="quiz-option" onclick="ans(this,'q3',false)">شبكات المنازل الصغيرة</div>
+                        <div class="quiz-option" onclick="ans(this,'q3',false)">المختبرات المدرسية</div>
+                        <div class="quiz-option" onclick="ans(this,'q3',true)">شبكة الإنترنت نفسها وشبكات المستشفيات الحيوية</div>
+                        <div class="quiz-option" onclick="ans(this,'q3',false)">الشبكات التي تحتاج لتكلفة منخفضة</div>
+                    </div>
+                    <div class="quiz-feedback" id="fb-q3"></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="lesson-section">
+        <div class="lesson-bottom-nav">
+            <a href="network_types.html"><i class="fas fa-arrow-left"></i><span>أنواع الشبكات</span></a>
+            <div style="text-align:center; color:var(--text-faint); font-size:0.85rem; font-family:'Cairo',sans-serif;">Unit 1 • Lesson 3 of 5</div>
+            <a href="network_hardware.html"><span>عتاد الشبكات</span><i class="fas fa-arrow-right"></i></a>
+        </div>
+    </section>
+
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <script>
+        AOS.init({ duration:800, once:true, offset:100 });
+        window.addEventListener('scroll', () => {
+            const pct = (window.scrollY / (document.documentElement.scrollHeight - window.innerHeight)) * 100;
+            document.getElementById('reading-progress').style.width = pct + '%';
+        });
+
+        const canvas = document.getElementById('topo-canvas');
+        const ctx = canvas.getContext('2d');
+        let currentTopo = 'bus';
+        let failNode = -1;
+        let animId = null;
+        let nodeCount = 6;
+
+        function resize() {
+            canvas.width = canvas.closest('.topo-simulator').clientWidth;
+            canvas.height = 350;
+        }
+        resize();
+        window.addEventListener('resize', () => { resize(); draw(); });
+
+        function getNodes(topo) {
+            const W = canvas.width, H = canvas.height;
+            const cx = W / 2, cy = H / 2;
+            const R = Math.min(W, H) * 0.3;
+            const nodes = [];
+            for (let i = 0; i < nodeCount; i++) {
+                const angle = (i / nodeCount) * 2 * Math.PI - Math.PI / 2;
+                nodes.push({ x: cx + R * Math.cos(angle), y: cy + R * Math.sin(angle), id: i });
+            }
+            return nodes;
+        }
+
+        function getLinks(topo, nodes) {
+            const links = [];
+            if (topo === 'bus') {
+                const bx1 = nodes[0].x * 0.1, bx2 = canvas.width * 0.9;
+                const by = canvas.height / 2;
+                nodes.forEach((n, i) => {
+                    n.x = bx1 + (i / (nodeCount - 1)) * (bx2 - bx1);
+                    n.y = canvas.height / 2 + (i % 2 === 0 ? -80 : 80);
+                    links.push({ from: { x: n.x, y: by }, to: { x: n.x, y: n.y }, bus: true });
+                });
+                links.push({ busLine: true, x1: bx1, y1: by, x2: bx2, y2: by });
+            } else if (topo === 'star') {
+                const center = { x: canvas.width / 2, y: canvas.height / 2 };
+                nodes.forEach(n => links.push({ from: center, to: n }));
+                nodes._center = center;
+            } else if (topo === 'ring') {
+                nodes.forEach((n, i) => {
+                    links.push({ from: n, to: nodes[(i + 1) % nodeCount] });
+                });
+            } else if (topo === 'mesh') {
+                for (let i = 0; i < nodeCount; i++) {
+                    for (let j = i + 1; j < nodeCount; j++) {
+                        links.push({ from: nodes[i], to: nodes[j] });
+                    }
+                }
+            } else if (topo === 'hybrid') {
+                // Star + Ring hybrid
+                const center = { x: canvas.width / 2, y: canvas.height / 2 };
+                nodes.slice(0, 3).forEach(n => links.push({ from: center, to: n }));
+                for (let i = 3; i < nodeCount; i++) {
+                    links.push({ from: nodes[i], to: nodes[(i + 1 < nodeCount) ? i + 1 : 3] });
+                }
+                links.push({ from: center, to: nodes[3] });
+                nodes._center = center;
+            }
+            return links;
+        }
+
+        function draw() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.fillStyle = 'rgba(2,6,23,0.5)';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            const nodes = getNodes(currentTopo);
+            const links = getLinks(currentTopo, nodes);
+
+            // Draw bus line first
+            links.forEach(link => {
+                if (link.busLine) {
+                    ctx.save();
+                    ctx.strokeStyle = 'rgba(245,158,11,0.7)';
+                    ctx.lineWidth = 4;
+                    ctx.shadowColor = '#F59E0B';
+                    ctx.shadowBlur = 8;
+                    ctx.beginPath();
+                    ctx.moveTo(link.x1, link.y1);
+                    ctx.lineTo(link.x2, link.y2);
+                    ctx.stroke();
+                    ctx.restore();
+                }
+            });
+
+            // Draw links
+            links.forEach(link => {
+                if (link.busLine) return;
+                const isFailedLink = failNode >= 0 && (
+                    (link.from === nodes[failNode]) || (link.to === nodes[failNode])
+                );
+                ctx.save();
+                ctx.strokeStyle = isFailedLink ? 'rgba(239,68,68,0.3)' : 'rgba(6,182,212,0.3)';
+                ctx.lineWidth = 1.5;
+                if (!isFailedLink) {
+                    ctx.shadowColor = '#06B6D4';
+                    ctx.shadowBlur = 3;
+                }
+                ctx.setLineDash(isFailedLink ? [4, 4] : []);
+                ctx.beginPath();
+                ctx.moveTo(link.from.x, link.from.y);
+                ctx.lineTo(link.to.x, link.to.y);
+                ctx.stroke();
+                ctx.restore();
+            });
+
+            // Draw center for star/hybrid
+            if (currentTopo === 'star' || currentTopo === 'hybrid') {
+                const center = { x: canvas.width / 2, y: canvas.height / 2 };
+                ctx.save();
+                ctx.shadowColor = '#06B6D4';
+                ctx.shadowBlur = 20;
+                ctx.fillStyle = 'rgba(6,182,212,0.2)';
+                ctx.strokeStyle = '#06B6D4';
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                ctx.arc(center.x, center.y, 22, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.stroke();
+                ctx.fillStyle = '#22D3EE';
+                ctx.font = "bold 10px 'Fira Code',monospace";
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText('SW', center.x, center.y);
+                ctx.restore();
+            }
+
+            // Draw nodes
+            nodes.forEach((node, i) => {
+                const isFailed = failNode === i;
+                ctx.save();
+                ctx.shadowColor = isFailed ? '#EF4444' : '#06B6D4';
+                ctx.shadowBlur = isFailed ? 20 : 12;
+                ctx.fillStyle = isFailed ? 'rgba(239,68,68,0.2)' : 'rgba(6,182,212,0.15)';
+                ctx.strokeStyle = isFailed ? '#EF4444' : '#06B6D4';
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                ctx.arc(node.x, node.y, 16, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.stroke();
+                ctx.fillStyle = isFailed ? '#F87171' : '#22D3EE';
+                ctx.font = "bold 9px 'Fira Code',monospace";
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText(isFailed ? '✗' : String.fromCharCode(65 + i), node.x, node.y);
+                ctx.restore();
+            });
+
+            // Label
+            const labels = { bus:'🚌 Bus Topology', star:'⭐ Star Topology', ring:'🔄 Ring Topology', mesh:'🕸️ Full Mesh Topology', hybrid:'🔀 Hybrid (Star+Ring)' };
+            ctx.fillStyle = 'rgba(6,182,212,0.7)';
+            ctx.font = "bold 13px 'Inter',sans-serif";
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'top';
+            ctx.fillText(labels[currentTopo] || '', canvas.width / 2, 12);
+
+            if (failNode >= 0) {
+                ctx.fillStyle = 'rgba(239,68,68,0.7)';
+                ctx.font = "bold 12px 'Cairo',sans-serif";
+                ctx.fillText('💥 جهاز ' + String.fromCharCode(65 + failNode) + ' اعطل!', canvas.width / 2, 35);
+            }
+        }
+
+        function setTopo(t) {
+            currentTopo = t;
+            failNode = -1;
+            document.querySelectorAll('.topo-btn').forEach(b => b.classList.remove('active'));
+            event.target.classList.add('active');
+            draw();
+        }
+
+        function simulateFail() {
+            failNode = Math.floor(Math.random() * nodeCount);
+            draw();
+        }
+
+        draw();
+
+        const fbs = {
+            'q1': { c:'✅ صح! Star Topology هي الأشيع دلوقتي — كل جهاز متوصل بـ Switch مركزي. واضح في كل شبكة WiFi في البيت!', w:'❌ غلط! Star Topology هي الأشيع — كل جهاز متوصل بـ Switch.' },
+            'q2': { c:'✅ صح! في Bus Topology الكابل مشترك — لو اتكسر كل الشبكة بتوقف. ده أكبر عيب فيها!', w:'❌ غلط! في Bus لو الكابل اتكسر كل الشبكة بتوقف — مش بس جزء منها.' },
+            'q3': { c:'✅ ممتاز! Mesh Topology بتستخدم في الحالات الحيوية زي الإنترنت نفسه والمستشفيات — موثوقية عالية جداً حتى لو طريق اتقطع.', w:'❌ غلط! Mesh بتستخدم في التطبيقات الحيوية — تكلفتها عالية جداً.' }
+        };
+        function ans(el, qid, correct) {
+            const q = document.getElementById(qid);
+            if (q.dataset.answered) return;
+            q.dataset.answered = 'true';
+            q.querySelectorAll('.quiz-option').forEach(o => o.style.pointerEvents = 'none');
+            el.classList.add(correct ? 'correct' : 'wrong');
+            const fb = document.getElementById('fb-' + qid);
+            fb.textContent = correct ? fbs[qid].c : fbs[qid].w;
+            fb.className = 'quiz-feedback show ' + (correct ? 'correct-fb' : 'wrong-fb');
+        }
+    </script>
+</body>
+</html>

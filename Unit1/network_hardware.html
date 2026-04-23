@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Network Hardware — عتاد الشبكات | Network Mastery</title>
+    <meta name="description" content="تعرف على أجهزة الشبكة: Hub, Switch, Router, Gateway, Firewall, Access Point — بتشرحات تفاعلية.">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&family=Inter:wght@400;500;600;700;800&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    <link href="../css/global-net.css" rel="stylesheet">
+    <style>
+        body { background:#020617; color:#E2E8F0; font-family:'Inter',sans-serif; }
+        .lesson-nav-bar { position:fixed; top:0; left:0; right:0; z-index:100; background:rgba(2,6,23,0.85); backdrop-filter:blur(16px); border-bottom:1px solid rgba(255,255,255,0.06); height:64px; display:flex; align-items:center; padding:0 1.5rem; }
+        .nav-inner { max-width:1280px; margin:0 auto; width:100%; display:flex; align-items:center; justify-content:space-between; }
+        .nav-brand { display:flex; align-items:center; gap:0.75rem; font-weight:700; }
+        .back-btn { width:36px; height:36px; border-radius:10px; background:linear-gradient(135deg,#06B6D4,#0891B2); display:flex; align-items:center; justify-content:center; color:white; font-size:0.85rem; transition:transform 0.3s; }
+        .back-btn:hover { transform:scale(1.1); }
+        .nav-links { display:flex; gap:2rem; font-size:0.85rem; font-family:'Cairo',sans-serif; color:var(--text-faint); }
+        .nav-links a { transition:color 0.3s; direction:rtl; }
+        .nav-links a:hover { color:#22D3EE; }
+        @media(max-width:768px){.nav-links{display:none;}}
+        .lesson-hero { position:relative; padding:8rem 1.5rem 5rem; text-align:center; overflow:hidden; }
+        .glow-orb { position:absolute; border-radius:50%; filter:blur(128px); pointer-events:none; }
+        .glow-orb-1 { width:500px; height:500px; top:-10%; right:-5%; background:rgba(6,182,212,0.12); }
+        .glow-orb-2 { width:400px; height:400px; bottom:-20%; left:-10%; background:rgba(59,130,246,0.08); }
+        .lesson-badge { display:inline-flex; align-items:center; gap:0.5rem; padding:0.35rem 1rem; border-radius:50px; background:rgba(30,41,59,0.6); border:1px solid rgba(255,255,255,0.08); font-family:'Fira Code',monospace; font-size:0.78rem; color:#22D3EE; margin-bottom:1.5rem; }
+        .dot { width:6px; height:6px; border-radius:50%; background:#06B6D4; animation:pulse-dot 2s ease infinite; }
+        .lesson-hero h1 { font-size:clamp(2.5rem,5vw,4rem); font-weight:800; margin-bottom:1rem; }
+        .text-g { background:linear-gradient(135deg,#06B6D4,#3B82F6); -webkit-background-clip:text; background-clip:text; -webkit-text-fill-color:transparent; }
+        .subtitle { font-family:'Cairo',sans-serif; font-size:1.6rem; font-weight:700; color:var(--text-muted); direction:rtl; margin-bottom:1.5rem; }
+        .desc { color:var(--text-faint); max-width:600px; margin:0 auto; font-size:1rem; font-family:'Cairo',sans-serif; direction:rtl; }
+        /* Device Explorer */
+        .device-explorer { display:grid; grid-template-columns:220px 1fr; gap:1.5rem; margin:2rem 0; }
+        @media(max-width:768px){.device-explorer{grid-template-columns:1fr;}}
+        .device-palette { display:flex; flex-direction:column; gap:0.5rem; }
+        .device-btn {
+            display:flex; align-items:center; gap:0.75rem;
+            padding:0.75rem 1rem; border-radius:12px;
+            background:rgba(15,23,42,0.6); border:1px solid var(--border-subtle);
+            cursor:pointer; transition:all 0.3s ease; color:var(--text-body);
+        }
+        .device-btn:hover, .device-btn.active {
+            background:rgba(6,182,212,0.1); border-color:rgba(6,182,212,0.3); color:#22D3EE;
+        }
+        .device-btn .di { width:36px; height:36px; border-radius:8px; display:flex; align-items:center; justify-content:center; font-size:1.1rem; flex-shrink:0; }
+        .device-btn .dn { font-size:0.85rem; font-weight:600; font-family:'Inter',sans-serif; }
+        .device-display {
+            background:rgba(15,23,42,0.5); border:1px solid var(--border-subtle); border-radius:16px; padding:2rem; min-height:400px;
+        }
+        .device-display h3 { font-size:1.5rem; font-weight:800; margin-bottom:0.5rem; }
+        .device-display .device-full-icon { font-size:3.5rem; margin-bottom:1rem; }
+        .osilayer-badge { display:inline-flex; align-items:center; gap:0.4rem; padding:0.3rem 0.8rem; border-radius:20px; font-size:0.75rem; font-weight:700; font-family:'Fira Code',monospace; direction:ltr; margin-bottom:1rem; }
+        .lesson-bottom-nav { display:flex; justify-content:space-between; align-items:center; gap:1rem; padding:2rem 0; border-top:1px solid var(--border-subtle); margin-top:3rem; }
+        .lesson-bottom-nav a { display:flex; align-items:center; gap:0.5rem; padding:0.75rem 1.5rem; border-radius:12px; background:rgba(255,255,255,0.04); border:1px solid var(--border-subtle); transition:all 0.3s ease; font-weight:600; font-size:0.9rem; }
+        .lesson-bottom-nav a:hover { background:rgba(6,182,212,0.1); border-color:rgba(6,182,212,0.3); transform:translateY(-2px); }
+    </style>
+</head>
+<body>
+    <nav class="lesson-nav-bar">
+        <div class="nav-inner">
+            <a href="../index.html" class="nav-brand">
+                <div class="back-btn"><i class="fas fa-arrow-left"></i></div>
+                <span>Net<span style="color:#06B6D4;">HW</span></span>
+            </a>
+            <div class="nav-links">
+                <a href="#intro">المقدمة</a>
+                <a href="#explorer">المستعرض</a>
+                <a href="#comparison">المقارنة</a>
+                <a href="#quiz">الاختبار</a>
+            </div>
+        </div>
+    </nav>
+    <div class="progress-bar-container">
+        <div class="progress-bar-fill" id="reading-progress"></div>
+    </div>
+
+    <header class="lesson-hero" id="intro">
+        <div class="glow-orb glow-orb-1"></div>
+        <div class="glow-orb glow-orb-2"></div>
+        <div style="position:relative;z-index:1;">
+            <div class="lesson-badge" data-aos="fade-down">
+                <span class="dot"></span>
+                UNIT 1 • Lesson 4
+            </div>
+            <h1 data-aos="fade-up" data-aos-delay="150">
+                Network <span class="text-g">Hardware</span>
+            </h1>
+            <div class="subtitle" data-aos="fade-up" data-aos-delay="300">عتاد الشبكات</div>
+            <p class="desc" data-aos="fade-up" data-aos-delay="450">
+                Hub, Switch, Router, Firewall — إيه اللي بيعمله كل واحد؟ اضغط على أي جهاز واتعرف عليه!
+            </p>
+        </div>
+    </header>
+
+    <!-- Analogy Hook -->
+    <section class="lesson-section">
+        <div class="glass-card" style="padding:2rem;" data-aos="fade-up">
+            <div class="rtl-block" style="font-size:1.05rem;">
+                <p style="color:#E2E8F0; margin-bottom:1rem;">خليني أوضح الفرق بمثال...</p>
+                <div class="step-box" style="border-color:#06B6D4;">
+                    <p style="color:#A5F3FC;">🎤 <strong>Hub</strong> = ميكروفون في مؤتمر — لما حد يتكلم، كل الناس تسمعه (مش مفيد!)</p>
+                </div>
+                <div class="step-box" style="border-color:#3B82F6;">
+                    <p style="color:#93C5FD;">📞 <strong>Switch</strong> = بدالة تليفونات ذكية — بيوصل المتكلم بالمستمع المحدد بس</p>
+                </div>
+                <div class="step-box" style="border-color:#10B981;">
+                    <p style="color:#6EE7B7;">🗺️ <strong>Router</strong> = باب البوابة اللي عارف الطريق للعالم الخارجي</p>
+                </div>
+                <div class="step-box" style="border-color:#EF4444;">
+                    <p style="color:#FCA5A5;">🛡️ <strong>Firewall</strong> = الحارس اللي بيمنع الدخلاء من الدخول</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Device Explorer -->
+    <section class="lesson-section alt-bg" id="explorer">
+        <div class="section-inner">
+            <div class="section-header" data-aos="fade-up">
+                <h2><i class="fas fa-desktop" style="color:#06B6D4; margin-left:0.5rem;"></i> مستعرض الأجهزة</h2>
+                <p class="en-sub">Interactive Device Explorer — Click Any Device!</p>
+            </div>
+            <div class="device-explorer" data-aos="fade-up" data-aos-delay="100">
+                <div class="device-palette">
+                    <div class="device-btn active" onclick="showDevice('hub')">
+                        <div class="di" style="background:rgba(245,158,11,0.1); color:#FBBF24;"><i class="fas fa-broadcast-tower"></i></div>
+                        <div class="dn">Hub</div>
+                    </div>
+                    <div class="device-btn" onclick="showDevice('switch')">
+                        <div class="di" style="background:rgba(6,182,212,0.1); color:#22D3EE;"><i class="fas fa-server"></i></div>
+                        <div class="dn">Switch</div>
+                    </div>
+                    <div class="device-btn" onclick="showDevice('router')">
+                        <div class="di" style="background:rgba(16,185,129,0.1); color:#34D399;"><i class="fas fa-route"></i></div>
+                        <div class="dn">Router</div>
+                    </div>
+                    <div class="device-btn" onclick="showDevice('ap')">
+                        <div class="di" style="background:rgba(139,92,246,0.1); color:#A78BFA;"><i class="fas fa-wifi"></i></div>
+                        <div class="dn">Access Point</div>
+                    </div>
+                    <div class="device-btn" onclick="showDevice('firewall')">
+                        <div class="di" style="background:rgba(239,68,68,0.1); color:#F87171;"><i class="fas fa-shield-halved"></i></div>
+                        <div class="dn">Firewall</div>
+                    </div>
+                    <div class="device-btn" onclick="showDevice('modem')">
+                        <div class="di" style="background:rgba(249,115,22,0.1); color:#FB923C;"><i class="fas fa-plug"></i></div>
+                        <div class="dn">Modem</div>
+                    </div>
+                    <div class="device-btn" onclick="showDevice('gateway')">
+                        <div class="di" style="background:rgba(236,72,153,0.1); color:#F472B6;"><i class="fas fa-door-open"></i></div>
+                        <div class="dn">Gateway</div>
+                    </div>
+                </div>
+                <div class="device-display" id="device-display">
+                    <div style="color:#22D3EE; font-size:3.5rem; margin-bottom:1rem;">📡</div>
+                    <h3 style="color:#FBBF24;">Hub</h3>
+                    <div class="osilayer-badge" style="background:rgba(245,158,11,0.1); color:#FBBF24;">
+                        <i class="fas fa-layer-group"></i> OSI Layer 1 — Physical
+                    </div>
+                    <div class="rtl-block" style="margin-bottom:1rem;">
+                        <div class="note">
+                            ⚠️ الـ Hub قديم ونادراً ما بيتستخدم دلوقتي — اتستبدل بالـ Switch.
+                        </div>
+                        <p style="color:#CBD5E1; margin-bottom:1rem;">
+                            الـ <span class="english">Hub</span> جهاز بسيط جداً — لما بياخد بيانات من جهاز، بيبعتها لكل الأجهزة المتوصلة بيه. زي الميكروفون في قاعة محاضرات!
+                        </p>
+                        <p style="color:#94A3B8;">
+                            🔴 <strong>المشكلة:</strong> كل الأجهزة بتسمع الرسالة حتى اللي مش مقصودة بيها = <span class="english">Broadcast</span> = بطيء وغير آمن.
+                        </p>
+                        <p style="color:#94A3B8; margin-top:0.5rem;">
+                            💡 المنفذ: مش بيعرف MAC Addresses — مجرد Repeater لكل البورتات.
+                        </p>
+                    </div>
+                    <div class="info-box">
+                        <strong>مثال:</strong> لو عندك Hub فيه 8 أجهزة وجهاز A بعت رسالة لجهاز B — كل الـ 7 أجهزة التانية هتستقبل الرسالة كمان! 😱
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Comparison Table -->
+    <section class="lesson-section" id="comparison">
+        <div class="section-header" data-aos="fade-up">
+            <h2><i class="fas fa-table" style="color:#3B82F6; margin-left:0.5rem;"></i> Hub vs Switch vs Router</h2>
+            <p class="en-sub">The Big Three Compared</p>
+        </div>
+        <div data-aos="fade-up" data-aos-delay="100" style="overflow-x:auto;">
+            <table class="comparison-table">
+                <thead>
+                    <tr>
+                        <th>الميزة</th>
+                        <th style="color:#FBBF24;">Hub</th>
+                        <th style="color:#22D3EE;">Switch</th>
+                        <th style="color:#34D399;">Router</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr><td>طبقة OSI</td><td>Layer 1</td><td>Layer 2</td><td>Layer 3</td></tr>
+                    <tr><td class="rtl-block">الذاكرة</td><td class="rtl-block">لا يوجد</td><td class="rtl-block">MAC Table</td><td>Routing Table</td></tr>
+                    <tr><td class="rtl-block">الإرسال</td><td class="rtl-block">للكل (Broadcast)</td><td class="rtl-block">للمقصود فقط</td><td class="rtl-block">بين شبكات مختلفة</td></tr>
+                    <tr><td class="rtl-block">يربط</td><td class="rtl-block">أجهزة في LAN</td><td class="rtl-block">أجهزة في LAN</td><td class="rtl-block">شبكات مختلفة</td></tr>
+                    <tr><td class="rtl-block">الأمان</td><td class="rtl-block">منعدم</td><td class="rtl-block">متوسط</td><td class="rtl-block">عالي</td></tr>
+                    <tr><td class="rtl-block">الاستخدام</td><td class="rtl-block">قديم / نادر</td><td class="rtl-block">الأشيع في LAN</td><td class="rtl-block">الاتصال بالإنترنت</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <!-- Quiz -->
+    <section class="lesson-section alt-bg" id="quiz">
+        <div class="section-inner">
+            <div class="section-header" data-aos="fade-up">
+                <h2><i class="fas fa-brain" style="color:#8B5CF6; margin-left:0.5rem;"></i> اختبر نفسك</h2>
+                <p class="en-sub">Network Hardware Quiz</p>
+            </div>
+            <div class="quiz-container" data-aos="fade-up" data-aos-delay="100">
+                <div class="quiz-question" id="q1">
+                    <h4>إيه الجهاز اللي بيربط شبكتك بالإنترنت؟</h4>
+                    <div class="quiz-options">
+                        <div class="quiz-option" onclick="ans(this,'q1',false)">Hub</div>
+                        <div class="quiz-option" onclick="ans(this,'q1',false)">Switch</div>
+                        <div class="quiz-option" onclick="ans(this,'q1',true)">Router</div>
+                        <div class="quiz-option" onclick="ans(this,'q1',false)">Access Point</div>
+                    </div>
+                    <div class="quiz-feedback" id="fb-q1"></div>
+                </div>
+                <div class="quiz-question" id="q2">
+                    <h4>إيه الفرق الأساسي بين الـ Hub والـ Switch؟</h4>
+                    <div class="quiz-options">
+                        <div class="quiz-option" onclick="ans(this,'q2',false)">الـ Hub أسرع من الـ Switch</div>
+                        <div class="quiz-option" onclick="ans(this,'q2',true)">الـ Switch بيبعت البيانات للجهاز المقصود بس، الـ Hub بيبعت للكل</div>
+                        <div class="quiz-option" onclick="ans(this,'q2',false)">الـ Hub بيتصل بالإنترنت، الـ Switch ملوش علاقة</div>
+                        <div class="quiz-option" onclick="ans(this,'q2',false)">مفيش فرق بينهم</div>
+                    </div>
+                    <div class="quiz-feedback" id="fb-q2"></div>
+                </div>
+                <div class="quiz-question" id="q3">
+                    <h4>الـ Firewall بيشتغل إزاي؟</h4>
+                    <div class="quiz-options">
+                        <div class="quiz-option" onclick="ans(this,'q3',false)">بيزود سرعة الشبكة</div>
+                        <div class="quiz-option" onclick="ans(this,'q3',false)">بيربط شبكتك بالإنترنت</div>
+                        <div class="quiz-option" onclick="ans(this,'q3',true)">بيراقب الـ Traffic وبيسمح أو يمنع الاتصالات حسب قواعد محددة</div>
+                        <div class="quiz-option" onclick="ans(this,'q3',false)">بيوزع الـ WiFi</div>
+                    </div>
+                    <div class="quiz-feedback" id="fb-q3"></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="lesson-section">
+        <div class="lesson-bottom-nav">
+            <a href="network_topologies.html"><i class="fas fa-arrow-left"></i><span>الطوبولوجيا</span></a>
+            <div style="text-align:center; color:var(--text-faint); font-size:0.85rem; font-family:'Cairo',sans-serif;">Unit 1 • Lesson 4 of 5</div>
+            <a href="network_history.html"><span>تاريخ الشبكات</span><i class="fas fa-arrow-right"></i></a>
+        </div>
+    </section>
+
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <script>
+        AOS.init({ duration:800, once:true, offset:100 });
+        window.addEventListener('scroll', () => {
+            document.getElementById('reading-progress').style.width = (window.scrollY / (document.documentElement.scrollHeight - window.innerHeight)) * 100 + '%';
+        });
+
+        const devices = {
+            hub: {
+                icon:'📡', color:'#FBBF24', layer:'Layer 1 — Physical', layerBg:'rgba(245,158,11,0.1)',
+                name:'Hub',
+                desc: `الـ <span class="english">Hub</span> جهاز بسيط جداً — لما بياخد بيانات من جهاز، بيبعتها لكل الأجهزة المتوصلة بيه. زي الميكروفون في قاعة محاضرات!`,
+                details: `🔴 <strong>المشكلة:</strong> كل الأجهزة بتسمع الرسالة حتى اللي مش مقصودة بيها = Broadcast = بطيء وغير آمن.<br>💡 الـ Hub منتشر قديماً وبيتفادى دلوقتي لصالح الـ Switch.`,
+                infobox: `<strong>مثال:</strong> لو عندك Hub فيه 8 أجهزة وجهاز A بعت رسالة لجهاز B — كل الـ 7 أجهزة التانية هتستقبل الرسالة كمان! 😱`,
+                infoType: 'warning-box'
+            },
+            switch: {
+                icon:'🔌', color:'#22D3EE', layer:'Layer 2 — Data Link', layerBg:'rgba(6,182,212,0.1)',
+                name:'Switch',
+                desc: `الـ <span class="english">Switch</span> ذكي — بيحفظ MAC Addresses الأجهزة في جدول (<span class="english">MAC Table</span>). لما يجيه Frame، بيبعته للجهاز المقصود <strong>بس</strong> — مش للكل!`,
+                details: `✅ <strong>المزايا:</strong> أسرع من الـ Hub، آمن أكتر، وبيقلل الـ Congestion.<br>🔑 <strong>MAC Table:</strong> بيتعلم مين موجود على كل Port وبيحفظه.`,
+                infobox: `<strong>الأشيع:</strong> الـ Switch هو العمود الفقري لشبكات الـ LAN الحديثة — في كل مؤسسة ومختبر!`,
+                infoType: 'info-box'
+            },
+            router: {
+                icon:'🗺️', color:'#34D399', layer:'Layer 3 — Network', layerBg:'rgba(16,185,129,0.1)',
+                name:'Router',
+                desc: `الـ <span class="english">Router</span> هو الجهاز المسؤول عن <strong>توجيه البيانات بين شبكات مختلفة</strong>. بيقرأ الـ IP Address ويقرر أحسن طريق للـ Packet.`,
+                details: `🌐 <strong>الأهم:</strong> الـ Router هو اللي بيوصلك بالإنترنت — بيربط شبكتك الخاصة (LAN) بشبكة ISP الخاصة بيه (WAN).<br>📋 <strong>Routing Table:</strong> جدول فيه كل المسارات المعروفة لشبكات تانية.`,
+                infobox: `<strong>مثال مصري:</strong> الـ Router في بيتك بيربط موبايلاتك ولابتوباتك بشبكة Telecom Egypt أو Vodafone!`,
+                infoType: 'info-box'
+            },
+            ap: {
+                icon:'📶', color:'#A78BFA', layer:'Layer 2 — Data Link', layerBg:'rgba(139,92,246,0.1)',
+                name:'Access Point (AP)',
+                desc: `الـ <span class="english">Access Point</span> بيحول الشبكة السلكية لـ WiFi. يعني بيسمح للأجهزة اللاسلكية تتصل بالشبكة السلكية.`,
+                details: `📡 <strong>الفرق عن Router:</strong> الـ AP مش بيعمل Routing — بس بيوفر اتصال لاسلكي. في الشبكات الكبيرة بيكون الـ AP والـ Router جهازين منفصلين.<br>🏠 <strong>في البيت:</strong> الراوتر اللي في البيت غالباً فيه Router + AP + Switch كلهم في جهاز واحد!`,
+                infobox: `كمبيوتر في النادي أو الكافيه — بيتصل بـ WiFi = بيتصل بـ Access Point.`,
+                infoType: 'info-box'
+            },
+            firewall: {
+                icon:'🛡️', color:'#F87171', layer:'Layer 3-7 — Network to App', layerBg:'rgba(239,68,68,0.1)',
+                name:'Firewall',
+                desc: `الـ <span class="english">Firewall</span> هو الحارس الأمني للشبكة. بيراقب كل الـ Traffic الداخلة والخارجة وبيطبق قواعد أمان محددة.`,
+                details: `🔒 <strong>بيمنع:</strong> الوصول غير المصرح, الـ Attacks, الاتصالات الخطيرة.<br>📋 <strong>Rules:</strong> "اسمح لـ HTTP على Port 80" أو "امنع أي اتصال دخول على Port 22".`,
+                infobox: `<strong>مثال:</strong> شبكة جامعة القاهرة فيها Firewall بيمنع الدخول غير المصرح لأنظمة إدارة الطلاب.`,
+                infoType: 'warning-box'
+            },
+            modem: {
+                icon:'📡', color:'#FB923C', layer:'Layer 1 — Physical', layerBg:'rgba(249,115,22,0.1)',
+                name:'Modem',
+                desc: `الـ <span class="english">Modem</span> = <span class="english">Modulator-Demodulator</span>. بيحول الإشارة الرقمية (Bits) من جهازك لإشارة تقدر تتنقل على خط التليفون أو الكابل.`,
+                details: `📞 <strong>التاريخ:</strong> الـ Modem القديم كان على خط التليفون بصوت مزعج مش هتنساه! 😂<br>🌐 <strong>دلوقتي:</strong> في شبكة الفايبر أو الـ ADSL، الـ Modem بيحول الإشارات الضوئية أو التليفون لـ Ethernet.`,
+                infobox: `في معظم البيوت، الجهاز اللي بيجي من الإنترنت هو Modem + Router في جهاز واحد!`,
+                infoType: 'info-box'
+            },
+            gateway: {
+                icon:'🚪', color:'#F472B6', layer:'Layer 3-7 — Multi-layer', layerBg:'rgba(236,72,153,0.1)',
+                name:'Gateway',
+                desc: `الـ <span class="english">Gateway</span> بيربط شبكتين <strong>مختلفين تماماً</strong> في البروتوكولات. زي ما يكون بيترجم بين لغتين مختلفتين!`,
+                details: `🌍 <strong>مثال:</strong> VoIP Gateway بيحول مكالمات الإنترنت لمكالمات تليفون عادية.<br>📧 <strong>Email Gateway:</strong> بيترجم الإيميلات بين أنظمة مختلفة.`,
+                infobox: `الـ Gateway هو المصطلح الأعم — الـ Router هو نوع محدد من الـ Gateway. في الشبكات، Default Gateway هو الـ Router اللي بيخرج منه كل طلبات الإنترنت.`,
+                infoType: 'info-box'
+            }
+        };
+
+        function showDevice(name) {
+            const d = devices[name];
+            if (!d) return;
+            document.querySelectorAll('.device-btn').forEach(b => b.classList.remove('active'));
+            event.currentTarget.classList.add('active');
+            const display = document.getElementById('device-display');
+            display.innerHTML = `
+                <div style="font-size:3.5rem; margin-bottom:1rem;">${d.icon}</div>
+                <h3 style="color:${d.color}; font-size:1.5rem; margin-bottom:0.5rem;">${d.name}</h3>
+                <div class="osilayer-badge" style="background:${d.layerBg}; color:${d.color};">
+                    <i class="fas fa-layer-group"></i> OSI ${d.layer}
+                </div>
+                <div class="rtl-block" style="margin-bottom:1rem; font-size:0.95rem;">
+                    <p style="color:#CBD5E1; margin-bottom:1rem;">${d.desc}</p>
+                    <p style="color:#94A3B8;">${d.details}</p>
+                </div>
+                <div class="${d.infoType}">
+                    <div class="rtl-block">${d.infobox}</div>
+                </div>
+            `;
+        }
+
+        const fbs = {
+            'q1': { c:'✅ صح! الـ Router هو اللي بيربط شبكتك المحلية (LAN) بالإنترنت (WAN). هو باب الخروج للعالم!', w:'❌ غلط! الـ Router هو اللي بيربط بالإنترنت — مش الـ Hub أو Switch.' },
+            'q2': { c:'✅ ممتاز! الـ Switch ذكي — بيحفظ MAC Addresses وبيبعت البيانات للجهاز المقصود بس. الـ Hub بيبعت للكل!', w:'❌ غلط! الفرق الأساسي هو التوجيه — Switch ذكي بيوصل للمستهدف بس، Hub غبي بيبعت للكل.' },
+            'q3': { c:'✅ صح! الـ Firewall حارس الشبكة — بيراقب كل الـ Traffic وبيطبق Rules يسمح أو يمنع الاتصالات.', w:'❌ غلط! الـ Firewall مش بيزود سرعة أو بيوزع WiFi — هو للأمان فقط.' }
+        };
+        function ans(el, qid, correct) {
+            const q = document.getElementById(qid);
+            if (q.dataset.answered) return;
+            q.dataset.answered = 'true';
+            q.querySelectorAll('.quiz-option').forEach(o => o.style.pointerEvents = 'none');
+            el.classList.add(correct ? 'correct' : 'wrong');
+            const fb = document.getElementById('fb-' + qid);
+            fb.textContent = correct ? fbs[qid].c : fbs[qid].w;
+            fb.className = 'quiz-feedback show ' + (correct ? 'correct-fb' : 'wrong-fb');
+        }
+    </script>
+</body>
+</html>

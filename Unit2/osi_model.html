@@ -1,0 +1,672 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OSI Model — نموذج OSI | Network Mastery</title>
+    <meta name="description" content="تعلم نموذج OSI بسهولة — 7 طبقات مع أمثلة مصرية حقيقية ومحاكي تفاعلي للـ Packet Journey.">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&family=Inter:wght@400;500;600;700;800&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    <link href="../css/global-net.css" rel="stylesheet">
+    <style>
+        body { background:#020617; color:#E2E8F0; font-family:'Inter',sans-serif; }
+        .lesson-nav-bar { position:fixed; top:0; left:0; right:0; z-index:100; background:rgba(2,6,23,0.85); backdrop-filter:blur(16px); border-bottom:1px solid rgba(255,255,255,0.06); height:64px; display:flex; align-items:center; padding:0 1.5rem; }
+        .nav-inner { max-width:1280px; margin:0 auto; width:100%; display:flex; align-items:center; justify-content:space-between; }
+        .nav-brand { display:flex; align-items:center; gap:0.75rem; font-weight:700; }
+        .back-btn { width:36px; height:36px; border-radius:10px; background:linear-gradient(135deg,#3B82F6,#1D4ED8); display:flex; align-items:center; justify-content:center; color:white; font-size:0.85rem; transition:transform 0.3s; }
+        .back-btn:hover { transform:scale(1.1); }
+        .nav-links { display:flex; gap:2rem; font-size:0.85rem; font-family:'Cairo',sans-serif; color:var(--text-faint); }
+        .nav-links a { transition:color 0.3s; direction:rtl; }
+        .nav-links a:hover { color:#60A5FA; }
+        @media(max-width:768px){.nav-links{display:none;}}
+        .lesson-hero { position:relative; padding:8rem 1.5rem 5rem; text-align:center; overflow:hidden; }
+        .glow-orb { position:absolute; border-radius:50%; filter:blur(128px); pointer-events:none; }
+        .glow-orb-1 { width:500px; height:500px; top:-10%; right:-5%; background:rgba(59,130,246,0.12); }
+        .glow-orb-2 { width:400px; height:400px; bottom:-20%; left:-10%; background:rgba(139,92,246,0.08); }
+        .lesson-badge { display:inline-flex; align-items:center; gap:0.5rem; padding:0.35rem 1rem; border-radius:50px; background:rgba(30,41,59,0.6); border:1px solid rgba(255,255,255,0.08); font-family:'Fira Code',monospace; font-size:0.78rem; color:#60A5FA; margin-bottom:1.5rem; }
+        .dot { width:6px; height:6px; border-radius:50%; background:#3B82F6; animation:pulse-dot 2s ease infinite; }
+        .lesson-hero h1 { font-size:clamp(2.5rem,5vw,4rem); font-weight:800; margin-bottom:1rem; }
+        .text-g { background:linear-gradient(135deg,#3B82F6,#8B5CF6); -webkit-background-clip:text; background-clip:text; -webkit-text-fill-color:transparent; }
+        .subtitle { font-family:'Cairo',sans-serif; font-size:1.6rem; font-weight:700; color:var(--text-muted); direction:rtl; margin-bottom:1.5rem; }
+        .desc { color:var(--text-faint); max-width:600px; margin:0 auto; font-size:1rem; font-family:'Cairo',sans-serif; direction:rtl; }
+
+        /* OSI Stack Visualizer */
+        .osi-stack { display:flex; flex-direction:column; gap:4px; margin:2rem 0; }
+        .osi-layer-row {
+            display:grid; grid-template-columns:42px 1fr auto;
+            align-items:center; gap:1rem;
+            padding:1rem 1.2rem;
+            border-radius:10px;
+            border:1px solid var(--border-subtle);
+            background:rgba(15,23,42,0.5);
+            transition:all 0.3s ease;
+            cursor:pointer;
+        }
+        .osi-layer-row:hover, .osi-layer-row.active {
+            border-color: var(--layer-color);
+            background: rgba(15,23,42,0.8);
+            box-shadow: 0 0 20px var(--layer-glow), inset 0 0 20px var(--layer-glow);
+        }
+        .layer-num-badge {
+            width:38px; height:38px;
+            border-radius:10px;
+            display:flex; align-items:center; justify-content:center;
+            font-family:'Fira Code',monospace;
+            font-size:0.95rem; font-weight:800;
+            color:white; flex-shrink:0;
+        }
+        .layer-info { min-width:0; }
+        .layer-en { font-size:0.95rem; font-weight:700; color:var(--text-primary); }
+        .layer-ar { font-family:'Cairo',sans-serif; font-size:0.82rem; color:var(--text-faint); direction:rtl; text-align:right; }
+        .layer-pdu {
+            font-family:'Fira Code',monospace;
+            font-size:0.72rem;
+            padding:0.2rem 0.6rem;
+            border-radius:6px;
+            color:var(--layer-color);
+            background:var(--layer-glow);
+            border:1px solid var(--layer-color);
+            white-space:nowrap;
+        }
+
+        /* Packet Journey Simulator */
+        .pj-container { background:rgba(0,0,0,0.35); border:1px solid var(--border-subtle); border-radius:16px; overflow:hidden; margin:2rem 0; }
+        #pj-canvas { width:100%; display:block; }
+        .pj-controls { display:flex; justify-content:center; gap:1rem; padding:1rem; border-top:1px solid var(--border-subtle); flex-wrap:wrap; background:rgba(0,0,0,0.2); }
+        .pj-btn { padding:0.5rem 1.2rem; border-radius:10px; border:1px solid var(--border-light); background:rgba(255,255,255,0.04); color:var(--text-body); font-family:'Cairo',sans-serif; font-size:0.85rem; cursor:pointer; transition:all 0.3s ease; }
+        .pj-btn:hover, .pj-btn.active { background:rgba(59,130,246,0.15); border-color:#3B82F6; color:#60A5FA; }
+
+        /* Layer Detail Card */
+        .layer-detail { background:rgba(15,23,42,0.7); border:1px solid rgba(59,130,246,0.2); border-radius:16px; padding:2rem; margin:1rem 0; display:none; }
+        .layer-detail.show { display:block; }
+        .layer-detail h3 { color:#60A5FA; margin-bottom:1rem; display:flex; align-items:center; gap:0.75rem; }
+        .protocol-tags { display:flex; flex-wrap:wrap; gap:0.5rem; margin:1rem 0; }
+        .ptag { display:inline-flex; align-items:center; gap:0.3rem; padding:0.2rem 0.6rem; border-radius:6px; font-family:'Fira Code',monospace; font-size:0.72rem; font-weight:600; background:rgba(59,130,246,0.1); color:#60A5FA; border:1px solid rgba(59,130,246,0.2); direction:ltr; }
+        .lesson-bottom-nav { display:flex; justify-content:space-between; align-items:center; gap:1rem; padding:2rem 0; border-top:1px solid var(--border-subtle); margin-top:3rem; }
+        .lesson-bottom-nav a { display:flex; align-items:center; gap:0.5rem; padding:0.75rem 1.5rem; border-radius:12px; background:rgba(255,255,255,0.04); border:1px solid var(--border-subtle); transition:all 0.3s ease; font-weight:600; font-size:0.9rem; }
+        .lesson-bottom-nav a:hover { background:rgba(59,130,246,0.1); border-color:rgba(59,130,246,0.3); transform:translateY(-2px); }
+    </style>
+</head>
+<body>
+    <nav class="lesson-nav-bar">
+        <div class="nav-inner">
+            <a href="../index.html" class="nav-brand">
+                <div class="back-btn"><i class="fas fa-arrow-left"></i></div>
+                <span>OSI<span style="color:#3B82F6;">Model</span></span>
+            </a>
+            <div class="nav-links">
+                <a href="#hook">القصة</a>
+                <a href="#layers">الطبقات</a>
+                <a href="#journey">Packet Journey</a>
+                <a href="#mnemonic">الحفظ</a>
+                <a href="#quiz">الاختبار</a>
+            </div>
+        </div>
+    </nav>
+    <div class="progress-bar-container">
+        <div class="progress-bar-fill" id="reading-progress" style="background:linear-gradient(90deg,#3B82F6,#8B5CF6);"></div>
+    </div>
+
+    <header class="lesson-hero" id="hook">
+        <div class="glow-orb glow-orb-1"></div>
+        <div class="glow-orb glow-orb-2"></div>
+        <div style="position:relative;z-index:1;">
+            <div class="lesson-badge" data-aos="fade-down">
+                <span class="dot"></span>
+                UNIT 2 • Lesson 1
+            </div>
+            <h1 data-aos="fade-up" data-aos-delay="150">
+                The <span class="text-g">OSI</span> Model
+            </h1>
+            <div class="subtitle" data-aos="fade-up" data-aos-delay="300">نموذج الـ OSI — 7 طبقات</div>
+            <p class="desc" data-aos="fade-up" data-aos-delay="450">
+                أشيع سؤال في أي Networking Interview: "ايه هو الـ OSI Model?" خليك تعرف الإجابة 100% بعد الدرس ده!
+            </p>
+        </div>
+    </header>
+
+    <!-- Hook Story -->
+    <section class="lesson-section">
+        <div class="glass-card" style="padding:2rem;" data-aos="fade-up">
+            <div class="rtl-block" style="font-size:1.05rem;">
+                <p style="color:#E2E8F0; margin-bottom:1rem;">تخيل معايا... 📦</p>
+                <p style="color:#CBD5E1; margin-bottom:1rem;">
+                    عايز تبعت <span class="hl-blue">بيتزا</span> من مطعم في القاهرة لصاحبك في الإسكندرية. عندك نظام كامل سلسلة العمليات دي: الطاهي يعمل البيتزا → تتحط في علبة → تتحط في شنطة → يجي عليها كورير → يسلمها → صاحبك يفتح الشنطة → يفتح العلبة → ياكل.
+                </p>
+                <p style="color:#CBD5E1; margin-bottom:1rem;">
+                    الـ <span class="english">OSI Model</span> بالظبط كده — 7 "طبقات" من العمليات بتحصل لما البيانات بتتنقل من جهازك لجهاز تاني. كل طبقة بتعمل شغلة محددة!
+                </p>
+                <div class="law-box">
+                    📖 <strong>OSI</strong> = <span class="english">Open Systems Interconnection</span> — نظام مرجعي وضعته ISO سنة 1984 عشان كل الشركات تتكلم بنفس اللغة في الشبكات.
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- OSI Stack -->
+    <section class="lesson-section alt-bg" id="layers">
+        <div class="section-inner">
+            <div class="section-header" data-aos="fade-up">
+                <h2><i class="fas fa-layer-group" style="color:#3B82F6; margin-left:0.5rem;"></i> الطبقات السبع</h2>
+                <p class="en-sub">Click any layer to explore it!</p>
+            </div>
+
+            <div class="rtl-block" data-aos="fade-up" data-aos-delay="100">
+                <p style="color:#CBD5E1; margin-bottom:1.5rem;">
+                    اضغط على أي طبقة وهتشوف تفاصيلها، بروتوكولاتها، وأمثلة واقعية! ⬇️
+                </p>
+            </div>
+
+            <!-- OSI Stack -->
+            <div class="osi-stack" data-aos="fade-up" data-aos-delay="150">
+                <!-- Layer 7 -->
+                <div class="osi-layer-row" onclick="showLayer(7)" style="--layer-color:#F97316; --layer-glow:rgba(249,115,22,0.08);">
+                    <div class="layer-num-badge" style="background:linear-gradient(135deg,#F97316,#EA580C);">7</div>
+                    <div class="layer-info">
+                        <div class="layer-en">Application Layer</div>
+                        <div class="layer-ar">طبقة التطبيق — الواجهة مع المستخدم</div>
+                    </div>
+                    <div class="layer-pdu" style="--layer-color:#F97316; --layer-glow:rgba(249,115,22,0.1);">Data</div>
+                </div>
+                <!-- Layer 6 -->
+                <div class="osi-layer-row" onclick="showLayer(6)" style="--layer-color:#EF4444; --layer-glow:rgba(239,68,68,0.08);">
+                    <div class="layer-num-badge" style="background:linear-gradient(135deg,#EF4444,#DC2626);">6</div>
+                    <div class="layer-info">
+                        <div class="layer-en">Presentation Layer</div>
+                        <div class="layer-ar">طبقة التقديم — التحويل والتشفير</div>
+                    </div>
+                    <div class="layer-pdu" style="--layer-color:#EF4444; --layer-glow:rgba(239,68,68,0.1);">Data</div>
+                </div>
+                <!-- Layer 5 -->
+                <div class="osi-layer-row" onclick="showLayer(5)" style="--layer-color:#EC4899; --layer-glow:rgba(236,72,153,0.08);">
+                    <div class="layer-num-badge" style="background:linear-gradient(135deg,#EC4899,#DB2777);">5</div>
+                    <div class="layer-info">
+                        <div class="layer-en">Session Layer</div>
+                        <div class="layer-ar">طبقة الجلسة — إدارة الاتصال</div>
+                    </div>
+                    <div class="layer-pdu" style="--layer-color:#EC4899; --layer-glow:rgba(236,72,153,0.1);">Data</div>
+                </div>
+                <!-- Layer 4 -->
+                <div class="osi-layer-row" onclick="showLayer(4)" style="--layer-color:#8B5CF6; --layer-glow:rgba(139,92,246,0.08);">
+                    <div class="layer-num-badge" style="background:linear-gradient(135deg,#8B5CF6,#6D28D9);">4</div>
+                    <div class="layer-info">
+                        <div class="layer-en">Transport Layer</div>
+                        <div class="layer-ar">طبقة النقل — التسليم الموثوق</div>
+                    </div>
+                    <div class="layer-pdu" style="--layer-color:#8B5CF6; --layer-glow:rgba(139,92,246,0.1);">Segment</div>
+                </div>
+                <!-- Layer 3 -->
+                <div class="osi-layer-row" onclick="showLayer(3)" style="--layer-color:#3B82F6; --layer-glow:rgba(59,130,246,0.08);">
+                    <div class="layer-num-badge" style="background:linear-gradient(135deg,#3B82F6,#1D4ED8);">3</div>
+                    <div class="layer-info">
+                        <div class="layer-en">Network Layer</div>
+                        <div class="layer-ar">طبقة الشبكة — التوجيه والعناوين</div>
+                    </div>
+                    <div class="layer-pdu" style="--layer-color:#3B82F6; --layer-glow:rgba(59,130,246,0.1);">Packet</div>
+                </div>
+                <!-- Layer 2 -->
+                <div class="osi-layer-row" onclick="showLayer(2)" style="--layer-color:#10B981; --layer-glow:rgba(16,185,129,0.08);">
+                    <div class="layer-num-badge" style="background:linear-gradient(135deg,#10B981,#059669);">2</div>
+                    <div class="layer-info">
+                        <div class="layer-en">Data Link Layer</div>
+                        <div class="layer-ar">طبقة الوصول للبيانات — MAC</div>
+                    </div>
+                    <div class="layer-pdu" style="--layer-color:#10B981; --layer-glow:rgba(16,185,129,0.1);">Frame</div>
+                </div>
+                <!-- Layer 1 -->
+                <div class="osi-layer-row" onclick="showLayer(1)" style="--layer-color:#06B6D4; --layer-glow:rgba(6,182,212,0.08);">
+                    <div class="layer-num-badge" style="background:linear-gradient(135deg,#06B6D4,#0891B2);">1</div>
+                    <div class="layer-info">
+                        <div class="layer-en">Physical Layer</div>
+                        <div class="layer-ar">الطبقة الفيزيائية — Bits والكابلات</div>
+                    </div>
+                    <div class="layer-pdu" style="--layer-color:#06B6D4; --layer-glow:rgba(6,182,212,0.1);">Bits</div>
+                </div>
+            </div>
+
+            <!-- Layer Detail Card (dynamic) -->
+            <div class="layer-detail" id="layer-detail" data-aos="fade-up">
+                <div id="layer-detail-content"></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Packet Journey Simulator -->
+    <section class="lesson-section" id="journey">
+        <div class="section-header" data-aos="fade-up">
+            <h2><i class="fas fa-paper-plane" style="color:#8B5CF6; margin-left:0.5rem;"></i> رحلة الـ Packet</h2>
+            <p class="en-sub">Interactive: Watch Your Data Travel Through All 7 Layers!</p>
+        </div>
+
+        <div class="rtl-block" data-aos="fade-up" data-aos-delay="100">
+            <p style="color:#CBD5E1; margin-bottom:1rem;">
+                شوف إزاي رسالتك بتنقل من جهازك لجهاز تاني — بتمشي على كل الـ 7 طبقات نزولاً ثم صعوداً! 📬
+            </p>
+        </div>
+
+        <div class="pj-container" data-aos="fade-up" data-aos-delay="150">
+            <canvas id="pj-canvas" height="380"></canvas>
+            <div class="pj-controls">
+                <button class="pj-btn" onclick="startJourney()" id="btn-start">▶ ابدأ الرحلة</button>
+                <button class="pj-btn" onclick="resetJourney()" id="btn-reset">↺ إعادة</button>
+                <button class="pj-btn" onclick="stepJourney()" id="btn-step">⏭ خطوة بخطوة</button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Mnemonic -->
+    <section class="lesson-section alt-bg" id="mnemonic">
+        <div class="section-inner">
+            <div class="section-header" data-aos="fade-up">
+                <h2><i class="fas fa-lightbulb" style="color:#FBBF24; margin-left:0.5rem;"></i> الحفظ بطريقة سهلة</h2>
+                <p class="en-sub">Memory Tricks to Remember the 7 Layers!</p>
+            </div>
+
+            <div class="glass-card" style="padding:2rem;" data-aos="fade-up" data-aos-delay="100">
+                <div class="rtl-block">
+                    <p style="color:#E2E8F0; font-size:1.05rem; margin-bottom:1.5rem;">
+                        فيه اصطلاح شهير بالإنجليزي من فوق لتحت:
+                    </p>
+                    <div class="law-box" style="font-family:'Fira Code',monospace; direction:ltr; text-align:left; font-size:1rem; line-height:2.2;">
+                        <strong style="color:#F97316;">A</strong>ll — Application<br>
+                        <strong style="color:#EF4444;">P</strong>riests — Presentation<br>
+                        <strong style="color:#EC4899;">S</strong>eem — Session<br>
+                        <strong style="color:#8B5CF6;">T</strong>o — Transport<br>
+                        <strong style="color:#3B82F6;">N</strong>eed — Network<br>
+                        <strong style="color:#10B981;">D</strong>ata — Data Link<br>
+                        <strong style="color:#06B6D4;">P</strong>rocessing — Physical
+                    </div>
+                    <p style="color:#CBD5E1; margin-top:1.5rem; font-size:1.05rem;">
+                        أو بالعربي المصري: <span class="hl-amber">"أبو سمحان تنن دنا بالنا"</span> 😄<br>
+                        <span style="font-size:0.9rem; color:#64748B;">(أبو = Application, سمحان = Session, تنن = Transport, دنا = Data Link, بالنا = Physical)</span>
+                    </p>
+                    <p style="color:#94A3B8; margin-top:1rem;">
+                        والأهم: حفظ الـ PDU لكل طبقة:
+                    </p>
+                    <div style="display:flex; flex-wrap:wrap; gap:0.5rem; margin-top:1rem; direction:ltr;">
+                        <span style="background:rgba(249,115,22,0.1); color:#FB923C; padding:0.3rem 0.75rem; border-radius:8px; font-family:'Fira Code',monospace; font-size:0.8rem;">7,6,5 = Data</span>
+                        <span style="background:rgba(139,92,246,0.1); color:#A78BFA; padding:0.3rem 0.75rem; border-radius:8px; font-family:'Fira Code',monospace; font-size:0.8rem;">4 = Segment</span>
+                        <span style="background:rgba(59,130,246,0.1); color:#60A5FA; padding:0.3rem 0.75rem; border-radius:8px; font-family:'Fira Code',monospace; font-size:0.8rem;">3 = Packet</span>
+                        <span style="background:rgba(16,185,129,0.1); color:#34D399; padding:0.3rem 0.75rem; border-radius:8px; font-family:'Fira Code',monospace; font-size:0.8rem;">2 = Frame</span>
+                        <span style="background:rgba(6,182,212,0.1); color:#22D3EE; padding:0.3rem 0.75rem; border-radius:8px; font-family:'Fira Code',monospace; font-size:0.8rem;">1 = Bits</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Quiz -->
+    <section class="lesson-section" id="quiz">
+        <div class="section-header" data-aos="fade-up">
+            <h2><i class="fas fa-brain" style="color:#8B5CF6; margin-left:0.5rem;"></i> اختبر نفسك</h2>
+            <p class="en-sub">OSI Model Quiz</p>
+        </div>
+        <div class="quiz-container" data-aos="fade-up" data-aos-delay="100">
+            <div class="quiz-question" id="q1">
+                <h4>في الـ OSI Model، الـ IP Address بيتعامل معه في أنهي طبقة؟</h4>
+                <div class="quiz-options">
+                    <div class="quiz-option" onclick="ans(this,'q1',false)">Layer 2 — Data Link</div>
+                    <div class="quiz-option" onclick="ans(this,'q1',true)">Layer 3 — Network</div>
+                    <div class="quiz-option" onclick="ans(this,'q1',false)">Layer 4 — Transport</div>
+                    <div class="quiz-option" onclick="ans(this,'q1',false)">Layer 7 — Application</div>
+                </div>
+                <div class="quiz-feedback" id="fb-q1"></div>
+            </div>
+            <div class="quiz-question" id="q2">
+                <h4>الـ PDU بتاعة الـ Transport Layer (Layer 4) اسمها إيه؟</h4>
+                <div class="quiz-options">
+                    <div class="quiz-option" onclick="ans(this,'q2',false)">Packet</div>
+                    <div class="quiz-option" onclick="ans(this,'q2',false)">Frame</div>
+                    <div class="quiz-option" onclick="ans(this,'q2',true)">Segment</div>
+                    <div class="quiz-option" onclick="ans(this,'q2',false)">Bits</div>
+                </div>
+                <div class="quiz-feedback" id="fb-q2"></div>
+            </div>
+            <div class="quiz-question" id="q3">
+                <h4>HTTP (اللي بتتصفح بيه المواقع) بيعمل في أنهي طبقة؟</h4>
+                <div class="quiz-options">
+                    <div class="quiz-option" onclick="ans(this,'q3',false)">Layer 3</div>
+                    <div class="quiz-option" onclick="ans(this,'q3',false)">Layer 4</div>
+                    <div class="quiz-option" onclick="ans(this,'q3',false)">Layer 6</div>
+                    <div class="quiz-option" onclick="ans(this,'q3',true)">Layer 7 — Application</div>
+                </div>
+                <div class="quiz-feedback" id="fb-q3"></div>
+            </div>
+            <div class="quiz-question" id="q4">
+                <h4>الـ MAC Address بيتحدد في أنهي طبقة؟</h4>
+                <div class="quiz-options">
+                    <div class="quiz-option" onclick="ans(this,'q4',false)">Layer 1 — Physical</div>
+                    <div class="quiz-option" onclick="ans(this,'q4',true)">Layer 2 — Data Link</div>
+                    <div class="quiz-option" onclick="ans(this,'q4',false)">Layer 3 — Network</div>
+                    <div class="quiz-option" onclick="ans(this,'q4',false)">Layer 4 — Transport</div>
+                </div>
+                <div class="quiz-feedback" id="fb-q4"></div>
+            </div>
+            <div class="quiz-question" id="q5">
+                <h4>TCP و UDP شغالين في أنهي طبقة؟</h4>
+                <div class="quiz-options">
+                    <div class="quiz-option" onclick="ans(this,'q5',false)">Layer 2</div>
+                    <div class="quiz-option" onclick="ans(this,'q5',false)">Layer 3</div>
+                    <div class="quiz-option" onclick="ans(this,'q5',true)">Layer 4 — Transport</div>
+                    <div class="quiz-option" onclick="ans(this,'q5',false)">Layer 7</div>
+                </div>
+                <div class="quiz-feedback" id="fb-q5"></div>
+            </div>
+        </div>
+    </section>
+
+    <section class="lesson-section">
+        <div class="lesson-bottom-nav">
+            <a href="../Unit1/network_history.html"><i class="fas fa-arrow-left"></i><span>تاريخ الشبكات</span></a>
+            <div style="text-align:center; color:var(--text-faint); font-size:0.85rem; font-family:'Cairo',sans-serif;">Unit 2 • Lesson 1 of 5</div>
+            <a href="tcp_ip_model.html"><span>TCP/IP Model</span><i class="fas fa-arrow-right"></i></a>
+        </div>
+    </section>
+
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <script>
+        AOS.init({ duration:800, once:true, offset:100 });
+        window.addEventListener('scroll', () => {
+            document.getElementById('reading-progress').style.width = (window.scrollY / (document.documentElement.scrollHeight - window.innerHeight)) * 100 + '%';
+        });
+
+        // ── Layer Details ──
+        const layerData = {
+            7: {
+                color:'#F97316', bg:'rgba(249,115,22,0.08)',
+                title:'Layer 7 — Application',
+                ar:'طبقة التطبيق',
+                emoji:'🌐',
+                desc:'أعلى طبقة في الـ OSI Model — دي الطبقة اللي المستخدم بيتعامل معها مباشرة. البرامج زي المتصفح والإيميل بتشتغل هنا.',
+                pdu:'Data',
+                protocols:['HTTP','HTTPS','FTP','SMTP','POP3','DNS','DHCP','SSH','Telnet'],
+                devices:['End devices (Computers, Phones)'],
+                example:'لما بتفتح Chrome وبتكتب google.com — Chrome بيولّد HTTP Request في الـ Layer 7!'
+            },
+            6: {
+                color:'#EF4444', bg:'rgba(239,68,68,0.08)',
+                title:'Layer 6 — Presentation',
+                ar:'طبقة التقديم',
+                emoji:'🎭',
+                desc:'المترجم الأمين — بيحول البيانات لصيغة يفهمها المستقبل. مسؤول عن التشفير، الضغط، وتحويل الصيغ.',
+                pdu:'Data',
+                protocols:['SSL/TLS','JPEG','MPEG','ASCII','EBCDIC','UTF-8'],
+                devices:['Software level (no hardware)'],
+                example:'لما بتفتح موقع HTTPS — الـ SSL/TLS encryption بيحصل في Layer 6!'
+            },
+            5: {
+                color:'#EC4899', bg:'rgba(236,72,153,0.08)',
+                title:'Layer 5 — Session',
+                ar:'طبقة الجلسة',
+                emoji:'🤝',
+                desc:'بيفتح، بيدير، وبيقفل الجلسات بين الأجهزة. زي الاتفاق اللي بيحصل في بداية ونهاية المكالمة.',
+                pdu:'Data',
+                protocols:['NetBIOS','RPC','SIP','NFS','SMB'],
+                devices:['Software level'],
+                example:'لما بتعمل Zoom Call — Layer 5 هو اللي بيفتح وبيحافظ على الجلسة ويقفلها في الآخر.'
+            },
+            4: {
+                color:'#8B5CF6', bg:'rgba(139,92,246,0.08)',
+                title:'Layer 4 — Transport',
+                ar:'طبقة النقل',
+                emoji:'🚛',
+                desc:'بيضمن التسليم من طرف لطرف. اختار بين TCP (موثوق) أو UDP (سريع). بيعمل segmentation وتحكم في التدفق.',
+                pdu:'Segment',
+                protocols:['TCP','UDP'],
+                devices:['Firewall (L4)','Load Balancer'],
+                example:'لما بتنزل ملف، TCP بيضمن وصول كل الأجزاء. لما بتشوف YouTube Live، UDP بيبعت بسرعة حتى لو ضاع جزء صغير!'
+            },
+            3: {
+                color:'#3B82F6', bg:'rgba(59,130,246,0.08)',
+                title:'Layer 3 — Network',
+                ar:'طبقة الشبكة',
+                emoji:'🗺️',
+                desc:'عارف الـ IP Addresses وبيقرر أحسن طريق للـ Packet. هو حارس التوجيه (Routing) بين الشبكات.',
+                pdu:'Packet',
+                protocols:['IP (v4/v6)','ICMP','OSPF','BGP','RIP','ARP'],
+                devices:['Router','Layer 3 Switch'],
+                example:'ping google.com — ICMP بيشتغل في Layer 3! والـ Router بيستخدم IP Addresses عشان يوصل الـ Packet.'
+            },
+            2: {
+                color:'#10B981', bg:'rgba(16,185,129,0.08)',
+                title:'Layer 2 — Data Link',
+                ar:'طبقة الوصول للبيانات',
+                emoji:'🔗',
+                desc:'مسؤول عن نقل البيانات بين جهازين متجاورين في نفس الشبكة باستخدام MAC Addresses. بيعمل Framing وخاص بالتوصيل الـ Local.',
+                pdu:'Frame',
+                protocols:['Ethernet','WiFi (802.11)','PPP','HDLC','ARP'],
+                devices:['Switch','Bridge','NIC'],
+                example:'الـ Switch بيستخدم MAC Addresses اللي بيتعامل معها Layer 2 عشان يوصل الـ Frame للجهاز الصح!'
+            },
+            1: {
+                color:'#06B6D4', bg:'rgba(6,182,212,0.08)',
+                title:'Layer 1 — Physical',
+                ar:'الطبقة الفيزيائية',
+                emoji:'⚡',
+                desc:'الأساس — بيحول الـ Bits (0 و 1) لإشارات كهربائية أو ضوئية أو موجات راديو وبيبعتها على الوسائط الفيزيائية.',
+                pdu:'Bits (0s and 1s)',
+                protocols:['Ethernet Physical','DSL','USB','Bluetooth','WiFi Physical'],
+                devices:['Hub','Repeater','Cable','NIC','Fiber Optic'],
+                example:'الكابل اللي من موبايلك لـ Router، والـ WiFi Signal — كل ده في Layer 1. هنا بيتحول الـ Bit لتيار كهربي أو موجة!'
+            }
+        };
+
+        let currentLayer = null;
+        function showLayer(n) {
+            currentLayer = n;
+            document.querySelectorAll('.osi-layer-row').forEach(r => r.classList.remove('active'));
+            document.querySelectorAll('.osi-layer-row')[7 - n].classList.add('active');
+            const d = layerData[n];
+            const detail = document.getElementById('layer-detail');
+            const content = document.getElementById('layer-detail-content');
+            content.innerHTML = `
+                <h3 style="color:${d.color};">
+                    <span>${d.emoji}</span>
+                    <span>${d.title}</span>
+                </h3>
+                <div class="rtl-block">
+                    <p style="color:#CBD5E1; margin-bottom:1rem; font-size:0.95rem;">${d.desc}</p>
+                    <p style="color:#94A3B8; font-size:0.85rem; margin-bottom:0.5rem;"><strong>PDU:</strong> <code style="color:${d.color};">${d.pdu}</code></p>
+                    <div class="protocol-tags">
+                        ${d.protocols.map(p => `<span class="ptag" style="background:${d.bg}; color:${d.color}; border-color:${d.color};">${p}</span>`).join('')}
+                    </div>
+                    <div class="info-box" style="background:${d.bg}; border-color:${d.color}; color:#E2E8F0;">
+                        <strong style="color:${d.color};">🇪🇬 مثال حقيقي:</strong> ${d.example}
+                    </div>
+                </div>
+            `;
+            detail.style.borderColor = d.color + '50';
+            detail.classList.add('show');
+            setTimeout(() => detail.scrollIntoView({ behavior:'smooth', block:'nearest' }), 100);
+        }
+
+        // ── Packet Journey Simulator ──
+        const pjCanvas = document.getElementById('pj-canvas');
+        const pjCtx = pjCanvas.getContext('2d');
+        let journeyState = { running:false, step:0, animPct:0, autoId:null };
+
+        const LAYERS = [
+            { name:'Application',  color:'#F97316', pdu:'Data' },
+            { name:'Presentation', color:'#EF4444', pdu:'Data' },
+            { name:'Session',      color:'#EC4899', pdu:'Data' },
+            { name:'Transport',    color:'#8B5CF6', pdu:'Segment' },
+            { name:'Network',      color:'#3B82F6', pdu:'Packet' },
+            { name:'Data Link',    color:'#10B981', pdu:'Frame' },
+            { name:'Physical',     color:'#06B6D4', pdu:'Bits' },
+        ];
+
+        function pjResize() {
+            pjCanvas.width = pjCanvas.closest('.pj-container').clientWidth;
+            pjCanvas.height = 380;
+        }
+        pjResize();
+        window.addEventListener('resize', () => { pjResize(); drawJourney(); });
+
+        function drawJourney() {
+            const W = pjCanvas.width, H = pjCanvas.height;
+            pjCtx.clearRect(0, 0, W, H);
+            pjCtx.fillStyle = 'rgba(2,6,23,0.6)';
+            pjCtx.fillRect(0, 0, W, H);
+
+            const layerH = (H - 40) / 7;
+            const senderX = W * 0.18;
+            const receiverX = W * 0.82;
+            const stackW = W * 0.2;
+
+            const s = journeyState;
+            const maxStep = 14; // 7 down + 7 up
+            const isDown = s.step < 7;
+            const layerIdx = isDown ? s.step : (13 - s.step);
+
+            // Draw both stacks
+            LAYERS.forEach((l, i) => {
+                const y = 20 + i * layerH;
+                // Sender stack
+                const sActive = isDown && i === s.step;
+                const sComplete = isDown ? i < s.step : i >= 0;
+                drawLayerBox(senderX - stackW / 2, y, stackW, layerH - 3, l, sActive, !isDown || i < s.step);
+                // Receiver stack
+                const rActive = !isDown && i === layerIdx;
+                drawLayerBox(receiverX - stackW / 2, y, stackW, layerH - 3, l, rActive, !isDown && i >= layerIdx);
+            });
+
+            // Draw connecting arrow (the link at Physical layer)
+            const phyY = 20 + 6 * layerH + layerH / 2;
+            pjCtx.save();
+            pjCtx.strokeStyle = 'rgba(6,182,212,0.3)';
+            pjCtx.lineWidth = 2;
+            pjCtx.setLineDash([6, 4]);
+            pjCtx.beginPath();
+            pjCtx.moveTo(senderX + stackW / 2, phyY);
+            pjCtx.lineTo(receiverX - stackW / 2, phyY);
+            pjCtx.stroke();
+            pjCtx.restore();
+
+            // Draw moving packet
+            if (s.step < maxStep && s.running) {
+                const layI = LAYERS[layerIdx];
+                const y = 20 + layerIdx * layerH + layerH / 2;
+                let px;
+                if (isDown) {
+                    // Moving down on sender side
+                    px = senderX;
+                } else if (s.step === 7) {
+                    // Moving across the physical link
+                    px = (senderX + stackW / 2) + s.animPct * (receiverX - senderX - stackW);
+                } else {
+                    // Moving up on receiver side
+                    px = receiverX;
+                }
+                pjCtx.save();
+                pjCtx.shadowColor = layI.color;
+                pjCtx.shadowBlur = 16;
+                pjCtx.fillStyle = layI.color;
+                pjCtx.beginPath();
+                pjCtx.arc(px, y, 8, 0, Math.PI * 2);
+                pjCtx.fill();
+                pjCtx.restore();
+            }
+
+            // Labels
+            pjCtx.fillStyle = '#64748B';
+            pjCtx.font = "bold 11px 'Inter',sans-serif";
+            pjCtx.textAlign = 'center';
+            pjCtx.fillText('📱 Sender', senderX, 14);
+            pjCtx.fillText('💻 Receiver', receiverX, 14);
+
+            // Status
+            if (s.step < maxStep) {
+                const msg = isDown
+                    ? `⬇ ${LAYERS[s.step].name} — إضافة Header (Encapsulation)`
+                    : s.step === 7 ? '📡 البيانات بتتنقل على الوسط الفيزيائي...'
+                    : `⬆ ${LAYERS[layerIdx].name} — إزالة Header (De-encapsulation)`;
+                pjCtx.fillStyle = LAYERS[layerIdx].color;
+                pjCtx.font = "bold 11px 'Cairo',sans-serif";
+                pjCtx.textAlign = 'center';
+                pjCtx.fillText(msg, W / 2, H - 8);
+            } else {
+                pjCtx.fillStyle = '#10B981';
+                pjCtx.font = "bold 13px 'Cairo',sans-serif";
+                pjCtx.textAlign = 'center';
+                pjCtx.fillText('✅ الرسالة وصلت! الرحلة انتهت.', W / 2, H - 8);
+            }
+        }
+
+        function drawLayerBox(x, y, w, h, layer, active, completed) {
+            pjCtx.save();
+            pjCtx.fillStyle = completed ? `${layer.color}22` : 'rgba(15,23,42,0.5)';
+            pjCtx.strokeStyle = active ? layer.color : (completed ? layer.color + '60' : 'rgba(255,255,255,0.06)');
+            pjCtx.lineWidth = active ? 2 : 1;
+            if (active) {
+                pjCtx.shadowColor = layer.color;
+                pjCtx.shadowBlur = 10;
+            }
+            pjCtx.beginPath();
+            pjCtx.roundRect(x, y, w, h, 4);
+            pjCtx.fill();
+            pjCtx.stroke();
+            pjCtx.shadowBlur = 0;
+            pjCtx.fillStyle = active ? layer.color : (completed ? layer.color + 'CC' : '#475569');
+            pjCtx.font = `bold ${Math.max(8, Math.min(11, w / 14))}px 'Inter',sans-serif`;
+            pjCtx.textAlign = 'center';
+            pjCtx.textBaseline = 'middle';
+            pjCtx.fillText(layer.name, x + w / 2, y + h / 2);
+            pjCtx.restore();
+        }
+
+        function startJourney() {
+            journeyState.running = true;
+            journeyState.step = 0;
+            journeyState.animPct = 0;
+            autoStep();
+        }
+
+        function autoStep() {
+            if (journeyState.autoId) clearInterval(journeyState.autoId);
+            journeyState.autoId = setInterval(() => {
+                journeyState.step++;
+                if (journeyState.step >= 14) {
+                    clearInterval(journeyState.autoId);
+                    journeyState.running = false;
+                }
+                drawJourney();
+            }, 900);
+        }
+
+        function stepJourney() {
+            if (journeyState.autoId) clearInterval(journeyState.autoId);
+            journeyState.running = true;
+            journeyState.step = Math.min(journeyState.step + 1, 14);
+            drawJourney();
+        }
+
+        function resetJourney() {
+            if (journeyState.autoId) clearInterval(journeyState.autoId);
+            journeyState = { running:false, step:0, animPct:0, autoId:null };
+            drawJourney();
+        }
+
+        drawJourney();
+
+        // ── Quiz ──
+        const fbs = {
+            'q1':{ c:'✅ صح! Layer 3 Network هي الطبقة المسؤولة عن IP Addresses والـ Routing. الـ Router بيشتغل هنا.', w:'❌ غلط! IP Address في Layer 3 — Network Layer.' },
+            'q2':{ c:'✅ صح! Layer 4 Transport بتسمى الـ PDU بتاعتها Segment — ده لما TCP بيقسم البيانات لـ Segments.', w:'❌ غلط! الـ Segment هو الـ PDU بتاع Layer 4. Packet في Layer 3، Frame في Layer 2، Bits في Layer 1.' },
+            'q3':{ c:'✅ ممتاز! HTTP شغال في Layer 7 Application — ده أعلى طبقة واللي بتتعامل معها المتصفحات.', w:'❌ غلط! HTTP في Layer 7 Application — أعلى طبقة في الـ OSI.' },
+            'q4':{ c:'✅ صح! MAC Address في Layer 2 Data Link — مسؤول عن التوصيل المحلي بين الأجهزة في نفس الشبكة.', w:'❌ غلط! MAC Address في Layer 2 Data Link — مش Physical Layer.' },
+            'q5':{ c:'✅ ممتاز! TCP و UDP في Layer 4 Transport — المسؤولين عن التوصيل end-to-end وتقسيم البيانات.', w:'❌ غلط! TCP و UDP في Layer 4 Transport Layer.' }
+        };
+        function ans(el, qid, correct) {
+            const q = document.getElementById(qid);
+            if (q.dataset.answered) return;
+            q.dataset.answered = 'true';
+            q.querySelectorAll('.quiz-option').forEach(o => o.style.pointerEvents = 'none');
+            el.classList.add(correct ? 'correct' : 'wrong');
+            const fb = document.getElementById('fb-' + qid);
+            fb.textContent = correct ? fbs[qid].c : fbs[qid].w;
+            fb.className = 'quiz-feedback show ' + (correct ? 'correct-fb' : 'wrong-fb');
+        }
+    </script>
+</body>
+</html>

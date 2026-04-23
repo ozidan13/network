@@ -1,0 +1,511 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Addressing Basics — أساسيات العناوين | Network Mastery</title>
+    <meta name="description" content="IP Addresses وMAC Addresses — إزاي كل جهاز في العالم بياخد عنوان خاص بيه.">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&family=Inter:wght@400;500;600;700;800&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    <link href="../css/global-net.css" rel="stylesheet">
+    <style>
+        body { background:#020617; color:#E2E8F0; font-family:'Inter',sans-serif; }
+        .lesson-nav-bar { position:fixed; top:0; left:0; right:0; z-index:100; background:rgba(2,6,23,0.88); backdrop-filter:blur(20px); border-bottom:1px solid rgba(255,255,255,0.06); height:64px; display:flex; align-items:center; padding:0 1.5rem; }
+        .nav-inner { max-width:1280px; margin:0 auto; width:100%; display:flex; align-items:center; justify-content:space-between; }
+        .nav-brand { display:flex; align-items:center; gap:0.75rem; font-weight:700; }
+        .back-btn { width:36px; height:36px; border-radius:10px; background:linear-gradient(135deg,#3B82F6,#1D4ED8); display:flex; align-items:center; justify-content:circle; color:white; font-size:0.85rem; transition:transform 0.3s; display:flex; align-items:center; justify-content:center; }
+        .back-btn:hover { transform:scale(1.1); }
+        .lesson-hero { position:relative; padding:8rem 1.5rem 5rem; text-align:center; overflow:hidden; }
+        .glow-orb { position:absolute; border-radius:50%; filter:blur(128px); pointer-events:none; }
+        .glow-orb-1 { width:500px; height:500px; top:-10%; right:-5%; background:rgba(59,130,246,0.12); }
+        .glow-orb-2 { width:400px; height:400px; bottom:-20%; left:-10%; background:rgba(139,92,246,0.08); }
+        .lesson-badge { display:inline-flex; align-items:center; gap:0.5rem; padding:0.35rem 1rem; border-radius:50px; background:rgba(30,41,59,0.6); border:1px solid rgba(255,255,255,0.08); font-family:'Fira Code',monospace; font-size:0.78rem; color:#60A5FA; margin-bottom:1.5rem; }
+        .dot { width:6px; height:6px; border-radius:50%; background:#3B82F6; animation:pulse-dot 2s ease infinite; }
+        .lesson-hero h1 { font-size:clamp(2.5rem,5vw,4rem); font-weight:800; margin-bottom:1rem; }
+        .text-g { background:linear-gradient(135deg,#3B82F6,#8B5CF6); -webkit-background-clip:text; background-clip:text; -webkit-text-fill-color:transparent; }
+        .subtitle { font-family:'Cairo',sans-serif; font-size:1.6rem; font-weight:700; color:var(--text-muted); direction:rtl; margin-bottom:1.5rem; }
+        .desc { color:var(--text-faint); max-width:640px; margin:0 auto; font-size:1.05rem; font-family:'Cairo',sans-serif; direction:rtl; line-height:1.9; }
+
+        /* Address Anatomy */
+        .ip-anatomy { margin:1.5rem 0; }
+        .ip-display { display:flex; align-items:stretch; gap:2px; border-radius:10px; overflow:hidden; margin:1rem 0; direction:ltr; }
+        .ip-octet { flex:1; text-align:center; padding:0.75rem 0.5rem; font-family:'Fira Code',monospace; font-size:1rem; font-weight:900; }
+        .ip-octet .oc-label { font-size:0.65rem; font-weight:400; opacity:0.7; display:block; margin-top:0.25rem; }
+        .ip-dot { display:flex; align-items:center; color:var(--text-ghost); font-size:1.5rem; padding:0 2px; }
+
+        /* MAC Address Display */
+        .mac-display { display:flex; align-items:stretch; gap:2px; border-radius:10px; overflow:hidden; margin:1rem 0; direction:ltr; flex-wrap:wrap; }
+        .mac-byte { flex:1; min-width:60px; text-align:center; padding:0.75rem 0.3rem; font-family:'Fira Code',monospace; font-size:0.9rem; font-weight:700; }
+        .mac-byte small { display:block; font-size:0.6rem; opacity:0.6; }
+        .mac-colon { display:flex; align-items:center; color:var(--text-ghost); }
+
+        /* Address Type Comparison */
+        .addr-compare { display:grid; grid-template-columns:1fr 1fr; gap:1.5rem; margin:2rem 0; }
+        @media(max-width:640px){.addr-compare{grid-template-columns:1fr;}}
+        .addr-card { border-radius:16px; padding:1.5rem; }
+        .addr-card.ip { background:rgba(59,130,246,0.05); border:1px solid rgba(59,130,246,0.2); }
+        .addr-card.mac { background:rgba(16,185,129,0.05); border:1px solid rgba(16,185,129,0.2); }
+        .addr-card h4 { font-family:'Fira Code',monospace; font-size:1rem; font-weight:900; margin-bottom:1rem; direction:ltr; }
+        .addr-card.ip h4 { color:#60A5FA; }
+        .addr-card.mac h4 { color:#34D399; }
+        .addr-prop { display:flex; flex-direction:column; gap:0.2rem; padding:0.5rem 0; border-bottom:1px solid rgba(255,255,255,0.04); }
+        .addr-prop:last-child { border-bottom:none; }
+        .addr-prop .ap-key { font-size:0.75rem; color:var(--text-ghost); font-family:'Fira Code',monospace; direction:ltr; }
+        .addr-prop .ap-val { font-size:0.85rem; color:var(--text-muted); font-family:'Cairo',sans-serif; direction:rtl; }
+
+        /* Port Number Visual */
+        .port-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:0.75rem; margin:1.5rem 0; }
+        .port-item { background:rgba(15,23,42,0.6); border:1px solid var(--border-subtle); border-radius:10px; padding:0.85rem 1rem; display:flex; align-items:center; gap:0.75rem; }
+        .port-num { font-family:'Fira Code',monospace; font-size:0.95rem; font-weight:900; direction:ltr; min-width:50px; }
+        .port-info { font-size:0.8rem; }
+        .port-name { color:var(--text-primary); font-weight:600; font-family:'Fira Code',monospace; direction:ltr; }
+        .port-use { color:var(--text-faint); font-family:'Cairo',monospace; direction:rtl; font-size:0.75rem; margin-top:0.15rem; }
+
+        /* Interactive IP Calculator */
+        .ip-calc { background:rgba(15,23,42,0.7); border:1px solid var(--border-subtle); border-radius:16px; padding:1.5rem; margin:1.5rem 0; }
+        .ip-input { display:flex; gap:0.5rem; align-items:center; flex-wrap:wrap; direction:ltr; margin-bottom:1rem; }
+        .ip-oct-input { width:60px; padding:0.5rem; background:rgba(0,0,0,0.3); border:1px solid var(--border-light); border-radius:8px; color:#E2E8F0; font-family:'Fira Code',monospace; font-size:1rem; text-align:center; }
+        .ip-oct-input:focus { outline:none; border-color:#3B82F6; }
+        .ip-sep { color:var(--text-ghost); font-size:1.2rem; }
+        .ip-result { margin-top:1rem; padding:1rem; background:rgba(0,0,0,0.2); border-radius:10px; font-family:'Cairo',sans-serif; direction:rtl; }
+
+        .lesson-bottom-nav { display:flex; justify-content:space-between; align-items:center; gap:1rem; padding:2rem 0; border-top:1px solid var(--border-subtle); margin-top:3rem; }
+        .lesson-bottom-nav a { display:flex; align-items:center; gap:0.5rem; padding:0.75rem 1.5rem; border-radius:12px; background:rgba(255,255,255,0.04); border:1px solid var(--border-subtle); transition:all 0.3s ease; font-weight:600; font-size:0.9rem; }
+        .lesson-bottom-nav a:hover { background:rgba(59,130,246,0.1); border-color:rgba(59,130,246,0.3); transform:translateY(-2px); }
+    </style>
+</head>
+<body>
+    <nav class="lesson-nav-bar">
+        <div class="nav-inner">
+            <a href="../index.html" class="nav-brand">
+                <div class="back-btn"><i class="fas fa-arrow-left"></i></div>
+                <span>Addr<span style="color:#3B82F6;">essing</span></span>
+            </a>
+        </div>
+    </nav>
+    <div class="progress-bar-container"><div class="progress-bar-fill" id="reading-progress" style="background:linear-gradient(90deg,#3B82F6,#8B5CF6);"></div></div>
+
+    <header class="lesson-hero">
+        <div class="glow-orb glow-orb-1"></div>
+        <div class="glow-orb glow-orb-2"></div>
+        <div style="position:relative;z-index:1;">
+            <div class="lesson-badge" data-aos="fade-down"><span class="dot"></span>UNIT 2 • Lesson 5</div>
+            <h1 data-aos="fade-up" data-aos-delay="150">Network <span class="text-g">Addressing</span></h1>
+            <div class="subtitle" data-aos="fade-up" data-aos-delay="300">أساسيات العناوين</div>
+            <p class="desc" data-aos="fade-up" data-aos-delay="450">كل جهاز في العالم عنده عنوان بيميّزه — زي الرقم القومي بس للأجهزة. هنفهم نظام العناوين من الأساس.</p>
+        </div>
+    </header>
+
+    <!-- Why Addresses -->
+    <section class="lesson-section">
+        <div class="section-header" data-aos="fade-up">
+            <h2><i class="fas fa-map-marker-alt" style="color:#3B82F6; margin-left:0.5rem;"></i> ليه العناوين ضرورية؟</h2>
+            <p class="en-sub">The Address Problem — How Does Data Know Where to Go?</p>
+        </div>
+        <div class="glass-card" style="padding:1.8rem;" data-aos="fade-up" data-aos-delay="100">
+            <div class="rtl-block">
+                <p style="color:#E2E8F0; font-size:1rem; margin-bottom:1rem; line-height:1.9;">
+                    الإنترنت فيه <strong>5+ مليار جهاز متصل</strong>. لما بتبعت رسالة WhatsApp — إزاي الشبكة تعرف الرسالة هتروح لموبايل صاحبك بالذات ومش لأي حد تاني؟
+                </p>
+                <p style="color:#94A3B8; font-size:0.9rem; margin-bottom:1.5rem; line-height:1.8;">
+                    الإجابة: كل جهاز عنده <strong style="color:#60A5FA;">عنوانين مختلفين</strong> — <span class="english">IP Address</span> للتوجيه بين الشبكات، و<span class="english">MAC Address</span> للتوصيل داخل الشبكة المحلية.
+                </p>
+                <div class="law-box">
+                    📮 <strong>القياس المفيد:</strong><br>
+                    IP Address = عنوان بيتك (يعرّفك جغرافياً — تتغير لو اشتقلت)<br>
+                    MAC Address = رقمك القومي (مش بيتغير — محفوظ في الـ Hardware)
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- IP Address Deep Dive -->
+    <section class="lesson-section alt-bg">
+        <div class="section-inner">
+            <div class="section-header" data-aos="fade-up">
+                <h2><i class="fas fa-network-wired" style="color:#60A5FA; margin-left:0.5rem;"></i> IP Address — العنوان الرقمي</h2>
+                <p class="en-sub">IPv4 Structure — 32 Bits, 4 Octets</p>
+            </div>
+
+            <div class="glass-card" style="padding:1.8rem;" data-aos="fade-up" data-aos-delay="100">
+                <!-- IP Visual Anatomy -->
+                <div class="rtl-block" style="margin-bottom:1rem;">
+                    <p style="color:#CBD5E1; font-size:0.95rem; margin-bottom:0.5rem;">عنوان IP النسخة الرابعة (IPv4) بيتكون من <strong>4 أرقام</strong> مفصولة بنقاط، كل رقم من 0 لـ 255:</p>
+                </div>
+                <div class="ip-display">
+                    <div class="ip-octet" style="background:rgba(59,130,246,0.2); color:#60A5FA;">
+                        192
+                        <span class="oc-label">Network</span>
+                    </div>
+                    <div class="ip-dot">.</div>
+                    <div class="ip-octet" style="background:rgba(59,130,246,0.15); color:#60A5FA;">
+                        168
+                        <span class="oc-label">Network</span>
+                    </div>
+                    <div class="ip-dot">.</div>
+                    <div class="ip-octet" style="background:rgba(139,92,246,0.2); color:#A78BFA;">
+                        1
+                        <span class="oc-label">Subnet</span>
+                    </div>
+                    <div class="ip-dot">.</div>
+                    <div class="ip-octet" style="background:rgba(16,185,129,0.2); color:#34D399;">
+                        105
+                        <span class="oc-label">Host</span>
+                    </div>
+                </div>
+
+                <!-- Interactive IP Checker -->
+                <div class="ip-calc">
+                    <div class="rtl-block" style="margin-bottom:1rem;">
+                        <p style="color:#CBD5E1; font-size:0.9rem;">جرب: اكتب IP Address وهخبرك عنه 👇</p>
+                    </div>
+                    <div class="ip-input">
+                        <input class="ip-oct-input" id="o1" type="number" min="0" max="255" value="192" oninput="analyzeIP()">
+                        <span class="ip-sep">.</span>
+                        <input class="ip-oct-input" id="o2" type="number" min="0" max="255" value="168" oninput="analyzeIP()">
+                        <span class="ip-sep">.</span>
+                        <input class="ip-oct-input" id="o3" type="number" min="0" max="255" value="1" oninput="analyzeIP()">
+                        <span class="ip-sep">.</span>
+                        <input class="ip-oct-input" id="o4" type="number" min="0" max="255" value="105" oninput="analyzeIP()">
+                    </div>
+                    <div class="ip-result" id="ip-result">
+                        <p style="color:#22D3EE; font-weight:700; margin-bottom:0.5rem;">192.168.1.105</p>
+                        <p style="color:#94A3B8; font-size:0.88rem;">🔒 Private IP — شبكة محلية (192.168.x.x). مش بيوصل للإنترنت مباشرة.</p>
+                    </div>
+                </div>
+
+                <!-- IPv4 Classes (simplified) -->
+                <div class="rtl-block" style="margin-top:1.5rem;">
+                    <p style="color:#CBD5E1; margin-bottom:1rem; font-size:0.95rem;">الـ IP Addresses مقسمة لنوعين أساسيين:</p>
+                    <div class="cost-compare" style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
+                        <div style="background:rgba(59,130,246,0.06); border:1px solid rgba(59,130,246,0.2); border-radius:12px; padding:1rem;">
+                            <h5 style="color:#60A5FA; margin-bottom:0.5rem; font-family:'Fira Code',monospace;">Public IP</h5>
+                            <div class="rtl-block" style="font-size:0.82rem; color:var(--text-muted);">
+                                <p>عنوان فريد على مستوى الإنترنت كله. ISP بياخد منك فلوس عشانه.</p>
+                                <p style="margin-top:0.4rem; font-family:'Fira Code',monospace; direction:ltr; color:#60A5FA;">e.g., 156.213.45.12</p>
+                            </div>
+                        </div>
+                        <div style="background:rgba(16,185,129,0.06); border:1px solid rgba(16,185,129,0.2); border-radius:12px; padding:1rem;">
+                            <h5 style="color:#34D399; margin-bottom:0.5rem; font-family:'Fira Code',monospace;">Private IP</h5>
+                            <div class="rtl-block" style="font-size:0.82rem; color:var(--text-muted);">
+                                <p>داخل الشبكة المحلية بس. ممكن يتكرر في بيوت مختلفة.</p>
+                                <p style="margin-top:0.4rem; font-family:'Fira Code',monospace; direction:ltr; color:#34D399;">192.168.x.x / 10.x.x.x</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- MAC Address -->
+    <section class="lesson-section">
+        <div class="section-header" data-aos="fade-up">
+            <h2><i class="fas fa-fingerprint" style="color:#34D399; margin-left:0.5rem;"></i> MAC Address — بصمة الجهاز</h2>
+            <p class="en-sub">Media Access Control — 48 Bits, Burned into Hardware</p>
+        </div>
+
+        <div class="glass-card" style="padding:1.8rem;" data-aos="fade-up" data-aos-delay="100">
+            <div class="rtl-block" style="margin-bottom:1rem;">
+                <p style="color:#CBD5E1; font-size:0.95rem; line-height:1.8; margin-bottom:1rem;">
+                    الـ MAC Address بيتكتب بـ Hexadecimal (الأرقام من 0-9 والحروف A-F)، وبيتكون من 6 bytes مفصولين بـ : أو -
+                </p>
+            </div>
+            <div class="mac-display">
+                <div class="mac-byte" style="background:rgba(16,185,129,0.2); color:#34D399;">AA<small>OUI Part</small></div>
+                <div class="mac-colon">:</div>
+                <div class="mac-byte" style="background:rgba(16,185,129,0.2); color:#34D399;">BB<small>OUI Part</small></div>
+                <div class="mac-colon">:</div>
+                <div class="mac-byte" style="background:rgba(16,185,129,0.2); color:#34D399;">CC<small>OUI Part</small></div>
+                <div class="mac-colon">:</div>
+                <div class="mac-byte" style="background:rgba(16,185,129,0.15); color:#6EE7B7;">DD<small>Device</small></div>
+                <div class="mac-colon">:</div>
+                <div class="mac-byte" style="background:rgba(16,185,129,0.15); color:#6EE7B7;">EE<small>Device</small></div>
+                <div class="mac-colon">:</div>
+                <div class="mac-byte" style="background:rgba(16,185,129,0.15); color:#6EE7B7;">FF<small>Device</small></div>
+            </div>
+            <div class="rtl-block" style="margin-top:1rem;">
+                <p style="color:#94A3B8; font-size:0.88rem; line-height:1.7;">
+                    أول 3 bytes = <span class="english hl-emerald">OUI (Organizationally Unique Identifier)</span> — بيحدد الشركة المصنعة. لو MAC بيبدأ بـ <code class="inline-code">28:6F:7F</code> — ده Apple. بـ <code class="inline-code">FC:F5:C4</code> — ده Samsung.<br>
+                    تاني 3 bytes = رقم تسلسلي فريد للجهاز نفسه.
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <!-- IP vs MAC -->
+    <section class="lesson-section alt-bg">
+        <div class="section-inner">
+            <div class="section-header" data-aos="fade-up">
+                <h2><i class="fas fa-code-compare" style="color:#FBBF24; margin-left:0.5rem;"></i> IP ضد MAC — إمتى يستخدم كل واحد؟</h2>
+                <p class="en-sub">Two Addresses, Two Jobs</p>
+            </div>
+
+            <div class="addr-compare" data-aos="fade-up" data-aos-delay="100">
+                <div class="addr-card ip">
+                    <h4>IP Address</h4>
+                    <div class="addr-prop">
+                        <span class="ap-key">Layer</span>
+                        <span class="ap-val">Layer 3 — Network</span>
+                    </div>
+                    <div class="addr-prop">
+                        <span class="ap-key">Format</span>
+                        <span class="ap-val" style="font-family:'Fira Code',monospace; direction:ltr; color:#60A5FA;">192.168.1.105</span>
+                    </div>
+                    <div class="addr-prop">
+                        <span class="ap-key">طبيعة العنوان</span>
+                        <span class="ap-val">منطقي — بيتغير حسب الشبكة</span>
+                    </div>
+                    <div class="addr-prop">
+                        <span class="ap-key">من بيحدده</span>
+                        <span class="ap-val">الـ Router أو الـ Admin</span>
+                    </div>
+                    <div class="addr-prop">
+                        <span class="ap-key">وظيفته</span>
+                        <span class="ap-val">التوجيه بين الشبكات المختلفة</span>
+                    </div>
+                    <div class="addr-prop">
+                        <span class="ap-key">مثال</span>
+                        <span class="ap-val">عنوان بيتك — بيتغير لو انتقلت</span>
+                    </div>
+                </div>
+                <div class="addr-card mac">
+                    <h4>MAC Address</h4>
+                    <div class="addr-prop">
+                        <span class="ap-key">Layer</span>
+                        <span class="ap-val">Layer 2 — Data Link</span>
+                    </div>
+                    <div class="addr-prop">
+                        <span class="ap-key">Format</span>
+                        <span class="ap-val" style="font-family:'Fira Code',monospace; direction:ltr; color:#34D399;">AA:BB:CC:DD:EE:FF</span>
+                    </div>
+                    <div class="addr-prop">
+                        <span class="ap-key">طبيعة العنوان</span>
+                        <span class="ap-val">فيزيائي — محروق في الـ NIC</span>
+                    </div>
+                    <div class="addr-prop">
+                        <span class="ap-key">من بيحدده</span>
+                        <span class="ap-val">الشركة المصنعة</span>
+                    </div>
+                    <div class="addr-prop">
+                        <span class="ap-key">وظيفته</span>
+                        <span class="ap-val">التوصيل داخل نفس الشبكة المحلية</span>
+                    </div>
+                    <div class="addr-prop">
+                        <span class="ap-key">مثال</span>
+                        <span class="ap-val">رقمك القومي — مش بيتغير</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="info-box" data-aos="fade-up" data-aos-delay="150">
+                <div class="rtl-block">
+                    <p>💡 <strong>كيف بيشتغلوا مع بعض؟</strong> لما بتبعت Data: الـ IP بيوجه الـ Packet خارج شبكتك للإنترنت. الـ MAC بيوصل الـ Frame جوا شبكتك المحلية للـ Router. الـ Router بيبدّل الـ MAC في كل خطوة، بس الـ IP بيفضل ثابت.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Port Numbers -->
+    <section class="lesson-section">
+        <div class="section-header" data-aos="fade-up">
+            <h2><i class="fas fa-door-open" style="color:#FBBF24; margin-left:0.5rem;"></i> Port Numbers — الأبواب</h2>
+            <p class="en-sub">Ports: Which Application Gets the Data?</p>
+        </div>
+
+        <div class="glass-card" style="padding:1.8rem;" data-aos="fade-up" data-aos-delay="100">
+            <div class="rtl-block" style="margin-bottom:1rem;">
+                <p style="color:#CBD5E1; font-size:0.95rem; line-height:1.8; margin-bottom:1rem;">
+                    الـ IP Address بيوصّلك للجهاز الصح. بس الجهاز عنده عشرات التطبيقات شغالة في نفس الوقت — المتصفح، WhatsApp، Email... إيه اللي بيحدد أنهي تطبيق بياخد البيانات؟ <strong style="color:#FBBF24;">الـ Port Number!</strong>
+                </p>
+                <p style="color:#94A3B8; font-size:0.88rem;">IP = العنوان. Port = رقم الشقة في العمارة.</p>
+            </div>
+
+            <div class="port-grid">
+                <div class="port-item">
+                    <div class="port-num" style="color:#60A5FA;">:80</div>
+                    <div class="port-info">
+                        <div class="port-name">HTTP</div>
+                        <div class="port-use">مواقع عادية</div>
+                    </div>
+                </div>
+                <div class="port-item">
+                    <div class="port-num" style="color:#34D399;">:443</div>
+                    <div class="port-info">
+                        <div class="port-name">HTTPS</div>
+                        <div class="port-use">مواقع مشفرة</div>
+                    </div>
+                </div>
+                <div class="port-item">
+                    <div class="port-num" style="color:#FB923C;">:53</div>
+                    <div class="port-info">
+                        <div class="port-name">DNS</div>
+                        <div class="port-use">تحليل الأسماء</div>
+                    </div>
+                </div>
+                <div class="port-item">
+                    <div class="port-num" style="color:#F472B6;">:22</div>
+                    <div class="port-info">
+                        <div class="port-name">SSH</div>
+                        <div class="port-use">إدارة السيرفرات</div>
+                    </div>
+                </div>
+                <div class="port-item">
+                    <div class="port-num" style="color:#A78BFA;">:21</div>
+                    <div class="port-info">
+                        <div class="port-name">FTP</div>
+                        <div class="port-use">نقل الملفات</div>
+                    </div>
+                </div>
+                <div class="port-item">
+                    <div class="port-num" style="color:#22D3EE;">:25</div>
+                    <div class="port-info">
+                        <div class="port-name">SMTP</div>
+                        <div class="port-use">إرسال الإيميل</div>
+                    </div>
+                </div>
+                <div class="port-item">
+                    <div class="port-num" style="color:#FBBF24;">:67/68</div>
+                    <div class="port-info">
+                        <div class="port-name">DHCP</div>
+                        <div class="port-use">توزيع IPs</div>
+                    </div>
+                </div>
+                <div class="port-item">
+                    <div class="port-num" style="color:#6EE7B7;">:3306</div>
+                    <div class="port-info">
+                        <div class="port-name">MySQL</div>
+                        <div class="port-use">قاعدة البيانات</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="note" style="margin-top:1rem;">
+                <div class="rtl-block">
+                    ⚡ الـ Ports من 0-1023 = Well-Known Ports (محجوزين لبروتوكولات معروفة). من 1024-65535 = Dynamic/Private Ports — بتستخدمها التطبيقات.
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Quiz -->
+    <section class="lesson-section alt-bg" id="quiz">
+        <div class="section-inner">
+            <div class="section-header" data-aos="fade-up">
+                <h2><i class="fas fa-brain" style="color:#8B5CF6; margin-left:0.5rem;"></i> اختبر نفسك</h2>
+                <p class="en-sub">Addressing Quiz</p>
+            </div>
+            <div class="quiz-container" data-aos="fade-up">
+                <div class="quiz-question" id="q1">
+                    <h4>الـ MAC Address بيتغير لو موبايلك انتقل من شبكة WiFi لتانية؟</h4>
+                    <div class="quiz-options">
+                        <div class="quiz-option" onclick="ans(this,'q1',false)">آه، بيتغير تلقائياً</div>
+                        <div class="quiz-option" onclick="ans(this,'q1',true)">لا، محروق في الـ NIC وما بيتغيرش</div>
+                        <div class="quiz-option" onclick="ans(this,'q1',false)">بيتغير بس أول مرة</div>
+                        <div class="quiz-option" onclick="ans(this,'q1',false)">بيتغير كل 24 ساعة</div>
+                    </div>
+                    <div class="quiz-feedback" id="fb-q1"></div>
+                </div>
+                <div class="quiz-question" id="q2">
+                    <h4>Port 443 بيتخصص لأنهي بروتوكول؟</h4>
+                    <div class="quiz-options">
+                        <div class="quiz-option" onclick="ans(this,'q2',false)">HTTP</div>
+                        <div class="quiz-option" onclick="ans(this,'q2',true)">HTTPS</div>
+                        <div class="quiz-option" onclick="ans(this,'q2',false)">SSH</div>
+                        <div class="quiz-option" onclick="ans(this,'q2',false)">DNS</div>
+                    </div>
+                    <div class="quiz-feedback" id="fb-q2"></div>
+                </div>
+                <div class="quiz-question" id="q3">
+                    <h4>192.168.1.1 ده عنوان Public ولا Private؟</h4>
+                    <div class="quiz-options">
+                        <div class="quiz-option" onclick="ans(this,'q3',false)">Public — موجود على الإنترنت</div>
+                        <div class="quiz-option" onclick="ans(this,'q3',true)">Private — داخل الشبكة المحلية بس</div>
+                        <div class="quiz-option" onclick="ans(this,'q3',false)">Multicast Address</div>
+                        <div class="quiz-option" onclick="ans(this,'q3',false)">Broadcast Address</div>
+                    </div>
+                    <div class="quiz-feedback" id="fb-q3"></div>
+                </div>
+                <div class="quiz-question" id="q4">
+                    <h4>المتصفح لما يتصل بسيرفر — الـ IP بيعمل إيه والـ Port بيعمل إيه؟</h4>
+                    <div class="quiz-options">
+                        <div class="quiz-option" onclick="ans(this,'q4',false)">IP بيحدد التطبيق، Port بيحدد الجهاز</div>
+                        <div class="quiz-option" onclick="ans(this,'q4',true)">IP بيحدد الجهاز، Port بيحدد التطبيق/الخدمة</div>
+                        <div class="quiz-option" onclick="ans(this,'q4',false)">كلهم بيحددوا الجهاز</div>
+                        <div class="quiz-option" onclick="ans(this,'q4',false)">IP للأمان، Port للسرعة</div>
+                    </div>
+                    <div class="quiz-feedback" id="fb-q4"></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Unit 2 Complete Card -->
+    <section class="lesson-section">
+        <div class="glass-card" style="padding:2rem; text-align:center; border-color:rgba(59,130,246,0.25);" data-aos="zoom-in">
+            <div style="font-size:3rem; margin-bottom:1rem;">🎓</div>
+            <h3 style="color:#60A5FA; margin-bottom:1rem; font-family:'Cairo',sans-serif;">تهانينا! خلصت الوحدة الثانية</h3>
+            <div class="rtl-block" style="color:#CBD5E1; margin-bottom:1.5rem;">
+                <p>دلوقتي عارف OSI Model، TCP/IP، Encapsulation، البروتوكولات، والعناوين!</p>
+                <p style="margin-top:0.5rem; color:#94A3B8; font-size:0.9rem;">الوحدة الجاية: الطبقة الفيزيائية — الكابلات، الإشارات، وإزاي الـ Bits بتتنقل فيزيائياً.</p>
+            </div>
+            <a href="../Unit3/transmission_media.html" style="display:inline-flex; align-items:center; gap:0.75rem; padding:0.9rem 2rem; border-radius:14px; background:linear-gradient(135deg,#3B82F6,#8B5CF6); color:white; font-weight:700; font-size:1rem; transition:all 0.3s ease; text-decoration:none;">
+                <span>الوحدة الثالثة: الطبقة الفيزيائية</span>
+                <i class="fas fa-arrow-right"></i>
+            </a>
+        </div>
+        <div class="lesson-bottom-nav">
+            <a href="protocols_intro.html"><i class="fas fa-arrow-left"></i><span>البروتوكولات</span></a>
+            <div style="text-align:center;color:var(--text-faint);font-size:0.85rem;font-family:'Cairo',sans-serif;">Unit 2 Complete ✅</div>
+            <a href="../Unit3/transmission_media.html"><span>Unit 3 →</span><i class="fas fa-arrow-right"></i></a>
+        </div>
+    </section>
+
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <script>
+        AOS.init({duration:800,once:true,offset:100});
+        window.addEventListener('scroll',()=>{ document.getElementById('reading-progress').style.width=(window.scrollY/(document.documentElement.scrollHeight-window.innerHeight))*100+'%'; });
+
+        function analyzeIP() {
+            const o1 = parseInt(document.getElementById('o1').value) || 0;
+            const o2 = parseInt(document.getElementById('o2').value) || 0;
+            const o3 = parseInt(document.getElementById('o3').value) || 0;
+            const o4 = parseInt(document.getElementById('o4').value) || 0;
+            const ip = `${o1}.${o2}.${o3}.${o4}`;
+            let type = '', desc = '';
+            if (o1 === 10) { type = 'Private (Class A)'; desc = '🔒 شبكة داخلية خاصة (10.x.x.x). مش بتوصل للإنترنت مباشرة.'; }
+            else if (o1 === 172 && o2 >= 16 && o2 <= 31) { type = 'Private (Class B)'; desc = '🔒 شبكة داخلية (172.16-31.x.x). شايعة في الشركات الكبيرة.'; }
+            else if (o1 === 192 && o2 === 168) { type = 'Private (Class C)'; desc = '🔒 شبكة منزلية عادية (192.168.x.x). ده IP جهازك في بيتك غالباً!'; }
+            else if (o1 === 127) { type = 'Loopback'; desc = '🔄 Loopback — الجهاز بيتكلم مع نفسه. مش بيطلع من الكارت الشبكة.'; }
+            else if (o1 === 0) { type = 'Reserved'; desc = '⚠️ Network Address — مش لجهاز بعين.'; }
+            else if (o1 >= 1 && o1 <= 126) { type = 'Public (Class A)'; desc = '🌐 Public IP — عنوان فريد على الإنترنت. هذا النطاق للشركات الضخمة.'; }
+            else if (o1 >= 128 && o1 <= 191) { type = 'Public (Class B)'; desc = '🌐 Public IP (Class B) — للمؤسسات المتوسطة.'; }
+            else if (o1 >= 192 && o1 <= 223) { type = 'Public (Class C)'; desc = '🌐 Public IP (Class C) — للشركات الصغيرة.'; }
+            else { type = 'Reserved/Multicast'; desc = '📡 محجوز لأغراض خاصة (Multicast أو Experimental).'; }
+            document.getElementById('ip-result').innerHTML = `
+                <p style="color:#22D3EE; font-weight:700; font-family:'Fira Code',monospace; direction:ltr; margin-bottom:0.5rem;">${ip}</p>
+                <p style="color:#FBBF24; font-size:0.82rem; font-family:'Fira Code',monospace; direction:ltr; margin-bottom:0.4rem;">Type: ${type}</p>
+                <p style="color:#94A3B8; font-size:0.88rem; font-family:'Cairo',sans-serif; direction:rtl;">${desc}</p>
+            `;
+        }
+
+        const fb = {
+            q1:{c:'✅ صح! MAC Address محروق في الـ NIC من المصنع. ما بيتغيرش وما بيتأثرش بتغيير الشبكة.',w:'❌ غلط! MAC Address ثابت — محروق في الـ Hardware من المصنع.'},
+            q2:{c:'✅ صح! Port 443 = HTTPS. لو الموقع آمن (قفل أخضر في URL Bar) — بيستخدم Port 443.',w:'❌ غلط! Port 443 = HTTPS. Port 80 = HTTP العادي.'},
+            q3:{c:'✅ صح! 192.168.x.x = Private IP Range. هو في شبكتك المحلية — مش على الإنترنت.',w:'❌ غلط! 192.168.x.x = Private Range. مش موجود على الإنترنت العام.'},
+            q4:{c:'✅ ممتاز! IP = عنوان الجهاز (Server). Port = باب التطبيق (Web Server على 80/443).',w:'❌ غلط! IP يحدد الجهاز، Port يحدد التطبيق. مش العكس.'}
+        };
+        function ans(el,qid,correct){
+            const q=document.getElementById(qid);
+            if(q.dataset.answered)return;
+            q.dataset.answered='true';
+            q.querySelectorAll('.quiz-option').forEach(o=>o.style.pointerEvents='none');
+            el.classList.add(correct?'correct':'wrong');
+            const f=document.getElementById('fb-'+qid);
+            f.textContent=correct?fb[qid].c:fb[qid].w;
+            f.className='quiz-feedback show '+(correct?'correct-fb':'wrong-fb');
+        }
+    </script>
+</body>
+</html>

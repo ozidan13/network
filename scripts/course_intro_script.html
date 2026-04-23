@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>سكريبت الشرح - مقدمة كورس الخوارزميات وهياكل البيانات</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
+    <style>
+        *{box-sizing:border-box}
+        body{font-family:'Cairo',sans-serif;background:linear-gradient(135deg,#0a0a1a,#0f1a2e,#0a1628);min-height:100vh;margin:0;padding:2rem 1rem;color:#e0e0e0;direction:rtl}
+        .container{max-width:940px;margin:0 auto}
+        h1{text-align:center;color:#fff;font-size:2rem;margin-bottom:.5rem;text-shadow:0 0 30px rgba(59,130,246,.4)}
+        .subtitle{text-align:center;color:#64748b;font-size:.95rem;margin-bottom:2.5rem}
+        .section{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:16px;padding:1.5rem 2rem;margin-bottom:1.5rem;backdrop-filter:blur(10px);transition:all .3s}
+        .section:hover{border-color:rgba(59,130,246,.35);box-shadow:0 8px 32px rgba(59,130,246,.10);transform:translateY(-2px)}
+        .section-title{font-size:1.2rem;font-weight:700;color:#60a5fa;margin-bottom:1rem;display:flex;align-items:center;gap:.5rem;cursor:pointer;user-select:none}
+        .section-title::before{content:"🎬"}
+        .section-title .toggle-icon{margin-right:auto;margin-left:0;color:#64748b;font-size:.85rem;transition:transform .3s}
+        .script-body{overflow:hidden;transition:max-height .4s ease}
+        .script-text{font-size:1.12rem;line-height:2.2;color:#f0f4f8;background:rgba(0,0,0,.25);padding:1.2rem 1.5rem;border-radius:10px;border-right:4px solid #3b82f6}
+        .note{font-size:.92rem;color:#fbbf24;margin-top:1rem;padding:.6rem 1.1rem;background:rgba(251,191,36,.07);border-radius:8px;border-right:3px solid #fbbf24;line-height:1.8}
+        .note::before{content:"📌 ملاحظة: ";font-weight:bold}
+        .camera-cue{font-size:.85rem;color:#fca5a5;display:block;margin:.5rem 0;font-weight:bold;background:rgba(239,68,68,.1);padding:.3rem .5rem;border-radius:4px;border-right:2px solid #ef4444}
+        .vfx-cue{font-size:.85rem;color:#93c5fd;display:block;margin:.5rem 0;font-weight:bold;background:rgba(59,130,246,.1);padding:.3rem .5rem;border-radius:4px;border-right:2px solid #3b82f6}
+        .sfx-cue{font-size:.85rem;color:#d8b4fe;display:block;margin:.5rem 0;font-weight:bold;background:rgba(168,85,247,.1);padding:.3rem .5rem;border-radius:4px;border-right:2px solid #a855f7}
+        .highlight{color:#34d399;font-weight:700}
+        .hl-blue{color:#60a5fa;font-weight:700}
+        .hl-amber{color:#fbbf24;font-weight:700}
+        .hl-red{color:#f87171;font-weight:700}
+        .hl-purple{color:#a78bfa;font-weight:700}
+        .hl-cyan{color:#22d3ee;font-weight:700}
+        .english{direction:ltr;display:inline-block;font-family:'Segoe UI',sans-serif;color:#93c5fd;font-style:italic;font-weight:bold}
+        a.back-btn{display:inline-flex;align-items:center;gap:.5rem;margin-bottom:2rem;padding:.7rem 1.4rem;background:rgba(59,130,246,.1);border:1px solid rgba(59,130,246,.3);border-radius:8px;color:#60a5fa;text-decoration:none;font-size:.9rem;transition:all .3s}
+        a.back-btn:hover{background:rgba(59,130,246,.25);color:#fff}
+        .section-divider{text-align:center;color:#475569;font-size:.8rem;margin:1rem 0 1.5rem;letter-spacing:.1em}
+        .section-divider::before,.section-divider::after{content:" ── "}
+        .term-def{background:rgba(139,92,246,.08);border-right:3px solid #8b5cf6;padding:.5rem 1rem;border-radius:6px;margin:.5rem 0;font-size:.95rem;line-height:1.8}
+        .term-def strong{color:#c4b5fd}
+        .week-card{margin:.8rem 0;padding:1rem 1.2rem;border-radius:10px;line-height:1.9}
+        .week-card.w1{background:rgba(59,130,246,.06);border-right:4px solid #3b82f6}
+        .week-card.w2{background:rgba(16,185,129,.06);border-right:4px solid #10b981}
+        .week-card.w3{background:rgba(245,158,11,.06);border-right:4px solid #f59e0b}
+        .week-card.w4{background:rgba(139,92,246,.06);border-right:4px solid #8b5cf6}
+        .toc{background:rgba(15,23,42,.6);border:1px solid rgba(59,130,246,.2);border-radius:12px;padding:1.2rem 1.8rem;margin-bottom:2rem}
+        .toc h3{color:#60a5fa;font-size:1rem;margin-bottom:.8rem}
+        .toc a{display:block;color:#94a3b8;text-decoration:none;padding:.25rem 0;font-size:.9rem;transition:color .2s}
+        .toc a:hover{color:#60a5fa}
+        .toc a::before{content:"• ";color:#3b82f6}
+    </style>
+</head>
+<body>
+<div class="container">
+    <a href="../index.html" class="back-btn"><i class="fas fa-home"></i> الصفحة الرئيسية</a>
+    <h1>📜 سكريبت الشرح — مقدمة الكورس</h1>
+    <p class="subtitle">Algorithms & Data Structures · كورس الخوارزميات وهياكل البيانات · 4 أسابيع</p>
+
+    <div class="toc">
+        <h3>📋 محتويات السكريبت</h3>
+        <a href="#hook">الهوك: سؤال يقلب الدنيا</a>
+        <a href="#what-algo">طيب ما هي الخوارزمية أصلاً؟</a>
+        <a href="#why">ليه لازم تتعلم الحاجات دي؟</a>
+        <a href="#roadmap">الرحلة: 4 أسابيع هتغيرك</a>
+        <a href="#book">الكتاب اللي غيّر اللعبة</a>
+        <a href="#outro">يلا بينا</a>
+    </div>
+
+    <!-- ═══════ HOOK ═══════ -->
+    <div class="section-divider" id="hook">الهوك</div>
+    <div class="section"><div class="section-title" onclick="toggleSection(this)">في سنة 2006، Google وظّفت راجل مجنون...<span class="toggle-icon"><i class="fas fa-chevron-down"></i></span></div><div class="script-body"><div class="script-text">
+        <span class="camera-cue">🎥 [Extreme Close-up على الوش، إضاءة درامية من جنب واحد، صوت واطي كإنك بتحكي سر]</span>
+        <span class="sfx-cue">🔊 [SFX: نبضات قلب بطيئة... boom... boom... boom]</span>
+        في سنة 2006... شركة <span class="english">Google</span> كانت بتعمل مقابلات شغل لمبرمجين.
+        <br><br>
+        جم اتنين. الاتنين أذكياء. الاتنين خريجين أحسن جامعات في العالم. الاتنين كتبوا كود بيشتغل صح.
+        <br><br>
+        <span class="camera-cue">🎥 [بتقرب أكتر من الكاميرا، صوتك بينزل]</span>
+        <span class="sfx-cue">🔊 [SFX: النبضات بتسرّع]</span>
+        بس واحد منهم... <strong class="hl-red">اترفض</strong>.
+        <br><br>
+        <span class="camera-cue">🎥 [وقفة درامية ثانيتين]</span>
+        ... ليه؟
+        <br><br>
+        <span class="sfx-cue">🔊 [SFX: النبضات بتوقف فجأة — سكوت]</span>
+        <span class="camera-cue">🎥 [بتبعد عن الكاميرا، بتقعد مرتاح، صوتك بيرجع طبيعي]</span>
+        لأن الكود بتاعه كان بياخد <strong class="hl-red">ساعة</strong> عشان يعمل حاجة... الكود بتاع التاني كان بيعملها في <strong class="highlight">ثانية</strong>.
+        <br><br>
+        الاتنين بيجيبوا نفس النتيجة. بس واحد فاهم حاجة اسمها <strong class="hl-blue"><span class="english">Algorithms</span></strong>... والتاني لأ.
+        <br><br>
+        <span class="vfx-cue">✨ [VFX: الشاشة بتنقسم نصين — كود بطيء على الشمال بيحمّل ببطء، كود سريع على اليمين بيخلص فوراً]</span>
+        <span class="camera-cue">🎥 [بتبص للكاميرا بابتسامة ماكرة]</span>
+        والموضوع ده... هو بالظبط اللي هنتكلم عنه النهاردة.
+        <br><br>
+        <span class="sfx-cue">🔊 [SFX: Intro music — حماسية زي intro الدحيح]</span>
+        <span class="vfx-cue">✨ [VFX: العنوان بيطير على الشاشة: "الخوارزميات وهياكل البيانات — الرحلة"]</span>
+    </div></div></div>
+
+    <!-- ═══════ WHAT IS ALGORITHM ═══════ -->
+    <div class="section-divider" id="what-algo">إيه هي الخوارزمية؟</div>
+    <div class="section"><div class="section-title" onclick="toggleSection(this)">طيب استنى... إيه هي الخوارزمية أصلاً يعني؟<span class="toggle-icon"><i class="fas fa-chevron-down"></i></span></div><div class="script-body"><div class="script-text">
+        <span class="camera-cue">🎥 [Medium Shot، بتمشي وأنت بتتكلم، إيدك في جيبك]</span>
+        طيب قبل ما ندخل في أي حاجة تقنية... خليني أسألك سؤال:
+        <br><br>
+        <strong class="hl-amber">إنت بتعمل إيه الصبح لما بتصحى؟</strong>
+        <br><br>
+        <span class="camera-cue">🎥 [بتعد على صوابعك]</span>
+        بتفتح عينيك. بتقوم من السرير. بتغسل وشك. بتعمل قهوة. بتلبس هدومك. بتنزل.
+        <br><br>
+        <span class="camera-cue">🎥 [بتوقف فجأة وتبص للكاميرا]</span>
+        مبروك. أنت لسه عملت <strong class="highlight">خوارزمية</strong>.
+        <br><br>
+        <span class="vfx-cue">✨ [VFX: كلمة "Algorithm = خوارزمية" بتظهر بأنيميشن زي ختم]</span>
+        أيوه! الخوارزمية مش حاجة من كوكب تاني. هي ببساطة <strong class="hl-blue">مجموعة خطوات واضحة ومرتبة عشان تحل مشكلة</strong>. خلاص. كده. مفيش أسهل من كده.
+        <br><br>
+        <span class="camera-cue">🎥 [بتمشي وبتتكلم بحماس متصاعد]</span>
+        وصفة الكيك؟ خوارزمية. 🍰
+        <br>تعليمات تركيب عفش ايكيا؟ خوارزمية. 🔧
+        <br>طريقك من البيت للشغل اللي بتختاره كل يوم؟ خوارزمية. 🚗
+        <br><br>
+        <span class="camera-cue">🎥 [بتوقف وبتبص للكاميرا بجدية]</span>
+        بس في البرمجة... الموضوع بيبقى أعمق من كده. لأن في عالم الكمبيوتر... <strong class="hl-red">مش أي خطوات بتنفع</strong>. فيه طرق ذكية... وطرق غبية. والفرق بينهم؟ ممكن يكون الفرق بين كود بيخلص في ثانية... وكود <strong class="hl-red">مش هيخلص لحد يوم القيامة</strong>. حرفياً.
+        <br><br>
+        <span class="sfx-cue">🔊 [SFX: صوت درامي — dun dun duuun]</span>
+        <span class="vfx-cue">✨ [VFX: ساعة رملية بتقلب]</span>
+        وعشان كده... الموضوع ده مهم.
+        <br><br>
+        بس استنى... الاسم نفسه — <strong class="hl-amber">"خوارزمية"</strong> — جاي منين؟
+        <br><br>
+        <span class="camera-cue">🎥 [بتبص للكاميرا بفخر]</span>
+        <span class="vfx-cue">✨ [VFX: صورة الخوارزمي بتظهر مع خريطة بغداد في القرن التاسع]</span>
+        الاسم ده جاي من واحد اسمه <strong class="hl-purple">محمد بن موسى الخوارزمي</strong>. عالم رياضيات مسلم عاش في بغداد في القرن التاسع الميلادي. الراجل ده — من ألف سنة وزيادة — حط أسس <strong>الجبر</strong>. أيوه، كلمة <span class="english">Algebra</span> اللي كل العالم بيستخدمها... جاية من كتابه <strong>"الكتاب المختصر في حساب الجبر والمقابلة"</strong>.
+        <br><br>
+        يعني لما Google و Facebook و Amazon بيقولوا <span class="english">Algorithm</span>... هم بيتكلموا عن حاجة واحد عربي اخترعها من أكتر من <strong>1200 سنة</strong>.
+        <br><br>
+        <span class="camera-cue">🎥 [بتبتسم]</span>
+        مش وحشة دي. 😏
+    </div></div></div>
+
+    <!-- ═══════ WHY ═══════ -->
+    <div class="section-divider" id="why">ليه مهمة؟</div>
+    <div class="section"><div class="section-title" onclick="toggleSection(this)">طيب أنا بكتب كود وبيشتغل — ليه أصدّع دماغي؟<span class="toggle-icon"><i class="fas fa-chevron-down"></i></span></div><div class="script-body"><div class="script-text">
+        <span class="camera-cue">🎥 [بتقعد على كرسي وبتتكلم بنبرة "يا صديقي"]</span>
+        أنا عارف اللي بتفكر فيه دلوقتي. بتقول: "يا عم أنا بكتب كود وبيشتغل وخلاص، ليه أوجع دماغي بالخوارزميات؟"
+        <br><br>
+        <span class="camera-cue">🎥 [بتميل لقدام]</span>
+        طيب... خليني أحكيلك حكاية.
+        <br><br>
+        <span class="sfx-cue">🔊 [SFX: موسيقى قصة — piano خفيف]</span>
+        <span class="vfx-cue">✨ [VFX: شاشة سوداء عليها "القصة الأولى"]</span>
+        تخيل إنك شغال في شركة، وعندك قاعدة بيانات فيها <strong>مليون</strong> يوزر. والعميل بتاعك عايز يدور على يوزر معين.
+        <br><br>
+        أنت كتبت كود — بيدور على كل يوزر واحد واحد. زي واحد واقف في طابور فيه مليون واحد وبيسأل كل واحد: "أنت فلان؟ لأ. أنت فلان؟ لأ."
+        <br><br>
+        الكود ده ممكن يحتاج <strong class="hl-red">مليون خطوة</strong>. 💀
+        <br><br>
+        <span class="camera-cue">🎥 [بتوقف. بتبص للكاميرا.]</span>
+        زميلك في الشغل... كتب كود بيعمل <strong>نفس الحاجة بالظبط</strong>... بس في <strong class="highlight">20 خطوة</strong>.
+        <br><br>
+        <span class="sfx-cue">🔊 [SFX: صوت ارتطام — BOOM]</span>
+        <strong>مليون</strong> مقابل <strong>20</strong>.
+        <br><br>
+        <span class="camera-cue">🎥 [بتسكت ثانيتين عشان الرقم يوصل]</span>
+        ... ده مش فرق. ده <strong class="hl-red">كارثة</strong>. وده الفرق بين حد فاهم خوارزميات وحد لأ.
+        <br><br>
+        <span class="vfx-cue">✨ [VFX: 4 أيقونات بتظهر واحدة واحدة]</span>
+        <span class="camera-cue">🎥 [بتعد على صوابعك بحزم]</span>
+        <strong class="hl-amber">ليه لازم تتعلم خوارزميات؟</strong>
+        <br><br>
+        <strong class="hl-blue">1. السرعة:</strong> لأن الفرق بين كود كويس وكود وحش ممكن يكون فرق بين ثانية وسنة. مش مبالغة.
+        <br><br>
+        <strong class="hl-purple">2. الانترفيوهات:</strong> Google؟ Meta؟ Amazon? أي شركة محترمة في العالم — الانترفيو بتاعها <span class="english">Data Structures & Algorithms</span>. مش بيسألوك عملت إيه — بيسألوك <strong>بتفكر إزاي</strong>.
+        <br><br>
+        <strong class="highlight">3. التفكير:</strong> الخوارزميات مش مجرد كود. دي <strong>طريقة تفكير</strong>. بتعلمك تكسّر أي مشكلة في الدنيا لأجزاء صغيرة وتحلها. ده زي الـ gym بتاع المخ.
+        <br><br>
+        <strong class="hl-red">4. الفلوس:</strong> كود سريع = سيرفرات أقل = <strong>فلوس أقل</strong>. Amazon قالت إن لو موقعهم بطأ <strong>ثانية واحدة</strong>... بيخسروا <strong>1.6 مليار دولار في السنة</strong>.
+        <br><br>
+        <span class="camera-cue">🎥 [بتبص للكاميرا بهدوء]</span>
+        يعني الموضوع مش رفاهية. الموضوع ده <strong class="hl-amber">هو اللي بيفرق بين مبرمج عادي... ومبرمج بيكسب 5 أضعاف</strong>.
+    </div></div></div>
+
+    <!-- ═══════ ROADMAP ═══════ -->
+    <div class="section-divider" id="roadmap">خريطة الطريق</div>
+    <div class="section"><div class="section-title" onclick="toggleSection(this)">الرحلة: 4 أسابيع... 16 درس... هتطلع واحد تاني<span class="toggle-icon"><i class="fas fa-chevron-down"></i></span></div><div class="script-body"><div class="script-text">
+        <span class="camera-cue">🎥 [بتقوم وتمشي قدام خريطة عليها 4 محطات]</span>
+        <span class="vfx-cue">✨ [VFX: خريطة زي خريطة كنز بتتفرد — 4 محطات بألوان مختلفة]</span>
+        <span class="sfx-cue">🔊 [SFX: موسيقى مغامرة — adventure theme]</span>
+        تعالوا أوريكم الخريطة. 4 أسابيع. 16 درس. من الصفر... لحد ما تبقى فاهم أهم خوارزميات في علم الكمبيوتر.
+        <br><br>
+
+        <div class="week-card w1">
+        <strong class="hl-blue">🔵 المحطة الأولى: الأساسيات — "إزاي تدور وإزاي تقيس"</strong>
+        <br><br>
+        هنبدأ بسؤال بسيط: لو عندك قاموس فيه مليون كلمة... إزاي تلاقي كلمة معينة في <strong>20 محاولة بس</strong>؟ ده اسمه <span class="english">Binary Search</span>.
+        <br><br>
+        وبعدين هنسأل: طيب إزاي أعرف إن الكود بتاعي سريع ولا بطيء؟ ده اسمه <span class="english">Big O Notation</span> — وده هيغير تفكيرك عن البرمجة <strong>للأبد</strong>.
+        <br><br>
+        وبعدين هنتعلم أول خوارزمية ترتيب — <span class="english">Selection Sort</span> — بسيطة وبطيئة، بس لازم تفهمها عشان تقدّر اللي جاي.
+        <br><br>
+        وآخر حاجة: <span class="english">Recursion</span> — <strong>دالة بتنادي نفسها!</strong> 🤯 أيوه، هتفهم إزاي ده منطقي.
+        </div>
+
+        <div class="week-card w2">
+        <strong class="highlight">🟢 المحطة التانية: هياكل البيانات — "إزاي نحفظ الداتا بذكاء"</strong>
+        <br><br>
+        هنتكلم عن <span class="english">Arrays</span> — المصفوفات. حاجة بسيطة؟ صح، بس فيها أسرار مش كل الناس تعرفها.
+        <br><br>
+        وبعدين <span class="english">Linked Lists</span> — القوائم المترابطة. تخيل سلسلة: كل حلقة مشبوكة في اللي بعدها. ليه ده أحسن من الـ Array في بعض الحالات؟
+        <br><br>
+        وهنشوف إزاي الكمبيوتر بيحفظ الحاجات في الذاكرة فعلياً — <span class="english">Memory Visualization</span>.
+        <br><br>
+        وآخر حاجة: <span class="english">Divide & Conquer</span> — فرّق تسُد. استراتيجية نابليون في الحروب... والمبرمجين في الكود.
+        </div>
+
+        <div class="week-card w3">
+        <strong class="hl-amber">🟡 المحطة التالتة: الأسلحة الثقيلة — "هناك بنلعب على المكشوف"</strong>
+        <br><br>
+        <span class="english">Quicksort</span> — أسرع خوارزمية ترتيب عملياً. هتفهم ليه اسمها "Quick" ولا هي مجرد كلام.
+        <br><br>
+        <span class="english">Hash Tables</span> — أسرع هيكل بيانات للبحث. بتدور على حاجة في <strong>خطوة واحدة</strong>؟ أيوه بجد.
+        <br><br>
+        <span class="english">Graphs</span> — الرسوم البيانية. إزاي نمثل خريطة المترو في الكمبيوتر؟ وإزاي نلاقي أقصر طريق من محطة لمحطة؟ <span class="english">BFS و DFS</span> — اسمع الأسامي بس، قريب هتعرف.
+        </div>
+
+        <div class="week-card w4">
+        <strong class="hl-purple">🟣 المحطة الأخيرة: المستوى الصعب — "هنا بنبقى محترفين"</strong>
+        <br><br>
+        <span class="english">Greedy Algorithms</span> — الخوارزميات الجشعة. في كل خطوة اختار أحسن حاجة وامشي. بسيطة بس ذكية.
+        <br><br>
+        <span class="english">Dynamic Programming</span> — <strong class="hl-red">أصعب حاجة في الكورس</strong>. بس لما تفهمها؟ هتحس إنك بقيت <strong>Neo في The Matrix</strong>. بتشوف الحلول قبل ما تشوف المشاكل.
+        <br><br>
+        <span class="english">Knapsack Problem</span> — مشكلة الحقيبة الكلاسيكية. شنطة بحجم محدد وحاجات كتير — إيه أحسن تشكيلة؟
+        <br><br>
+        <span class="english">KNN</span> — أول خطوة في عالم الـ <span class="english">Machine Learning</span>. أيوه، بنهاية الأسبوع الرابع هتكون حطيت رجلك في عالم الذكاء الاصطناعي.
+        </div>
+
+        <span class="camera-cue">🎥 [بتبص للكاميرا بابتسامة]</span>
+        4 أسابيع. من "إيه هي الخوارزمية؟" ... لحد <span class="english">Dynamic Programming</span> والـ <span class="english">Machine Learning</span>. ده مش كورس... ده <strong class="hl-amber">تحوّل</strong>.
+    </div></div></div>
+
+    <!-- ═══════ BOOK ═══════ -->
+    <div class="section-divider" id="book">الكتاب</div>
+    <div class="section"><div class="section-title" onclick="toggleSection(this)">الكتاب اللي خلّى الخوارزميات "سهلة"<span class="toggle-icon"><i class="fas fa-chevron-down"></i></span></div><div class="script-body"><div class="script-text">
+        <span class="camera-cue">🎥 [بتمسك كتاب Grokking Algorithms وبتلوح بيه]</span>
+        الكورس ده مبني على كتاب اسمه <strong class="hl-blue"><span class="english">Grokking Algorithms</span></strong>. ومعنى <span class="english">Grokking</span>؟ معناها "فهم عميق" — مش مجرد حفظ... <strong>فهم من جواك</strong>.
+        <br><br>
+        <span class="camera-cue">🎥 [بتفتح الكتاب وبتوري الرسوم]</span>
+        واللي بيخلي الكتاب ده مختلف عن أي كتاب خوارزميات تاني؟ إنه <strong class="highlight">مرسوم</strong>! أيوه، كل خوارزمية متشرحة بصور ملونة وتشبيهات من الحياة. مفيش رياضيات معقدة ومفيش أسلوب أكاديمي ممل.
+        <br><br>
+        <span class="camera-cue">🎥 [بتقفل الكتاب وتبص للكاميرا]</span>
+        إحنا أخدنا الكتاب ده وحولناه لـ <strong class="hl-cyan">16 درس تفاعلي</strong> — مش بس شرح، لا... أنيميشن، كود بيشتغل في المتصفح، وتقدر تجرب كل خوارزمية بنفسك. يعني أخدنا الكتاب ونقلناه <strong class="hl-amber">بُعد تاني</strong>.
+        <div class="note">مش لازم تشتري الكتاب — المنصة فيها كل المحتوى. بس لو عايز ترجعله كمرجع، ده أجمل 250 صفحة هتقراها في موضوع الخوارزميات.</div>
+    </div></div></div>
+
+    <!-- ═══════ OUTRO ═══════ -->
+    <div class="section-divider" id="outro">يلا بينا</div>
+    <div class="section"><div class="section-title" onclick="toggleSection(this)">الحلقة الجاية: واحدة من أجمل أفكار علم الكمبيوتر<span class="toggle-icon"><i class="fas fa-chevron-down"></i></span></div><div class="script-body"><div class="script-text">
+        <span class="camera-cue">🎥 [Medium Shot، باصص بثقة وهدوء]</span>
+        <span class="sfx-cue">🔊 [SFX: موسيقى بتعلي شوية — hopeful]</span>
+        يلا نلخص:
+        <br>الخوارزمية = خطوات واضحة لحل مشكلة.
+        <br>الخوارزمية الصح = الفرق بين ثانية وسنة.
+        <br>4 أسابيع = من الصفر لحد الـ Dynamic Programming.
+        <br>16 درس = كل درس فيه أنيميشن وكود حقيقي.
+        <br><br>
+        <span class="vfx-cue">✨ [VFX: عنوان الدرس القادم بيظهر بأنيميشن ملحمية: "Binary Search — البحث الثنائي"]</span>
+        <span class="camera-cue">🎥 [بتبص للكاميرا بابتسامة ماكرة]</span>
+        الحلقة الجاية... هنتكلم عن خوارزمية بتقدر تلاقي إبرة في كومة قش فيها <strong>مليار قشة</strong>... في <strong class="highlight">30 محاولة بس</strong>.
+        <br><br>
+        مش مصدق؟ <strong class="hl-amber">تعال شوف.</strong>
+        <br><br>
+        <span class="sfx-cue">🔊 [SFX: Whoosh + Outro Music]</span>
+        <span class="camera-cue">🎥 [بتبص للكاميرا، بتعمل إشارة سلام ✌️ — القطع]</span>
+    </div></div></div>
+
+    <div style="text-align:center;margin-top:2rem;color:#475569;font-size:.85rem;padding-bottom:2rem">
+        Algorithms & Data Structures — مقدمة الكورس · بشمهندس أسامة زينهم
+    </div>
+</div>
+<script>
+function toggleSection(t){const b=t.nextElementSibling,i=t.querySelector('.toggle-icon i'),o=b.style.maxHeight&&b.style.maxHeight!=='0px';if(o){b.style.maxHeight='0px';b.style.overflow='hidden';i.className='fas fa-chevron-left'}else{b.style.maxHeight=b.scrollHeight+500+'px';b.style.overflow='visible';i.className='fas fa-chevron-down'}}
+document.querySelectorAll('.script-body').forEach(b=>{b.style.maxHeight='none';b.style.overflow='visible'});
+document.querySelectorAll('.toc a').forEach(link=>{link.addEventListener('click',e=>{e.preventDefault();const target=document.querySelector(link.getAttribute('href'));if(target)target.scrollIntoView({behavior:'smooth',block:'start'})})});
+</script>
+</body>
+</html>

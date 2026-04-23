@@ -1,0 +1,671 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Why Networks? — ليه محتاجين شبكات؟ | Network Mastery</title>
+    <meta name="description" content="الدرس الأول: اكتشف ليه العالم محتاج الشبكات — بأرقام حقيقية وأسئلة بتفكرك.">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&family=Inter:wght@400;500;600;700;800&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    <link href="../css/global-net.css" rel="stylesheet">
+
+    <style>
+        body { background: #020617; color: #E2E8F0; font-family: 'Inter', sans-serif; }
+
+        .lesson-nav-bar { position:fixed; top:0; left:0; right:0; z-index:100; background:rgba(2,6,23,0.88); backdrop-filter:blur(20px); border-bottom:1px solid rgba(255,255,255,0.06); height:64px; display:flex; align-items:center; padding:0 1.5rem; }
+        .nav-inner { max-width:1280px; margin:0 auto; width:100%; display:flex; align-items:center; justify-content:space-between; }
+        .nav-brand { display:flex; align-items:center; gap:0.75rem; font-weight:700; font-size:1rem; }
+        .back-btn { width:36px; height:36px; border-radius:10px; background:linear-gradient(135deg,#06B6D4,#0891B2); display:flex; align-items:center; justify-content:center; color:white; font-size:0.85rem; transition:transform 0.3s ease; }
+        .back-btn:hover { transform:scale(1.1); }
+        .nav-links { display:flex; gap:2rem; font-size:0.85rem; font-family:'Cairo',sans-serif; color:var(--text-faint); }
+        .nav-links a { transition:color 0.3s; direction:rtl; } .nav-links a:hover { color:#22D3EE; }
+        @media(max-width:768px){.nav-links{display:none;}}
+
+        .lesson-hero { position:relative; padding:8rem 1.5rem 5rem; text-align:center; overflow:hidden; }
+        .glow-orb { position:absolute; border-radius:50%; filter:blur(128px); pointer-events:none; }
+        .glow-orb-1 { width:500px; height:500px; top:-10%; right:-5%; background:rgba(6,182,212,0.12); }
+        .glow-orb-2 { width:400px; height:400px; bottom:-20%; left:-10%; background:rgba(59,130,246,0.08); }
+        .lesson-badge { display:inline-flex; align-items:center; gap:0.5rem; padding:0.35rem 1rem; border-radius:50px; background:rgba(30,41,59,0.6); border:1px solid rgba(255,255,255,0.08); font-family:'Fira Code',monospace; font-size:0.78rem; color:#22D3EE; margin-bottom:1.5rem; }
+        .lesson-badge .dot { width:6px; height:6px; border-radius:50%; background:#06B6D4; animation:pulse-dot 2s ease infinite; }
+        .lesson-hero h1 { font-size:clamp(2.5rem,5vw,4rem); font-weight:800; margin-bottom:1rem; line-height:1.2; }
+        .text-g { background:linear-gradient(135deg,#06B6D4,#22D3EE); -webkit-background-clip:text; background-clip:text; -webkit-text-fill-color:transparent; }
+        .subtitle { font-family:'Cairo',sans-serif; font-size:1.6rem; font-weight:700; color:var(--text-muted); margin-bottom:1.5rem; direction:rtl; }
+        .desc { color:var(--text-faint); max-width:640px; margin:0 auto; font-size:1.05rem; line-height:1.9; font-family:'Cairo',sans-serif; direction:rtl; }
+
+        /* ── Stat Bomb ── */
+        .stat-bomb { display:grid; grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); gap:1rem; margin:2rem 0; }
+        .stat-card { background:rgba(6,182,212,0.05); border:1px solid rgba(6,182,212,0.12); border-radius:16px; padding:1.5rem; text-align:center; transition:all 0.3s ease; }
+        .stat-card:hover { transform:translateY(-4px); border-color:rgba(6,182,212,0.3); box-shadow:0 12px 40px rgba(6,182,212,0.08); }
+        .stat-num { font-size:2rem; font-weight:900; font-family:'Inter',sans-serif; direction:ltr; line-height:1.1; margin-bottom:0.4rem; background:linear-gradient(135deg,#06B6D4,#22D3EE); -webkit-background-clip:text; background-clip:text; -webkit-text-fill-color:transparent; }
+        .stat-label { font-family:'Cairo',sans-serif; font-size:0.85rem; color:var(--text-muted); direction:rtl; line-height:1.6; }
+
+        /* ── Think Box ── */
+        .think-box { background:linear-gradient(135deg,rgba(245,158,11,0.06),rgba(251,191,36,0.03)); border:1px solid rgba(245,158,11,0.2); border-left:4px solid #F59E0B; border-radius:0 12px 12px 0; padding:1.2rem 1.5rem; margin:1.5rem 0; }
+        .think-box .think-label { font-family:'Fira Code',monospace; font-size:0.75rem; color:#FBBF24; font-weight:700; margin-bottom:0.5rem; direction:ltr; }
+        .think-box p { font-family:'Cairo',sans-serif; direction:rtl; color:#FDE68A; font-size:0.95rem; line-height:1.8; margin:0; }
+
+        /* ── Reveal Box ── */
+        .reveal-container { margin:1.5rem 0; }
+        .reveal-btn { display:flex; align-items:center; gap:0.75rem; width:100%; padding:0.9rem 1.2rem; background:rgba(139,92,246,0.08); border:1px solid rgba(139,92,246,0.2); border-radius:10px; cursor:pointer; font-family:'Cairo',sans-serif; color:#A78BFA; font-weight:700; font-size:0.9rem; transition:all 0.3s ease; direction:rtl; }
+        .reveal-btn:hover { background:rgba(139,92,246,0.15); border-color:rgba(139,92,246,0.4); }
+        .reveal-content { display:none; padding:1.2rem; background:rgba(139,92,246,0.05); border:1px solid rgba(139,92,246,0.15); border-top:0; border-radius:0 0 10px 10px; }
+        .reveal-content.open { display:block; }
+
+        /* ── Cost Comparison ── */
+        .cost-compare { display:grid; grid-template-columns:1fr 1fr; gap:1rem; margin:1.5rem 0; }
+        @media(max-width:640px){.cost-compare{grid-template-columns:1fr;}}
+        .cost-card { border-radius:14px; padding:1.2rem; }
+        .cost-card.before { background:rgba(239,68,68,0.06); border:1px solid rgba(239,68,68,0.2); }
+        .cost-card.after  { background:rgba(16,185,129,0.06); border:1px solid rgba(16,185,129,0.2); }
+        .cost-card h5 { font-size:0.85rem; font-weight:700; margin-bottom:0.75rem; }
+        .cost-card.before h5 { color:#F87171; }
+        .cost-card.after h5 { color:#34D399; }
+        .cost-item { display:flex; align-items:flex-start; gap:0.5rem; font-family:'Cairo',sans-serif; direction:rtl; font-size:0.85rem; color:var(--text-muted); margin-bottom:0.4rem; line-height:1.6; }
+
+        /* ── Real-world cards ── */
+        .real-cards { display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:1.2rem; margin:2rem 0; }
+        .real-card { background:rgba(6,182,212,0.05); border:1px solid rgba(6,182,212,0.12); border-radius:14px; padding:1.2rem; transition:all 0.3s ease; }
+        .real-card:hover { border-color:rgba(6,182,212,0.3); transform:translateY(-4px); box-shadow:0 12px 40px rgba(6,182,212,0.08); }
+        .real-card .rc-icon { width:44px; height:44px; border-radius:12px; background:rgba(6,182,212,0.1); display:flex; align-items:center; justify-content:center; font-size:1.2rem; color:#22D3EE; margin-bottom:0.8rem; }
+        .real-card h4 { color:#22D3EE; font-size:0.95rem; margin-bottom:0.4rem; }
+        .real-card p { color:var(--text-muted); font-size:0.85rem; line-height:1.7; font-family:'Cairo',sans-serif; direction:rtl; }
+
+        /* ── Demo Canvas ── */
+        #demo-canvas-container { background:rgba(0,0,0,0.4); border-radius:16px; border:1px solid var(--border-subtle); overflow:hidden; margin:2rem 0; }
+        #demo-canvas { width:100%; display:block; }
+        .demo-controls { display:flex; justify-content:center; gap:1rem; padding:1rem; border-top:1px solid var(--border-subtle); flex-wrap:wrap; background:rgba(0,0,0,0.2); }
+        .demo-btn { padding:0.5rem 1.2rem; border-radius:10px; border:1px solid var(--border-light); background:rgba(255,255,255,0.04); color:var(--text-body); font-family:'Cairo',sans-serif; font-size:0.85rem; font-weight:600; cursor:pointer; transition:all 0.3s ease; }
+        .demo-btn:hover { background:rgba(6,182,212,0.15); border-color:#06B6D4; color:#22D3EE; }
+        .demo-btn.active { background:rgba(6,182,212,0.2); border-color:#06B6D4; color:#22D3EE; }
+
+        /* ── OSI Preview ── */
+        .osi-preview { display:flex; flex-direction:column; gap:0.5rem; margin:2rem 0; }
+        .osi-layer { display:flex; align-items:center; gap:1rem; padding:0.75rem 1rem; border-radius:10px; border:1px solid var(--border-subtle); background:rgba(15,23,42,0.4); transition:all 0.3s ease; cursor:pointer; }
+        .osi-layer:hover { border-color:var(--border-hover); background:rgba(15,23,42,0.7); }
+        .layer-num { width:32px; height:32px; border-radius:8px; display:flex; align-items:center; justify-content:center; font-family:'Fira Code',monospace; font-size:0.85rem; font-weight:700; color:white; flex-shrink:0; }
+        .layer-ar { font-family:'Cairo',sans-serif; font-size:0.9rem; color:var(--text-muted); direction:rtl; flex:1; text-align:right; }
+        .layer-en { font-size:0.82rem; color:var(--text-faint); font-weight:600; }
+
+        .lesson-bottom-nav { display:flex; justify-content:space-between; align-items:center; gap:1rem; padding:2rem 0; border-top:1px solid var(--border-subtle); margin-top:3rem; }
+        .lesson-bottom-nav a { display:flex; align-items:center; gap:0.5rem; padding:0.75rem 1.5rem; border-radius:12px; background:rgba(255,255,255,0.04); border:1px solid var(--border-subtle); transition:all 0.3s ease; font-weight:600; font-size:0.9rem; }
+        .lesson-bottom-nav a:hover { background:rgba(6,182,212,0.1); border-color:rgba(6,182,212,0.3); transform:translateY(-2px); }
+    </style>
+</head>
+<body>
+
+    <nav class="lesson-nav-bar">
+        <div class="nav-inner">
+            <a href="../index.html" class="nav-brand">
+                <div class="back-btn"><i class="fas fa-arrow-left"></i></div>
+                <span>Why<span style="color:#06B6D4;">Net</span></span>
+            </a>
+            <div class="nav-links">
+                <a href="#numbers">الأرقام</a>
+                <a href="#problems">المشاكل</a>
+                <a href="#solution">الحل</a>
+                <a href="#demo">الانيميشن</a>
+                <a href="#real-world">أمثلة</a>
+                <a href="#quiz">اختبر نفسك</a>
+            </div>
+        </div>
+    </nav>
+    <div class="progress-bar-container"><div class="progress-bar-fill" id="reading-progress"></div></div>
+
+    <header class="lesson-hero" id="hook">
+        <div class="glow-orb glow-orb-1"></div>
+        <div class="glow-orb glow-orb-2"></div>
+        <div style="position:relative;z-index:1;">
+            <div class="lesson-badge" data-aos="fade-down"><span class="dot"></span>UNIT 1 • Lesson 1</div>
+            <h1 data-aos="fade-up" data-aos-delay="150">Why <span class="text-g">Networks?</span></h1>
+            <div class="subtitle" data-aos="fade-up" data-aos-delay="300">ليه محتاجين شبكات؟</div>
+            <p class="desc" data-aos="fade-up" data-aos-delay="450">
+                قبل ما تتعلم إزاي الشبكات بتشتغل — لازم تفهم ليه الدنيا مش ممكن تكمل من غيرها.
+            </p>
+        </div>
+    </header>
+
+    <!-- ═══════════════════════════════════════════ -->
+    <!-- SECTION 1: NUMBERS THAT SHOCK -->
+    <!-- ═══════════════════════════════════════════ -->
+    <section class="lesson-section" id="numbers">
+        <div class="section-header" data-aos="fade-up">
+            <h2><i class="fas fa-chart-bar" style="color:#06B6D4; margin-left:0.5rem;"></i> الحقيقة بالأرقام</h2>
+            <p class="en-sub">Numbers Don't Lie</p>
+        </div>
+
+        <div class="stat-bomb" data-aos="fade-up" data-aos-delay="100">
+            <div class="stat-card">
+                <div class="stat-num">5.4B</div>
+                <div class="stat-label">مستخدم إنترنت نشط على كوكب الأرض — دلوقتي</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-num">333B</div>
+                <div class="stat-label">إيميل بيتبعت كل يوم على مستوى العالم</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-num">100M</div>
+                <div class="stat-label">مصري بيستخدم الإنترنت — أكتر من نص السكان</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-num">4.5PB</div>
+                <div class="stat-label">بيانات بتتنقل على الإنترنت كل يوم واحد</div>
+            </div>
+        </div>
+
+        <div class="glass-card" style="padding:1.8rem;" data-aos="fade-up" data-aos-delay="200">
+            <div class="think-box">
+                <div class="think-label">⚡ STOP &amp; THINK</div>
+                <p>لو قسمت 4.5 PetaBytes على عدد دقائق اليوم... معناها في كل دقيقة واحدة بيتنقل حوالي 3 مليون ميجابايت على الشبكات. ده مش مجرد رقم — ده دليل إن الحضارة الحديثة بتتنفس من الشبكات.</p>
+            </div>
+            <div class="rtl-block" style="margin-top:1rem;">
+                <p style="color:#94A3B8; font-size:0.9rem; line-height:1.8;">
+                    كل عملية من العمليات دي — حجز تذكرة، تحويل بنكي، رسالة WhatsApp، بث فيديو — بتمشي على شبكة من الأجهزة والكابلات والبروتوكولات. بس أغلبنا ما بفكرش في اللي بيحصل ورا الشاشة.
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <!-- ═══════════════════════════════════════════ -->
+    <!-- SECTION 2: THE COST WITHOUT NETWORKS -->
+    <!-- ═══════════════════════════════════════════ -->
+    <section class="lesson-section alt-bg" id="problems">
+        <div class="section-inner">
+            <div class="section-header" data-aos="fade-up">
+                <h2><i class="fas fa-triangle-exclamation" style="color:#F87171; margin-left:0.5rem;"></i> بدون شبكات — كان تكلف كام؟</h2>
+                <p class="en-sub">The Real Cost of Isolated Computers</p>
+            </div>
+
+            <div class="glass-card" style="padding:1.8rem;" data-aos="fade-up" data-aos-delay="100">
+                <div class="rtl-block" style="margin-bottom:1.2rem;">
+                    <p style="color:#E2E8F0; font-size:1.05rem; margin-bottom:0.75rem;">
+                        شركة فيها <strong>50 موظف</strong>، كل موظف محتاج يطبع وثائق يومياً، ومحتاج يشارك ملفات مع زملاؤه. <span class="hl-red">من غير شبكة</span> — الحساب بيطلع كده:
+                    </p>
+                </div>
+                <div class="cost-compare">
+                    <div class="cost-card before">
+                        <h5>❌ بدون شبكة</h5>
+                        <div class="cost-item">🖨️ <span>50 طابعة — واحدة لكل موظف</span></div>
+                        <div class="cost-item">💾 <span>نقل الملفات بـ USB يدوياً كل يوم</span></div>
+                        <div class="cost-item">📋 <span>نسخ متعددة من نفس الملف = فوضى</span></div>
+                        <div class="cost-item">🔒 <span>Backup يدوي = بيانات مش محمية</span></div>
+                        <div class="cost-item">☎️ <span>تليفونات داخلية لكل موظف</span></div>
+                    </div>
+                    <div class="cost-card after">
+                        <h5>✅ مع الشبكة</h5>
+                        <div class="cost-item">🖨️ <span>2-3 طابعات مشتركة تكفي الكل</span></div>
+                        <div class="cost-item">⚡ <span>مشاركة فورية بضغطة زر</span></div>
+                        <div class="cost-item">☁️ <span>ملف واحد للكل — Real-time Sync</span></div>
+                        <div class="cost-item">🛡️ <span>Server مركزي يعمل Backup تلقائي</span></div>
+                        <div class="cost-item">💬 <span>Chat داخلي مجاني على الشبكة</span></div>
+                    </div>
+                </div>
+                <div class="think-box" style="margin-top:1rem;">
+                    <div class="think-label">📌 FACT CHECK</div>
+                    <p>دراسات تقدر توفير الشبكات في بيئات العمل بـ 30-40% من تكاليف التشغيل. مش رفاهية — ده ضرورة اقتصادية.</p>
+                </div>
+            </div>
+
+            <!-- Problem Cards -->
+            <div class="problem-grid" data-aos="fade-up" data-aos-delay="150">
+                <div class="problem-card">
+                    <div class="icon"><i class="fas fa-hard-drive"></i></div>
+                    <h4 class="rtl-block">① عزل البيانات <span class="english" style="font-size:0.8rem;">Data Silos</span></h4>
+                    <p class="rtl-block">كل جهاز محتجز بياناته — زي ما كل موظف عنده جزيرة خاصة بيه. نسيج المؤسسة بيتفكك لو المعلومة مش متاحة للصح.</p>
+                </div>
+                <div class="problem-card">
+                    <div class="icon"><i class="fas fa-print"></i></div>
+                    <h4 class="rtl-block">② تضخم التكلفة <span class="english" style="font-size:0.8rem;">Cost Explosion</span></h4>
+                    <p class="rtl-block">20 موظف = 20 طابعة مستقلة. الشبكة بتقلب المعادلة: موارد مشتركة = تكلفة مقسومة على الكل.</p>
+                </div>
+                <div class="problem-card">
+                    <div class="icon"><i class="fas fa-clock"></i></div>
+                    <h4 class="rtl-block">③ الوقت الضايع <span class="english" style="font-size:0.8rem;">Time Drain</span></h4>
+                    <p class="rtl-block">التعديل على ملف مشترك بدون شبكة: ترسل، ينتظر، يعدّل، يرسل تاني. مع الشبكة: Collaboration في Real-Time.</p>
+                </div>
+                <div class="problem-card">
+                    <div class="icon"><i class="fas fa-shield-halved"></i></div>
+                    <h4 class="rtl-block">④ هشاشة البيانات <span class="english" style="font-size:0.8rem;">Data Fragility</span></h4>
+                    <p class="rtl-block">لو الجهاز اتكسر وما عندكش Backup مركزي — السنين من العمل ممكن تختفي في ثانية. Server الشبكة بيحمي الكل.</p>
+                </div>
+                <div class="problem-card">
+                    <div class="icon"><i class="fas fa-globe-slash"></i></div>
+                    <h4 class="rtl-block">⑤ انعدام التواصل <span class="english" style="font-size:0.8rem;">Zero Reach</span></h4>
+                    <p class="rtl-block">الإنترنت نفسه شبكة. بدون الشبكة — مفيش Gmail، Google، YouTube، Banking Online. ده مش مجرد إنترنت — ده الاقتصاد الرقمي كله.</p>
+                </div>
+                <div class="problem-card">
+                    <div class="icon"><i class="fas fa-users-slash"></i></div>
+                    <h4 class="rtl-block">⑥ عزل العلم <span class="english" style="font-size:0.8rem;">Knowledge Isolation</span></h4>
+                    <p class="rtl-block">قبل الشبكات، اكتشاف علمي في معمل في أمريكا ممكن ما يوصلش لعالم في مصر غير بعد سنين. الشبكة جعلت العلم لحظياً للكل.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ═══════════════════════════════════════════ -->
+    <!-- SECTION 3: THE ANSWER (DISCOVERY-STYLE) -->
+    <!-- ═══════════════════════════════════════════ -->
+    <section class="lesson-section" id="solution">
+        <div class="section-header" data-aos="fade-up">
+            <h2><i class="fas fa-lightbulb" style="color:#22D3EE; margin-left:0.5rem;"></i> الإجابة اللي بانت لوحدها</h2>
+            <p class="en-sub">The Inevitable Solution: Computer Networks</p>
+        </div>
+
+        <div class="glass-card" style="padding:2rem;" data-aos="fade-up" data-aos-delay="100">
+            <div class="rtl-block">
+                <p style="color:#CBD5E1; font-size:1rem; margin-bottom:1rem; line-height:1.9;">
+                    لو راجعت كل مشكلة من المشاكل اللي فوق، هتلاقي إن الحل الطبيعي لأي مشكلة فيهم هو نفسه:
+                    <strong style="color:#22D3EE;">ربط الأجهزة ببعض</strong>.
+                </p>
+                <p style="color:#94A3B8; font-size:0.92rem; margin-bottom:1.5rem; line-height:1.8;">
+                    مش مجرد ربط فيزيائي — لكن ربط بَيسمح للأجهزة إنها تتكلم لغة مشتركة، تتشارك موارد، وتتبادل بيانات بشكل موثوق وآمن.
+                </p>
+                <div class="law-box">
+                    🌐 <strong>التعريف:</strong> <span class="english">Computer Network</span> — مجموعة من الـ <span class="english">Nodes</span> (أجهزة) مترابطة بـ <span class="english">Links</span> (كابلات أو Wireless) وبتتواصل باستخدام <span class="english">Protocols</span> (قواعد متفق عليها).
+                </div>
+            </div>
+        </div>
+
+        <!-- 3 Elements with Reveal -->
+        <div style="margin-top:2rem;" data-aos="fade-up" data-aos-delay="150">
+            <div class="rtl-block" style="margin-bottom:1rem;">
+                <p style="color:#CBD5E1; font-size:0.98rem;">كل شبكة فيها 3 عناصر جوهرية — اضغط على أي عنصر عشان تعرف أكتر:</p>
+            </div>
+
+            <div class="reveal-container">
+                <button class="reveal-btn" onclick="toggleReveal('r1')">
+                    🖥️ <span>العقد (Nodes)</span> <i class="fas fa-chevron-down" style="margin-right:auto;opacity:0.5;"></i>
+                </button>
+                <div class="reveal-content" id="r1">
+                    <div class="rtl-block" style="font-size:0.9rem; color:var(--text-muted);">
+                        <p>كل جهاز متصل بالشبكة بيسموه <span class="english">Node</span>. ده ممكن يكون:</p>
+                        <p style="margin-top:0.5rem;"><span class="inline-code">Computer</span> <span class="inline-code">Smartphone</span> <span class="inline-code">Server</span> <span class="inline-code">Printer</span> <span class="inline-code">Router</span> <span class="inline-code">Switch</span> <span class="inline-code">IoT Device</span></p>
+                        <p style="margin-top:0.75rem; color:#94A3B8;">حتى ثلاجتك الذكية والساعة الـ Smart Watch هما Nodes في شبكة!</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="reveal-container">
+                <button class="reveal-btn" onclick="toggleReveal('r2')">
+                    📡 <span>الروابط (Links)</span> <i class="fas fa-chevron-down" style="margin-right:auto;opacity:0.5;"></i>
+                </button>
+                <div class="reveal-content" id="r2">
+                    <div class="rtl-block" style="font-size:0.9rem; color:var(--text-muted);">
+                        <p>الطرق اللي بتمشي فيها البيانات بين الأجهزة:</p>
+                        <div style="display:grid; grid-template-columns:1fr 1fr; gap:0.5rem; margin-top:0.75rem;">
+                            <div><span class="hl-cyan">Wired</span>: Ethernet Cable, Fiber Optic, Coaxial</div>
+                            <div><span class="hl-amber">Wireless</span>: WiFi (2.4/5 GHz), Bluetooth, 4G/5G, Satellite</div>
+                        </div>
+                        <p style="margin-top:0.75rem; color:#94A3B8;">كابلات الفايبر تحت البحر بتربط مصر بأوروبا وأمريكا — دي Links حقيقية!</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="reveal-container">
+                <button class="reveal-btn" onclick="toggleReveal('r3')">
+                    📜 <span>البروتوكولات (Protocols)</span> <i class="fas fa-chevron-down" style="margin-right:auto;opacity:0.5;"></i>
+                </button>
+                <div class="reveal-content" id="r3">
+                    <div class="rtl-block" style="font-size:0.9rem; color:var(--text-muted);">
+                        <p>القواعد المتفق عليها اللي بتخلي الأجهزة تتفاهم. من غير Protocol — ممكن موبايل Samsung ما يتكلمش مع Router من Cisco.</p>
+                        <p style="margin-top:0.75rem;">أمثلة: <span class="inline-code">TCP/IP</span> <span class="inline-code">HTTP</span> <span class="inline-code">DNS</span> <span class="inline-code">WiFi (802.11)</span></p>
+                        <p style="margin-top:0.75rem; color:#94A3B8;">هتتعلم كل البروتوكولات دي بالتفصيل في الوحدات الجاية!</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Solution Cards -->
+        <div class="problem-grid" style="margin-top:2rem;" data-aos="fade-up" data-aos-delay="200">
+            <div class="solution-card">
+                <div class="icon"><i class="fas fa-share-nodes"></i></div>
+                <h4 class="rtl-block">✅ مشاركة الملفات <span class="english" style="font-size:0.8rem;">File Sharing</span></h4>
+                <p class="rtl-block">ملف بيتبعت في ثواني لأي جهاز في الشبكة — مفيش USB، مفيش تنقل جسدي.</p>
+            </div>
+            <div class="solution-card">
+                <div class="icon"><i class="fas fa-comments"></i></div>
+                <h4 class="rtl-block">✅ التواصل الفوري <span class="english" style="font-size:0.8rem;">Instant Communication</span></h4>
+                <p class="rtl-block">Email، Chat، Video Call — WhatsApp نفسه بيبعت رسالتك على شبكة Internet في milliseconds.</p>
+            </div>
+            <div class="solution-card">
+                <div class="icon"><i class="fas fa-server"></i></div>
+                <h4 class="rtl-block">✅ مشاركة الموارد <span class="english" style="font-size:0.8rem;">Resource Sharing</span></h4>
+                <p class="rtl-block">طابعة واحدة، Server واحد — بيخدموا الكل. توفير هائل في التكلفة والجهد.</p>
+            </div>
+            <div class="solution-card">
+                <div class="icon"><i class="fas fa-shield-halved"></i></div>
+                <h4 class="rtl-block">✅ الأمان المركزي <span class="english" style="font-size:0.8rem;">Centralized Security</span></h4>
+                <p class="rtl-block">Backup تلقائي، Access Control، Firewall مركزي — بيانات الكل محمية من نقطة واحدة.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- ═══════════════════════════════════════════ -->
+    <!-- SECTION 4: INTERACTIVE DEMO -->
+    <!-- ═══════════════════════════════════════════ -->
+    <section class="lesson-section alt-bg" id="demo">
+        <div class="section-inner">
+            <div class="section-header" data-aos="fade-up">
+                <h2><i class="fas fa-play-circle" style="color:#06B6D4; margin-left:0.5rem;"></i> شوف الفرق بنفسك</h2>
+                <p class="en-sub">Interactive — Isolated vs. Networked Computers</p>
+            </div>
+            <div class="rtl-block" data-aos="fade-up" data-aos-delay="100">
+                <p style="color:#CBD5E1; margin-bottom:1rem;">اضغط "ابعت بيانات" في الحالتين وشوف الفرق بنفسك. 👇</p>
+            </div>
+            <div id="demo-canvas-container" data-aos="fade-up" data-aos-delay="150">
+                <canvas id="demo-canvas" height="320"></canvas>
+                <div class="demo-controls">
+                    <button class="demo-btn active" id="btn-isolated" onclick="setMode('isolated')">🚫 بدون شبكة</button>
+                    <button class="demo-btn" id="btn-networked" onclick="setMode('networked')">🌐 مع الشبكة</button>
+                    <button class="demo-btn" id="btn-send" onclick="sendPacket()">📨 ابعت بيانات</button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ═══════════════════════════════════════════ -->
+    <!-- SECTION 5: REAL WORLD — EGYPT FOCUS -->
+    <!-- ═══════════════════════════════════════════ -->
+    <section class="lesson-section" id="real-world">
+        <div class="section-header" data-aos="fade-up">
+            <h2><i class="fas fa-earth-africa" style="color:#10B981; margin-left:0.5rem;"></i> الشبكات في حياتنا</h2>
+            <p class="en-sub">Networks You Already Use Every Day</p>
+        </div>
+
+        <div class="glass-card" style="padding:1.5rem; margin-bottom:1.5rem; border-color:rgba(16,185,129,0.15);" data-aos="fade-up" data-aos-delay="100">
+            <div class="rtl-block">
+                <p style="color:#CBD5E1; font-size:0.98rem; line-height:1.9;">
+                    من أول ما صحيت النهارده لحد ما هتنام الليلة — كل تفاعل مع التكنولوجيا اللي عملته مر على شبكة ما. مش الإنترنت بس — الشبكات من حواليك أكتر بكتير.
+                </p>
+            </div>
+        </div>
+
+        <div class="real-cards" data-aos="fade-up" data-aos-delay="150">
+            <div class="real-card">
+                <div class="rc-icon"><i class="fas fa-graduation-cap"></i></div>
+                <h4>نظام التنسيق المصري</h4>
+                <p>نتائج 800,000 طالب في نفس الوقت على موقع واحد. لو الشبكة تحتملش — الفوضى هتكون أسرع.</p>
+            </div>
+            <div class="real-card">
+                <div class="rc-icon"><i class="fab fa-whatsapp"></i></div>
+                <h4>WhatsApp</h4>
+                <p>رسالتك بتمشي: موبايلك → Router بيتك → شبكة Vodafone → Internet → Data Center → موبايل المستلم. في أقل من ثانية.</p>
+            </div>
+            <div class="real-card">
+                <div class="rc-icon"><i class="fas fa-landmark"></i></div>
+                <h4>البنك الأهلي الوطني</h4>
+                <p>تتحط فلوس في أسوان وتتسحب بعد ثواني من ماكينة ATM في الإسكندرية. ده WAN حقيقي شغال.</p>
+            </div>
+            <div class="real-card">
+                <div class="rc-icon"><i class="fas fa-ticket"></i></div>
+                <h4>حجز السكك الحديدية</h4>
+                <p>آلاف الحجوزات في نفس الوقت بدون تعارض. النظام اللي بيمنع إن اتنين يحجزوا نفس المقعد — ده شبكة.</p>
+            </div>
+            <div class="real-card">
+                <div class="rc-icon"><i class="fas fa-tv"></i></div>
+                <h4>YouTube / Netflix</h4>
+                <p>فيديو بيتستريم من Server في أمريكا لبيتك في مصر في real-time. شبكة عالمية ضخمة بتنقل الميديا.</p>
+            </div>
+            <div class="real-card">
+                <div class="rc-icon"><i class="fas fa-hospital"></i></div>
+                <h4>المستشفيات الذكية</h4>
+                <p>نتائج التحاليل، صور الأشعة، تاريخ المريض — كلها موجودة لأي دكتور في أي فرع في ثواني عبر شبكة المستشفى.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- ═══════════════════════════════════════════ -->
+    <!-- SECTION 6: OSI PREVIEW -->
+    <!-- ═══════════════════════════════════════════ -->
+    <section class="lesson-section alt-bg">
+        <div class="section-inner">
+            <div class="section-header" data-aos="fade-up">
+                <h2><i class="fas fa-layer-group" style="color:#8B5CF6; margin-left:0.5rem;"></i> الشبكات بتشتغل على طبقات</h2>
+                <p class="en-sub">Preview: The 7 Layers You'll Master</p>
+            </div>
+
+            <div class="glass-card" style="padding:1.5rem; margin-bottom:1.5rem;" data-aos="fade-up" data-aos-delay="100">
+                <div class="rtl-block">
+                    <p style="color:#CBD5E1; font-size:0.98rem; line-height:1.9; margin-bottom:1rem;">
+                        الشبكات مش بتشتغل كـ Black Box واحدة — مقسمة على 7 "طبقات" كل واحدة ليها مسؤولية محددة. ده هو الـ <span class="english hl-purple">OSI Model</span>، اللي هيبقى موضوع الوحدة الثانية بالكامل.
+                    </p>
+                    <p style="color:#64748B; font-size:0.85rem;">اضغط على أي طبقة عشان تشوف Preview سريع 👇</p>
+                </div>
+            </div>
+
+            <div class="osi-preview" data-aos="fade-up" data-aos-delay="150">
+                <div class="osi-layer"><div class="layer-num" style="background:#F97316;">7</div><div class="layer-en">Application</div><div class="layer-ar">طبقة التطبيق — HTTP, DNS, Email</div></div>
+                <div class="osi-layer"><div class="layer-num" style="background:#EF4444;">6</div><div class="layer-en">Presentation</div><div class="layer-ar">طبقة التقديم — Encryption, Format</div></div>
+                <div class="osi-layer"><div class="layer-num" style="background:#EC4899;">5</div><div class="layer-en">Session</div><div class="layer-ar">طبقة الجلسة — إدارة الاتصال</div></div>
+                <div class="osi-layer"><div class="layer-num" style="background:#8B5CF6;">4</div><div class="layer-en">Transport</div><div class="layer-ar">طبقة النقل — TCP, UDP, Ports</div></div>
+                <div class="osi-layer"><div class="layer-num" style="background:#3B82F6;">3</div><div class="layer-en">Network</div><div class="layer-ar">طبقة الشبكة — IP, Routing</div></div>
+                <div class="osi-layer"><div class="layer-num" style="background:#10B981;">2</div><div class="layer-en">Data Link</div><div class="layer-ar">طبقة الوصول — MAC, Ethernet</div></div>
+                <div class="osi-layer"><div class="layer-num" style="background:#06B6D4;">1</div><div class="layer-en">Physical</div><div class="layer-ar">الطبقة الفيزيائية — Cables, Bits, WiFi</div></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ═══════════════════════════════════════════ -->
+    <!-- SECTION 7: QUIZ -->
+    <!-- ═══════════════════════════════════════════ -->
+    <section class="lesson-section" id="quiz">
+        <div class="section-header" data-aos="fade-up">
+            <h2><i class="fas fa-brain" style="color:#8B5CF6; margin-left:0.5rem;"></i> اختبر نفسك</h2>
+            <p class="en-sub">Quick Check — Are You Getting It?</p>
+        </div>
+
+        <div class="quiz-container" data-aos="fade-up" data-aos-delay="100">
+            <div class="quiz-question" id="q1">
+                <h4>إيه هي الـ 3 عناصر الأساسية لأي شبكة؟</h4>
+                <div class="quiz-options">
+                    <div class="quiz-option" onclick="checkAnswer(this,'q1',false)">Computers, Cables, Software</div>
+                    <div class="quiz-option" onclick="checkAnswer(this,'q1',true)">Nodes, Links, Protocols</div>
+                    <div class="quiz-option" onclick="checkAnswer(this,'q1',false)">Routers, Switches, Firewalls</div>
+                    <div class="quiz-option" onclick="checkAnswer(this,'q1',false)">Hardware, Software, Users</div>
+                </div>
+                <div class="quiz-feedback" id="fb-q1"></div>
+            </div>
+
+            <div class="quiz-question" id="q2">
+                <h4>ليه الشركات اللي ما عندهاش شبكة بتتكبد تكلفة أعلى في الطباعة؟</h4>
+                <div class="quiz-options">
+                    <div class="quiz-option" onclick="checkAnswer(this,'q2',false)">لأن الورق أغلى</div>
+                    <div class="quiz-option" onclick="checkAnswer(this,'q2',true)">لأن كل جهاز محتاج طابعة خاصة بيه — مفيش مشاركة</div>
+                    <div class="quiz-option" onclick="checkAnswer(this,'q2',false)">لأن الطباعة بطيئة</div>
+                    <div class="quiz-option" onclick="checkAnswer(this,'q2',false)">لأن الطابعات بتتعطل أكتر</div>
+                </div>
+                <div class="quiz-feedback" id="fb-q2"></div>
+            </div>
+
+            <div class="quiz-question" id="q3">
+                <h4>إيه الفرق بين الـ Link والـ Protocol في الشبكة؟</h4>
+                <div class="quiz-options">
+                    <div class="quiz-option" onclick="checkAnswer(this,'q3',false)">مفيش فرق — نفس الحاجة</div>
+                    <div class="quiz-option" onclick="checkAnswer(this,'q3',false)">Link أسرع من Protocol</div>
+                    <div class="quiz-option" onclick="checkAnswer(this,'q3',true)">Link هو الوسيط الفيزيائي، Protocol هو قواعد التواصل</div>
+                    <div class="quiz-option" onclick="checkAnswer(this,'q3',false)">Protocol هو الكابل، Link هو البرنامج</div>
+                </div>
+                <div class="quiz-feedback" id="fb-q3"></div>
+            </div>
+
+            <div class="quiz-question" id="q4">
+                <h4>لما تبعت رسالة WhatsApp — دي مثال على إيه؟</h4>
+                <div class="quiz-options">
+                    <div class="quiz-option" onclick="checkAnswer(this,'q4',false)">PAN صغيرة في موبايلك</div>
+                    <div class="quiz-option" onclick="checkAnswer(this,'q4',false)">LAN في بيتك بس</div>
+                    <div class="quiz-option" onclick="checkAnswer(this,'q4',true)">شبكة إنترنت ضخمة بتربط مليارات</div>
+                    <div class="quiz-option" onclick="checkAnswer(this,'q4',false)">اتصال Bluetooth مباشر</div>
+                </div>
+                <div class="quiz-feedback" id="fb-q4"></div>
+            </div>
+        </div>
+    </section>
+
+    <section class="lesson-section alt-bg">
+        <div class="lesson-bottom-nav">
+            <div style="color:var(--text-ghost); font-size:0.85rem; font-family:'Fira Code',monospace;">Unit 1.1</div>
+            <a href="network_types.html"><span>أنواع الشبكات</span><i class="fas fa-arrow-right"></i></a>
+        </div>
+        <div style="text-align:center; color:var(--text-ghost); font-size:0.8rem; margin-top:1rem; font-family:'Cairo',sans-serif;">
+            Network Mastery — الوحدة الأولى • الدرس الأول
+        </div>
+    </section>
+
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <script>
+        AOS.init({ duration:800, once:true, offset:100 });
+        window.addEventListener('scroll', () => {
+            document.getElementById('reading-progress').style.width = (window.scrollY / (document.documentElement.scrollHeight - window.innerHeight)) * 100 + '%';
+        });
+
+        function toggleReveal(id) {
+            const el = document.getElementById(id);
+            el.classList.toggle('open');
+        }
+
+        // ── Demo Canvas ──
+        const canvas = document.getElementById('demo-canvas');
+        const ctx = canvas.getContext('2d');
+        let mode = 'isolated';
+        let packets = [];
+
+        function resizeCanvas() { canvas.width = canvas.parentElement.clientWidth; canvas.height = 320; }
+        resizeCanvas();
+        window.addEventListener('resize', () => { resizeCanvas(); drawScene(); });
+
+        const nodePositions = [
+            {x:0.15,y:0.35,label:'A'},{x:0.15,y:0.65,label:'B'},
+            {x:0.5,y:0.2,label:'C'},{x:0.5,y:0.8,label:'D'},
+            {x:0.85,y:0.35,label:'E'},{x:0.85,y:0.65,label:'F'}
+        ];
+
+        function getPos(n){ return {x:canvas.width*n.x, y:canvas.height*n.y}; }
+
+        function drawScene(){
+            ctx.clearRect(0,0,canvas.width,canvas.height);
+            ctx.fillStyle='rgba(2,6,23,0.6)';
+            ctx.fillRect(0,0,canvas.width,canvas.height);
+
+            if(mode==='networked'){
+                // Draw switch in centre
+                const cx=canvas.width*0.5, cy=canvas.height*0.5;
+                nodePositions.forEach(n=>{
+                    const p=getPos(n);
+                    ctx.save();
+                    ctx.strokeStyle='rgba(6,182,212,0.35)';
+                    ctx.lineWidth=1.5;
+                    ctx.shadowColor='#06B6D4'; ctx.shadowBlur=4;
+                    ctx.beginPath(); ctx.moveTo(p.x,p.y); ctx.lineTo(cx,cy); ctx.stroke();
+                    ctx.restore();
+                });
+                // Switch node
+                ctx.save();
+                ctx.shadowColor='#06B6D4'; ctx.shadowBlur=20;
+                ctx.fillStyle='rgba(6,182,212,0.15)'; ctx.strokeStyle='#06B6D4'; ctx.lineWidth=2;
+                ctx.beginPath(); ctx.arc(cx,cy,20,0,Math.PI*2); ctx.fill(); ctx.stroke();
+                ctx.fillStyle='#22D3EE'; ctx.font="bold 9px 'Fira Code',monospace"; ctx.textAlign='center'; ctx.textBaseline='middle';
+                ctx.fillText('SW',cx,cy);
+                ctx.restore();
+            }
+
+            // Nodes
+            nodePositions.forEach(n=>{
+                const p=getPos(n);
+                ctx.save();
+                ctx.shadowColor= mode==='networked'?'#06B6D4':'#475569';
+                ctx.shadowBlur=mode==='networked'?14:4;
+                ctx.fillStyle=mode==='networked'?'rgba(6,182,212,0.15)':'rgba(71,85,105,0.15)';
+                ctx.strokeStyle=mode==='networked'?'#06B6D4':'#475569';
+                ctx.lineWidth=2;
+                ctx.beginPath(); ctx.arc(p.x,p.y,18,0,Math.PI*2); ctx.fill(); ctx.stroke();
+                ctx.fillStyle=mode==='networked'?'#22D3EE':'#94A3B8';
+                ctx.font="bold 10px 'Inter',sans-serif"; ctx.textAlign='center'; ctx.textBaseline='middle';
+                ctx.fillText(n.label,p.x,p.y);
+                ctx.restore();
+            });
+
+            // Packets
+            packets.forEach(p=>{ if(!p.done) drawPacket(p); });
+
+            // Status label
+            ctx.fillStyle = mode==='networked'?'rgba(6,182,212,0.7)':'rgba(239,68,68,0.7)';
+            ctx.font="bold 12px 'Inter',sans-serif"; ctx.textAlign='center'; ctx.textBaseline='top';
+            ctx.fillText(mode==='networked'?'🌐 Star Topology — Connected via Switch':'🚫 Isolated — No Communication Possible', canvas.width/2, 10);
+        }
+
+        function drawPacket(p){
+            ctx.save();
+            ctx.shadowColor='#FBBF24'; ctx.shadowBlur=12;
+            ctx.fillStyle='#FBBF24';
+            ctx.beginPath(); ctx.arc(p.cx,p.cy,6,0,Math.PI*2); ctx.fill();
+            ctx.restore();
+        }
+
+        function setMode(m){
+            mode=m; packets=[];
+            document.getElementById('btn-isolated').classList.toggle('active',m==='isolated');
+            document.getElementById('btn-networked').classList.toggle('active',m==='networked');
+            drawScene();
+        }
+
+        function sendPacket(){
+            if(mode==='isolated'){ showIsolatedMsg(); return; }
+            packets=[];
+            const src=nodePositions[0], tgt=nodePositions[5];
+            const sp=getPos(src), tp=getPos(tgt);
+            const cx=canvas.width*0.5, cy=canvas.height*0.5;
+            // Hop 1: src → switch
+            const p1={cx:sp.x,cy:sp.y,tx:cx,ty:cy,done:false,phase:1,sp,tp,cx,cy};
+            packets.push(p1);
+            animPacket(p1,()=>{
+                // Hop 2: switch → target
+                const p2={cx,cy,tx:tp.x,ty:tp.y,done:false};
+                packets.push(p2);
+                animPacket(p2,()=>{ drawScene(); });
+            });
+        }
+
+        function animPacket(p,cb){
+            const speed=2, dx=p.tx-p.cx, dy=p.ty-p.cy, dist=Math.sqrt(dx*dx+dy*dy);
+            const steps=Math.ceil(dist/speed);
+            let i=0;
+            function step(){
+                if(i>=steps){ p.cx=p.tx; p.cy=p.ty; p.done=true; drawScene(); if(cb) cb(); return; }
+                p.cx+=dx/steps; p.cy+=dy/steps;
+                drawScene(); i++;
+                requestAnimationFrame(step);
+            }
+            step();
+        }
+
+        function showIsolatedMsg(){
+            ctx.save();
+            ctx.fillStyle='rgba(239,68,68,0.9)';
+            ctx.font="bold 14px 'Cairo',sans-serif"; ctx.textAlign='center'; ctx.textBaseline='middle';
+            ctx.fillText('❌ مش ممكن! مفيش طريق بين الأجهزة. لازم USB!', canvas.width/2, canvas.height/2);
+            ctx.restore();
+            setTimeout(drawScene,2000);
+        }
+
+        drawScene();
+
+        // ── Quiz ──
+        const feedback = {
+            q1:{ c:'✅ صح! كل شبكة لازم فيها 3 عناصر: Nodes (الأجهزة) + Links (الوسائط) + Protocols (قواعد التواصل).', w:'❌ غلط! الإجابة الصح: Nodes, Links, Protocols — دي العناصر الجوهرية لأي شبكة.' },
+            q2:{ c:'✅ صح! بدون شبكة كل جهاز محتاج طابعة منفردة — مع الشبكة طابعة واحدة تكفي الكل.', w:'❌ غلط! السبب هو غياب المشاركة — كل جهاز يحتاج طابعة خاصة بيه.' },
+            q3:{ c:'✅ ممتاز! Link = الوسيط الفيزيائي (كابل أو WiFi). Protocol = قواعد التواصل المتفق عليها (TCP/IP, HTTP…).', w:'❌ غلط! Link هو الوسيط، Protocol هو قواعد اللغة المشتركة بين الأجهزة.' },
+            q4:{ c:'✅ صح! WhatsApp مثال كلاسيكي على استخدام شبكة الإنترنت العالمية لنقل البيانات.', w:'❌ غلط! رسالة WhatsApp بتمشي على شبكة الإنترنت الضخمة — أكبر بكتير من Bluetooth أو LAN.' }
+        };
+        function checkAnswer(el,qid,correct){
+            const q=document.getElementById(qid);
+            if(q.dataset.answered) return;
+            q.dataset.answered='true';
+            q.querySelectorAll('.quiz-option').forEach(o=>o.style.pointerEvents='none');
+            el.classList.add(correct?'correct':'wrong');
+            const fb=document.getElementById('fb-'+qid);
+            fb.textContent=correct?feedback[qid].c:feedback[qid].w;
+            fb.className='quiz-feedback show '+(correct?'correct-fb':'wrong-fb');
+        }
+    </script>
+</body>
+</html>

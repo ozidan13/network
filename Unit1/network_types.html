@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Network Types — أنواع الشبكات | Network Mastery</title>
+    <meta name="description" content="PAN, LAN, MAN, WAN, Internet — أنواع الشبكات من أصغر غرفة لحد الكوكب كله.">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&family=Inter:wght@400;500;600;700;800&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    <link href="../css/global-net.css" rel="stylesheet">
+    <style>
+        body { background:#020617; color:#E2E8F0; font-family:'Inter',sans-serif; }
+        .lesson-nav-bar { position:fixed; top:0; left:0; right:0; z-index:100; background:rgba(2,6,23,0.88); backdrop-filter:blur(20px); border-bottom:1px solid rgba(255,255,255,0.06); height:64px; display:flex; align-items:center; padding:0 1.5rem; }
+        .nav-inner { max-width:1280px; margin:0 auto; width:100%; display:flex; align-items:center; justify-content:space-between; }
+        .nav-brand { display:flex; align-items:center; gap:0.75rem; font-weight:700; }
+        .back-btn { width:36px; height:36px; border-radius:10px; background:linear-gradient(135deg,#06B6D4,#0891B2); display:flex; align-items:center; justify-content:center; color:white; font-size:0.85rem; transition:transform 0.3s; }
+        .back-btn:hover { transform:scale(1.1); }
+        .nav-links { display:flex; gap:2rem; font-size:0.85rem; font-family:'Cairo',sans-serif; color:var(--text-faint); }
+        .nav-links a { direction:rtl; transition:color 0.3s; } .nav-links a:hover { color:#22D3EE; }
+        @media(max-width:768px){.nav-links{display:none;}}
+        .lesson-hero { position:relative; padding:8rem 1.5rem 5rem; text-align:center; overflow:hidden; }
+        .glow-orb { position:absolute; border-radius:50%; filter:blur(128px); pointer-events:none; }
+        .glow-orb-1 { width:500px; height:500px; top:-10%; right:-5%; background:rgba(6,182,212,0.12); }
+        .glow-orb-2 { width:400px; height:400px; bottom:-20%; left:-10%; background:rgba(59,130,246,0.08); }
+        .lesson-badge { display:inline-flex; align-items:center; gap:0.5rem; padding:0.35rem 1rem; border-radius:50px; background:rgba(30,41,59,0.6); border:1px solid rgba(255,255,255,0.08); font-family:'Fira Code',monospace; font-size:0.78rem; color:#22D3EE; margin-bottom:1.5rem; }
+        .dot { width:6px; height:6px; border-radius:50%; background:#06B6D4; animation:pulse-dot 2s ease infinite; }
+        .lesson-hero h1 { font-size:clamp(2.5rem,5vw,4rem); font-weight:800; margin-bottom:1rem; }
+        .text-g { background:linear-gradient(135deg,#06B6D4,#22D3EE); -webkit-background-clip:text; background-clip:text; -webkit-text-fill-color:transparent; }
+        .subtitle { font-family:'Cairo',sans-serif; font-size:1.6rem; font-weight:700; color:var(--text-muted); direction:rtl; margin-bottom:1.5rem; }
+        .desc { color:var(--text-faint); max-width:640px; margin:0 auto; font-size:1.05rem; font-family:'Cairo',sans-serif; direction:rtl; line-height:1.9; }
+
+        /* Scale Zoom Visual */
+        .scale-track { display:flex; align-items:stretch; gap:0; margin:2rem 0; border-radius:12px; overflow:hidden; border:1px solid var(--border-subtle); }
+        .scale-seg { flex:1; padding:1rem 0.5rem; text-align:center; cursor:pointer; transition:all 0.3s ease; border-right:1px solid rgba(255,255,255,0.04); }
+        .scale-seg:last-child { border-right:none; }
+        .scale-seg .ss-abbr { font-family:'Fira Code',monospace; font-weight:900; font-size:1rem; direction:ltr; }
+        .scale-seg .ss-range { font-size:0.65rem; color:var(--text-ghost); margin-top:0.2rem; direction:ltr; }
+        .scale-seg:hover, .scale-seg.active { filter:brightness(1.3); }
+        @media(max-width:600px){ .scale-seg .ss-range { display:none; } }
+
+        /* Network Type Cards — enhanced */
+        .nt-card { background:rgba(15,23,42,0.7); backdrop-filter:blur(12px); border:1px solid var(--border-subtle); border-radius:20px; padding:2rem; margin-bottom:1.5rem; transition:all 0.4s ease; }
+        .nt-card:hover { transform:translateX(-4px); }
+        .nt-header { display:flex; align-items:center; gap:1.5rem; margin-bottom:1.5rem; }
+        .nt-icon { width:60px; height:60px; border-radius:16px; display:flex; align-items:center; justify-content:center; font-size:1.6rem; flex-shrink:0; }
+        .nt-abbr { font-family:'Fira Code',monospace; font-size:2rem; font-weight:900; direction:ltr; }
+        .nt-name { font-size:0.9rem; color:var(--text-muted); font-family:'Cairo',sans-serif; direction:rtl; }
+        .nt-range { display:inline-flex; align-items:center; gap:0.3rem; padding:0.2rem 0.65rem; border-radius:20px; font-size:0.7rem; font-weight:700; margin-top:0.3rem; font-family:'Fira Code',monospace; direction:ltr; }
+        .nt-fact { background:rgba(0,0,0,0.2); border-radius:10px; padding:0.9rem 1rem; margin-top:1rem; font-family:'Cairo',sans-serif; direction:rtl; font-size:0.85rem; color:#94A3B8; line-height:1.7; border-left:3px solid var(--accent-color,#06B6D4); }
+
+        .lesson-bottom-nav { display:flex; justify-content:space-between; align-items:center; gap:1rem; padding:2rem 0; border-top:1px solid var(--border-subtle); margin-top:3rem; }
+        .lesson-bottom-nav a { display:flex; align-items:center; gap:0.5rem; padding:0.75rem 1.5rem; border-radius:12px; background:rgba(255,255,255,0.04); border:1px solid var(--border-subtle); transition:all 0.3s ease; font-weight:600; font-size:0.9rem; }
+        .lesson-bottom-nav a:hover { background:rgba(6,182,212,0.1); border-color:rgba(6,182,212,0.3); transform:translateY(-2px); }
+    </style>
+</head>
+<body>
+    <nav class="lesson-nav-bar">
+        <div class="nav-inner">
+            <a href="../index.html" class="nav-brand">
+                <div class="back-btn"><i class="fas fa-arrow-left"></i></div>
+                <span>Net<span style="color:#06B6D4;">Types</span></span>
+            </a>
+            <div class="nav-links">
+                <a href="#scale">المقياس</a>
+                <a href="#types">الأنواع</a>
+                <a href="#comparison">المقارنة</a>
+                <a href="#quiz">الاختبار</a>
+            </div>
+        </div>
+    </nav>
+    <div class="progress-bar-container"><div class="progress-bar-fill" id="reading-progress"></div></div>
+
+    <header class="lesson-hero" id="intro">
+        <div class="glow-orb glow-orb-1"></div>
+        <div class="glow-orb glow-orb-2"></div>
+        <div style="position:relative;z-index:1;">
+            <div class="lesson-badge" data-aos="fade-down"><span class="dot"></span>UNIT 1 • Lesson 2</div>
+            <h1 data-aos="fade-up" data-aos-delay="150">Network <span class="text-g">Types</span></h1>
+            <div class="subtitle" data-aos="fade-up" data-aos-delay="300">أنواع الشبكات</div>
+            <p class="desc" data-aos="fade-up" data-aos-delay="450">سؤال بسيط: هل Bluetooth سماعتك وشبكة بنك الأهلي بفروعه الخمسمية — نفس النوع؟ الإجابة هتفاجئك.</p>
+        </div>
+    </header>
+
+    <!-- OPENING HOOK: The Scale Question -->
+    <section class="lesson-section" id="scale">
+        <div class="section-header" data-aos="fade-up">
+            <h2><i class="fas fa-expand-arrows-alt" style="color:#06B6D4; margin-left:0.5rem;"></i> السؤال اللي بيميّز</h2>
+            <p class="en-sub">What Makes Networks Different? — Scale</p>
+        </div>
+
+        <div class="glass-card" style="padding:1.8rem;" data-aos="fade-up" data-aos-delay="100">
+            <div class="rtl-block">
+                <p style="color:#E2E8F0; font-size:1rem; margin-bottom:1rem; line-height:1.9;">
+                    المعيار الأساسي اللي بيميّز أنواع الشبكات مش التكنولوجيا، مش السرعة — هو <strong style="color:#22D3EE;">المدى الجغرافي</strong>.
+                </p>
+                <p style="color:#94A3B8; font-size:0.9rem; margin-bottom:1.5rem; line-height:1.8;">
+                    زووم إن على شاشة جوجل ماب من القاهرة لأسوان — الخريطة بتتغير. نفس الفكرة في الشبكات: من سماعتك لحد قمر اصطناعي — كل مدى بياخد اسم مختلف.
+                </p>
+            </div>
+
+            <!-- Scale Track -->
+            <div class="scale-track">
+                <div class="scale-seg" style="background:rgba(236,72,153,0.1);" onclick="highlight('pan')">
+                    <div class="ss-abbr" style="color:#F472B6;">PAN</div>
+                    <div class="ss-range">1-10m</div>
+                </div>
+                <div class="scale-seg" style="background:rgba(6,182,212,0.1);" onclick="highlight('lan')">
+                    <div class="ss-abbr" style="color:#22D3EE;">LAN</div>
+                    <div class="ss-range">100m-1km</div>
+                </div>
+                <div class="scale-seg" style="background:rgba(16,185,129,0.1);" onclick="highlight('man')">
+                    <div class="ss-abbr" style="color:#34D399;">MAN</div>
+                    <div class="ss-range">5-50km</div>
+                </div>
+                <div class="scale-seg" style="background:rgba(245,158,11,0.1);" onclick="highlight('wan')">
+                    <div class="ss-abbr" style="color:#FBBF24;">WAN</div>
+                    <div class="ss-range">دول/قارات</div>
+                </div>
+                <div class="scale-seg" style="background:rgba(139,92,246,0.1);" onclick="highlight('internet')">
+                    <div class="ss-abbr" style="color:#A78BFA;">NET</div>
+                    <div class="ss-range">الكوكب كله</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- TYPES SECTION -->
+    <section class="lesson-section alt-bg" id="types">
+        <div class="section-inner">
+            <div class="section-header" data-aos="fade-up">
+                <h2><i class="fas fa-layer-group" style="color:#06B6D4; margin-left:0.5rem;"></i> الأنواع تفصيلاً</h2>
+                <p class="en-sub">From Personal to Global — 5 Network Types</p>
+            </div>
+
+            <!-- PAN -->
+            <div class="nt-card" style="border-color:rgba(236,72,153,0.2); --accent-color:#EC4899;" data-aos="fade-up" id="card-pan">
+                <div class="nt-header">
+                    <div class="nt-icon" style="background:rgba(236,72,153,0.1);">📱</div>
+                    <div>
+                        <div class="nt-abbr" style="color:#EC4899;">PAN</div>
+                        <div class="nt-name">Personal Area Network — شبكة شخصية</div>
+                        <div class="nt-range" style="background:rgba(236,72,153,0.1); color:#F472B6;">1م — 10م</div>
+                    </div>
+                </div>
+                <div class="rtl-block">
+                    <p style="color:#CBD5E1; margin-bottom:1rem; font-size:0.95rem; line-height:1.8;">
+                        أصغر نوع. المدى لا يتجاوز بضع أمتار — حرفياً في متناول يدك. الـ PAN اتصمم عشان ربط أجهزتك الشخصية ببعض.
+                    </p>
+                    <div class="step-box" style="border-color:#EC4899;">
+                        <p style="color:#F9A8D4; margin-bottom:0.5rem;">🎧 <strong>Bluetooth:</strong> موبايلك + سماعتك AirPods أو عجلة السيارة</p>
+                        <p style="color:#F9A8D4; margin-bottom:0.5rem;">⌚ <strong>Smartwatch:</strong> ساعتك الذكية تستقبل إشعاراتك من الموبايل</p>
+                        <p style="color:#F9A8D4;">🖱️ <strong>Wireless Peripherals:</strong> ماوسك اللاسلكي، الكيبورد</p>
+                    </div>
+                    <div class="nt-fact" style="--accent-color:#EC4899;">
+                        📊 <strong>فاكت:</strong> الـ Bluetooth 5.0 يوصل لـ 240 متر في الفضاء المفتوح — بس في الاستخدام اليومي (جدران وبشر) المدى الفعلي 10-15 متر.
+                    </div>
+                </div>
+            </div>
+
+            <!-- LAN -->
+            <div class="nt-card" style="border-color:rgba(6,182,212,0.2); --accent-color:#06B6D4;" data-aos="fade-up" data-aos-delay="50" id="card-lan">
+                <div class="nt-header">
+                    <div class="nt-icon" style="background:rgba(6,182,212,0.1);">🏢</div>
+                    <div>
+                        <div class="nt-abbr" style="color:#06B6D4;">LAN</div>
+                        <div class="nt-name">Local Area Network — شبكة محلية</div>
+                        <div class="nt-range" style="background:rgba(6,182,212,0.1); color:#22D3EE;">100م — كيلومتر</div>
+                    </div>
+                </div>
+                <div class="rtl-block">
+                    <p style="color:#CBD5E1; margin-bottom:1rem; font-size:0.95rem; line-height:1.8;">
+                        الـ LAN هو الشبكة اللي شايفها بعينك في أي مكاني — مكتب، مدرسة، بيت، مستشفى. كل الأجهزة داخل نفس المبنى أو المجمع.
+                    </p>
+                    <div class="step-box" style="border-color:#06B6D4;">
+                        <p style="color:#A5F3FC; margin-bottom:0.5rem;">🏫 <strong>معمل الكمبيوتر:</strong> 30 جهاز متشبكين — بيشتركوا في طابعة واحدة وإنترنت مشترك</p>
+                        <p style="color:#A5F3FC; margin-bottom:0.5rem;">🏠 <strong>بيتك:</strong> Router الـ WiFi بتاعك بيعمل LAN صغيرة للموبايلات واللابتوب</p>
+                        <p style="color:#A5F3FC;">🏭 <strong>المصانع والشركات:</strong> شبكة داخلية تربط الإدارة بالإنتاج بالمخازن</p>
+                    </div>
+                    <div class="nt-fact">
+                        📊 <strong>سرعة:</strong> Ethernet الحديثة بتوصل لـ 10 Gbps — أسرع 10,000 مرة من إنترنت بيتك المتوسط في مصر!
+                    </div>
+                </div>
+            </div>
+
+            <!-- MAN -->
+            <div class="nt-card" style="border-color:rgba(16,185,129,0.2); --accent-color:#10B981;" data-aos="fade-up" data-aos-delay="100" id="card-man">
+                <div class="nt-header">
+                    <div class="nt-icon" style="background:rgba(16,185,129,0.1);">🏙️</div>
+                    <div>
+                        <div class="nt-abbr" style="color:#10B981;">MAN</div>
+                        <div class="nt-name">Metropolitan Area Network — شبكة مدينة</div>
+                        <div class="nt-range" style="background:rgba(16,185,129,0.1); color:#34D399;">5كم — 50كم</div>
+                    </div>
+                </div>
+                <div class="rtl-block">
+                    <p style="color:#CBD5E1; margin-bottom:1rem; font-size:0.95rem; line-height:1.8;">
+                        الـ MAN بيغطي مدينة كاملة — بتربط مواقع متعددة في نفس المنطقة الجغرافية. اسمها من "Metropolitan" أي مدينة كبيرة.
+                    </p>
+                    <div class="step-box" style="border-color:#10B981;">
+                        <p style="color:#6EE7B7; margin-bottom:0.5rem;">🚇 <strong>مترو القاهرة:</strong> كل المحطات متشبكة في نظام واحد للتذاكر والمراقبة</p>
+                        <p style="color:#6EE7B7; margin-bottom:0.5rem;">🏦 <strong>فروع البنك في القاهرة:</strong> كل الفروع داخل المدينة تتواصل على MAN</p>
+                        <p style="color:#6EE7B7;">📡 <strong>شبكة الكهرباء الذكية:</strong> SCADA لمراقبة توزيع الكهرباء في المدينة</p>
+                    </div>
+                    <div class="nt-fact" style="--accent-color:#10B981;">
+                        📊 <strong>التقنية:</strong> غالباً Fiber Optic مؤجرة من ISP. بعض المدن بتستخدم WiMAX للـ MAN اللاسلكية.
+                    </div>
+                </div>
+            </div>
+
+            <!-- WAN -->
+            <div class="nt-card" style="border-color:rgba(245,158,11,0.2); --accent-color:#F59E0B;" data-aos="fade-up" data-aos-delay="150" id="card-wan">
+                <div class="nt-header">
+                    <div class="nt-icon" style="background:rgba(245,158,11,0.1);">🌍</div>
+                    <div>
+                        <div class="nt-abbr" style="color:#F59E0B;">WAN</div>
+                        <div class="nt-name">Wide Area Network — شبكة واسعة</div>
+                        <div class="nt-range" style="background:rgba(245,158,11,0.1); color:#FBBF24;">دول → قارات</div>
+                    </div>
+                </div>
+                <div class="rtl-block">
+                    <p style="color:#CBD5E1; margin-bottom:1rem; font-size:0.95rem; line-height:1.8;">
+                        الـ WAN بيتجاوز كل الحدود الجغرافية. بيغطي دول ومحيطات. الشركات الدولية والبنوك الكبرى بتستخدمه عشان تربط فروعها حول العالم.
+                    </p>
+                    <div class="step-box" style="border-color:#F59E0B;">
+                        <p style="color:#FDE68A; margin-bottom:0.5rem;">🏦 <strong>البنك الأهلي الوطني:</strong> أكتر من 500 فرع في مصر — كلهم على شبكة WAN واحدة</p>
+                        <p style="color:#FDE68A; margin-bottom:0.5rem;">✈️ <strong>EgyptAir:</strong> نظام الحجوزات من 60 دولة يوصل لنفس الـ Database</p>
+                        <p style="color:#FDE68A;">🏢 <strong>VPN الشركات:</strong> موظف بيشتغل من البيت يتصل بشبكة الشركة الداخلية عبر WAN</p>
+                    </div>
+                    <div class="nt-fact" style="--accent-color:#F59E0B;">
+                        📊 <strong>التقنية:</strong> Undersea Fiber Cables تمتد آلاف الكيلوات تحت البحار. مصر متوصلة بأوروبا وآسيا بكابلات تحت البحر الأحمر والمتوسط.
+                    </div>
+                </div>
+            </div>
+
+            <!-- Internet -->
+            <div class="nt-card" style="border-color:rgba(139,92,246,0.2); --accent-color:#8B5CF6;" data-aos="fade-up" data-aos-delay="200" id="card-internet">
+                <div class="nt-header">
+                    <div class="nt-icon" style="background:rgba(139,92,246,0.1);">🌐</div>
+                    <div>
+                        <div class="nt-abbr" style="color:#8B5CF6;">Internet</div>
+                        <div class="nt-name">Network of Networks — شبكة الشبكات</div>
+                        <div class="nt-range" style="background:rgba(139,92,246,0.1); color:#A78BFA;">الكوكب كله 🌍</div>
+                    </div>
+                </div>
+                <div class="rtl-block">
+                    <p style="color:#CBD5E1; margin-bottom:1rem; font-size:0.95rem; line-height:1.8;">
+                        الإنترنت مش "شبكة كبيرة" — هو <strong style="color:#A78BFA;">مجموعة من الـ WAN Networks المترابطة</strong>. كل ISP عنده شبكته الخاصة. لما كلهم يتربطوا مع بعض — ده هو الإنترنت.
+                    </p>
+                    <div class="info-box">
+                        <div class="rtl-block">
+                            💡 <strong>الفرق المهم:</strong> الإنترنت = البنية التحتية (الكابلات والـ Routers وكل حاجة). الـ Web (مواقع الإنترنت) = خدمة واحدة <em>فوق</em> الإنترنت. YouTube وGoogle هم خدمات، مش الإنترنت نفسه.
+                        </div>
+                    </div>
+                    <div class="nt-fact" style="--accent-color:#8B5CF6;">
+                        🇪🇬 <strong>مصر والإنترنت:</strong> أول اتصال للإنترنت في مصر كان سنة 1993. دلوقتي فيه 100+ مليون مستخدم إنترنت مصري.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- COMPARISON TABLE -->
+    <section class="lesson-section" id="comparison">
+        <div class="section-header" data-aos="fade-up">
+            <h2><i class="fas fa-table" style="color:#3B82F6; margin-left:0.5rem;"></i> مقارنة سريعة</h2>
+            <p class="en-sub">All 5 Types at a Glance</p>
+        </div>
+        <div data-aos="fade-up" style="overflow-x:auto;">
+            <table class="comparison-table">
+                <thead>
+                    <tr>
+                        <th>النوع</th><th>المدى</th><th>مثال مصري</th><th>السرعة</th><th>الملكية</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr><td style="color:#F472B6;font-weight:700;">PAN</td><td>&lt;10م</td><td>Bluetooth سماعتك</td><td>3 Mbps</td><td class="rtl-block">شخصية</td></tr>
+                    <tr><td style="color:#22D3EE;font-weight:700;">LAN</td><td>100م-1كم</td><td>معمل كمبيوتر الكلية</td><td>1-10 Gbps</td><td class="rtl-block">خاصة/مؤسسة</td></tr>
+                    <tr><td style="color:#34D399;font-weight:700;">MAN</td><td>5-50كم</td><td>شبكة مترو القاهرة</td><td>100 Mbps</td><td class="rtl-block">حكومية/خاصة</td></tr>
+                    <tr><td style="color:#FBBF24;font-weight:700;">WAN</td><td>دول/قارات</td><td>فروع البنك الأهلي</td><td>10-100 Mbps</td><td class="rtl-block">مؤجرة من ISP</td></tr>
+                    <tr><td style="color:#A78BFA;font-weight:700;">Internet</td><td>الكوكب</td><td>كل حاجة! 🌍</td><td>متغيرة</td><td class="rtl-block">لا أحد يملكها</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <!-- QUIZ -->
+    <section class="lesson-section alt-bg" id="quiz">
+        <div class="section-inner">
+            <div class="section-header" data-aos="fade-up">
+                <h2><i class="fas fa-brain" style="color:#8B5CF6; margin-left:0.5rem;"></i> اختبر نفسك</h2>
+                <p class="en-sub">Network Type Identification</p>
+            </div>
+            <div class="quiz-container" data-aos="fade-up">
+                <div class="quiz-question" id="q1">
+                    <h4>موظف في فرع البنك الأهلي في الإسكندرية بيشوف حساب العميل اللي اتفتح في القاهرة — على أي نوع شبكة؟</h4>
+                    <div class="quiz-options">
+                        <div class="quiz-option" onclick="ans(this,'q1',false)">LAN</div>
+                        <div class="quiz-option" onclick="ans(this,'q1',false)">MAN</div>
+                        <div class="quiz-option" onclick="ans(this,'q1',true)">WAN</div>
+                        <div class="quiz-option" onclick="ans(this,'q1',false)">PAN</div>
+                    </div>
+                    <div class="quiz-feedback" id="fb-q1"></div>
+                </div>
+                <div class="quiz-question" id="q2">
+                    <h4>سماعة اللاسلكية بتتوصل بموبايلك على بُعد 5 متر — ده مثال على؟</h4>
+                    <div class="quiz-options">
+                        <div class="quiz-option" onclick="ans(this,'q2',true)">PAN</div>
+                        <div class="quiz-option" onclick="ans(this,'q2',false)">LAN</div>
+                        <div class="quiz-option" onclick="ans(this,'q2',false)">MAN</div>
+                        <div class="quiz-option" onclick="ans(this,'q2',false)">WAN</div>
+                    </div>
+                    <div class="quiz-feedback" id="fb-q2"></div>
+                </div>
+                <div class="quiz-question" id="q3">
+                    <h4>الإنترنت هو...</h4>
+                    <div class="quiz-options">
+                        <div class="quiz-option" onclick="ans(this,'q3',false)">WAN ضخمة تملكها أمريكا</div>
+                        <div class="quiz-option" onclick="ans(this,'q3',true)">مجموعة من WAN Networks مترابطة — لا أحد يملكها</div>
+                        <div class="quiz-option" onclick="ans(this,'q3',false)">LAN عالمية كبيرة</div>
+                        <div class="quiz-option" onclick="ans(this,'q3',false)">نفس الـ WWW</div>
+                    </div>
+                    <div class="quiz-feedback" id="fb-q3"></div>
+                </div>
+                <div class="quiz-question" id="q4">
+                    <h4>شبكة مترو القاهرة اللي بتربط كل المحطات في المدينة — ايه نوعها؟</h4>
+                    <div class="quiz-options">
+                        <div class="quiz-option" onclick="ans(this,'q4',false)">LAN</div>
+                        <div class="quiz-option" onclick="ans(this,'q4',true)">MAN</div>
+                        <div class="quiz-option" onclick="ans(this,'q4',false)">WAN</div>
+                        <div class="quiz-option" onclick="ans(this,'q4',false)">PAN</div>
+                    </div>
+                    <div class="quiz-feedback" id="fb-q4"></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="lesson-section">
+        <div class="lesson-bottom-nav">
+            <a href="why_networks.html"><i class="fas fa-arrow-left"></i><span>ليه شبكات</span></a>
+            <div style="text-align:center;color:var(--text-faint);font-size:0.85rem;font-family:'Cairo',sans-serif;">Unit 1 • Lesson 2</div>
+            <a href="network_topologies.html"><span>الطوبولوجيا</span><i class="fas fa-arrow-right"></i></a>
+        </div>
+    </section>
+
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <script>
+        AOS.init({duration:800,once:true,offset:100});
+        window.addEventListener('scroll', () => {
+            document.getElementById('reading-progress').style.width = (window.scrollY/(document.documentElement.scrollHeight-window.innerHeight))*100+'%';
+        });
+        function highlight(type){
+            document.querySelectorAll('.scale-seg').forEach(s=>s.classList.remove('active'));
+            event.target.closest('.scale-seg').classList.add('active');
+            const target = document.getElementById('card-'+type);
+            if(target) target.scrollIntoView({behavior:'smooth',block:'start'});
+        }
+        const fb={
+            q1:{c:'✅ صح! ربط فروع البنك في مدن مختلفة = WAN. المدى بيتجاوز المدينة الواحدة.',w:'❌ غلط! ده WAN — بيربط مواقع في مدن مختلفة.'},
+            q2:{c:'✅ صح! PAN — شبكة شخصية، مداها بضع أمتار. Bluetooth هو التقنية الأشيع فيها.',w:'❌ غلط! ده PAN — سماعة + موبايل على بضع أمتار = شبكة شخصية.'},
+            q3:{c:'✅ ممتاز! الإنترنت = Network of Networks. مجموعة ISPs مترابطين — لا حكومة ولا شركة تملكه كله.',w:'❌ غلط! الإنترنت مش WAN واحدة ومش ملك أمريكا — هو مجموعة شبكات عالمية متحدة.'},
+            q4:{c:'✅ صح! شبكة المترو في مدينة = MAN — تغطي مدى المدينة (5-50كم).',w:'❌ غلط! ده MAN — شبكة المدينة. LAN أصغر (مبنى) وWAN أكبر (دول).'}
+        };
+        function ans(el,qid,correct){
+            const q=document.getElementById(qid);
+            if(q.dataset.answered)return;
+            q.dataset.answered='true';
+            q.querySelectorAll('.quiz-option').forEach(o=>o.style.pointerEvents='none');
+            el.classList.add(correct?'correct':'wrong');
+            const fb_el=document.getElementById('fb-'+qid);
+            fb_el.textContent=correct?fb[qid].c:fb[qid].w;
+            fb_el.className='quiz-feedback show '+(correct?'correct-fb':'wrong-fb');
+        }
+    </script>
+</body>
+</html>
