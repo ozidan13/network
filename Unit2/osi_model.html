@@ -668,5 +668,21 @@
             fb.className = 'quiz-feedback show ' + (correct ? 'correct-fb' : 'wrong-fb');
         }
     </script>
+    <script>
+        // Auto-save progress when 90% scrolled
+        (function() {
+            var saved = false;
+            window.addEventListener('scroll', function() {
+                if (saved) return;
+                var pct = window.scrollY / (document.documentElement.scrollHeight - window.innerHeight);
+                if (pct > 0.90) {
+                    var prog = JSON.parse(localStorage.getItem('nm_progress') || '{}');
+                    prog['unit2_lesson1'] = true;
+                    localStorage.setItem('nm_progress', JSON.stringify(prog));
+                    saved = true;
+                }
+            });
+        })();
+    </script>
 </body>
 </html>

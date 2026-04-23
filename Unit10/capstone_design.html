@@ -1,0 +1,109 @@
+﻿<!DOCTYPE html>
+<html lang="en" class="scroll-smooth" dir="ltr">
+<head>
+    <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Capstone Design — مشروع تصميم الشبكة | Network Mastery</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&family=Inter:wght@400;500;600;700;800&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    <link href="../css/global-net.css" rel="stylesheet">
+    <style>body{background:#020617;color:#E2E8F0;font-family:'Inter',sans-serif;}.lesson-nav-bar{position:fixed;top:0;left:0;right:0;z-index:100;background:rgba(2,6,23,0.88);backdrop-filter:blur(20px);border-bottom:1px solid rgba(255,255,255,0.06);height:64px;display:flex;align-items:center;padding:0 1.5rem;}.nav-inner{max-width:1280px;margin:0 auto;width:100%;display:flex;align-items:center;justify-content:space-between;}.nav-brand{display:flex;align-items:center;gap:0.75rem;font-weight:700;}.back-btn{width:36px;height:36px;border-radius:10px;background:linear-gradient(135deg,#F59E0B,#D97706);display:flex;align-items:center;justify-content:center;color:white;font-size:0.85rem;}.lesson-hero{position:relative;padding:8rem 1.5rem 5rem;text-align:center;overflow:hidden;}.glow-orb{position:absolute;border-radius:50%;filter:blur(128px);pointer-events:none;}.glow-orb-1{width:500px;height:500px;top:-10%;right:-5%;background:rgba(245,158,11,0.12);}.lesson-badge{display:inline-flex;align-items:center;gap:0.5rem;padding:0.35rem 1rem;border-radius:50px;background:rgba(30,41,59,0.6);border:1px solid rgba(255,255,255,0.08);font-family:'Fira Code',monospace;font-size:0.78rem;color:#FBBF24;margin-bottom:1.5rem;}.dot{width:6px;height:6px;border-radius:50%;background:#F59E0B;animation:pulse-dot 2s ease infinite;}.lesson-hero h1{font-size:clamp(2.5rem,5vw,4rem);font-weight:800;margin-bottom:1rem;}.text-g{background:linear-gradient(135deg,#F59E0B,#FCD34D);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;}.subtitle{font-family:'Cairo',sans-serif;font-size:1.6rem;font-weight:700;color:var(--text-muted);direction:rtl;margin-bottom:1.5rem;}.desc{color:var(--text-faint);max-width:640px;margin:0 auto;font-size:1.05rem;font-family:'Cairo',sans-serif;direction:rtl;line-height:1.9;}.lesson-bottom-nav{display:flex;justify-content:space-between;align-items:center;gap:1rem;padding:2rem 0;border-top:1px solid var(--border-subtle);margin-top:3rem;}.lesson-bottom-nav a{display:flex;align-items:center;gap:0.5rem;padding:0.75rem 1.5rem;border-radius:12px;background:rgba(255,255,255,0.04);border:1px solid var(--border-subtle);transition:all 0.3s;font-weight:600;font-size:0.9rem;}.lesson-bottom-nav a:hover{background:rgba(245,158,11,0.1);border-color:rgba(245,158,11,0.3);transform:translateY(-2px);}</style>
+</head>
+<body>
+    <nav class="lesson-nav-bar"><div class="nav-inner"><a href="../index.html" class="nav-brand"><div class="back-btn"><i class="fas fa-arrow-left"></i></div><span>Cap<span style="color:#F59E0B;">stone</span></span></a></div></nav>
+    <div class="progress-bar-container"><div class="progress-bar-fill" id="reading-progress" style="background:linear-gradient(90deg,#F59E0B,#FCD34D);"></div></div>
+    <header class="lesson-hero">
+        <div class="glow-orb glow-orb-1"></div>
+        <div style="position:relative;z-index:1;">
+            <div class="lesson-badge" data-aos="fade-down"><span class="dot"></span>UNIT 10 • Lesson 1</div>
+            <h1 data-aos="fade-up" data-aos-delay="150">Capstone <span class="text-g">Design</span></h1>
+            <div class="subtitle" data-aos="fade-up" data-aos-delay="300">مشروع التخرج — تصميم شبكة شركة</div>
+            <p class="desc" data-aos="fade-up" data-aos-delay="450">الـ Scenario: تصميم شبكة شركة متوسطة الحجم (200 موظف، 3 مبانٍ، Data Center) من الصفر. هدفك: High Availability وSecurity وScalability.</p>
+        </div>
+    </header>
+
+    <section class="lesson-section">
+        <div class="section-header" data-aos="fade-up"><h2><i class="fas fa-clipboard-list" style="color:#FBBF24;margin-left:0.5rem;"></i> Project Requirements</h2></div>
+        <div class="glass-card" style="padding:1.8rem;" data-aos="fade-up">
+            <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:1rem;">
+                <div style="background:rgba(245,158,11,0.06);border:1px solid rgba(245,158,11,0.15);border-radius:10px;padding:1rem;"><div style="color:#FBBF24;font-weight:700;margin-bottom:0.4rem;font-size:0.9rem;">🏢 Requirements</div><div class="rtl-block" style="font-size:0.78rem;color:#94A3B8;line-height:1.7;">200 موظف — 3 مبانٍ — Data Center مركزي — WAN Connectivity — WiFi لكل طابق — VOIP System.</div></div>
+                <div style="background:rgba(16,185,129,0.06);border:1px solid rgba(16,185,129,0.15);border-radius:10px;padding:1rem;"><div style="color:#34D399;font-weight:700;margin-bottom:0.4rem;font-size:0.9rem;">🔒 Security Requirements</div><div class="rtl-block" style="font-size:0.78rem;color:#94A3B8;line-height:1.7;">VLAN Segmentation — NGFW — IPS — VPN للـ Remote Workers — DMZ للـ Public Servers.</div></div>
+                <div style="background:rgba(59,130,246,0.06);border:1px solid rgba(59,130,246,0.15);border-radius:10px;padding:1rem;"><div style="color:#60A5FA;font-weight:700;margin-bottom:0.4rem;font-size:0.9rem;">⚡ Availability</div><div class="rtl-block" style="font-size:0.78rem;color:#94A3B8;line-height:1.7;">99.9% Uptime — Redundant Links — HSRP — Dual ISP — UPS — Generator.</div></div>
+                <div style="background:rgba(139,92,246,0.06);border:1px solid rgba(139,92,246,0.15);border-radius:10px;padding:1rem;"><div style="color:#A78BFA;font-weight:700;margin-bottom:0.4rem;font-size:0.9rem;">📈 Scalability</div><div class="rtl-block" style="font-size:0.78rem;color:#94A3B8;line-height:1.7;">تصميم يتحمل نمو حتى 500 موظف بدون إعادة تصميم كاملة. OSPF للـ Routing.</div></div>
+            </div>
+        </div>
+    </section>
+
+    <section class="lesson-section alt-bg">
+        <div class="section-inner">
+            <div class="section-header" data-aos="fade-up"><h2><i class="fas fa-map" style="color:#FBBF24;margin-left:0.5rem;"></i> IP Addressing Plan</h2></div>
+            <div class="glass-card" style="padding:1.5rem;" data-aos="fade-up" style="overflow-x:auto;">
+                <table class="comparison-table">
+                    <thead><tr><th>Location</th><th>Network</th><th>VLAN</th><th>الوظيفة</th></tr></thead>
+                    <tbody>
+                        <tr><td>Data Center</td><td style="direction:ltr;font-family:'Fira Code';">10.10.0.0/22</td><td style="font-family:'Fira Code';">100</td><td class="rtl-block">Servers — Database — Backup</td></tr>
+                        <tr><td>Building A</td><td style="direction:ltr;font-family:'Fira Code';">10.20.0.0/22</td><td style="font-family:'Fira Code';">20,21</td><td class="rtl-block">Finance — HR — Management</td></tr>
+                        <tr><td>Building B</td><td style="direction:ltr;font-family:'Fira Code';">10.30.0.0/22</td><td style="font-family:'Fira Code';">30,31</td><td class="rtl-block">Engineering — R&amp;D</td></tr>
+                        <tr><td>Building C</td><td style="direction:ltr;font-family:'Fira Code';">10.40.0.0/22</td><td style="font-family:'Fira Code';">40,41</td><td class="rtl-block">Sales — Support — Reception</td></tr>
+                        <tr><td>DMZ</td><td style="direction:ltr;font-family:'Fira Code';">172.16.0.0/24</td><td style="font-family:'Fira Code';">200</td><td class="rtl-block">Web Servers — Email — FTP</td></tr>
+                        <tr><td>Management</td><td style="direction:ltr;font-family:'Fira Code';">192.168.100.0/24</td><td style="font-family:'Fira Code';">999</td><td class="rtl-block">Network Devices — OOB Access</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </section>
+
+    <section class="lesson-section">
+        <div class="section-header" data-aos="fade-up"><h2><i class="fas fa-tasks" style="color:#34D399;margin-left:0.5rem;"></i> Task: خطوات الـ Implementation</h2></div>
+        <div class="glass-card" style="padding:1.8rem;" data-aos="fade-up">
+            <div style="display:flex;flex-direction:column;gap:0.5rem;">
+                <div style="display:flex;gap:0.75rem;align-items:flex-start;" id="task1" onclick="completeTask(1)">
+                    <div id="cb1" style="width:22px;height:22px;border-radius:6px;border:2px solid rgba(245,158,11,0.4);flex-shrink:0;margin-top:2px;cursor:pointer;transition:all 0.3s;display:flex;align-items:center;justify-content:center;"></div>
+                    <div><div style="color:#FBBF24;font-weight:700;font-size:0.9rem;">1. IP Addressing Planning</div><div class="rtl-block" style="font-size:0.8rem;color:#64748B;">خطط الـ Subnets والـ VLANs وقوم بـ Documentation قبل أي كونفيج.</div></div>
+                </div>
+                <div style="display:flex;gap:0.75rem;align-items:flex-start;" id="task2" onclick="completeTask(2)">
+                    <div id="cb2" style="width:22px;height:22px;border-radius:6px;border:2px solid rgba(245,158,11,0.4);flex-shrink:0;margin-top:2px;cursor:pointer;transition:all 0.3s;display:flex;align-items:center;justify-content:center;"></div>
+                    <div><div style="color:#FBBF24;font-weight:700;font-size:0.9rem;">2. Physical & Logical Topology</div><div class="rtl-block" style="font-size:0.8rem;color:#64748B;">ارسم الـ Diagram بأجهزة Core/Distribution/Access وكل الـ Links والـ Redundancy.</div></div>
+                </div>
+                <div style="display:flex;gap:0.75rem;align-items:flex-start;" id="task3" onclick="completeTask(3)">
+                    <div id="cb3" style="width:22px;height:22px;border-radius:6px;border:2px solid rgba(245,158,11,0.4);flex-shrink:0;margin-top:2px;cursor:pointer;transition:all 0.3s;display:flex;align-items:center;justify-content:center;"></div>
+                    <div><div style="color:#FBBF24;font-weight:700;font-size:0.9rem;">3. Cisco Configuration (Lab)</div><div class="rtl-block" style="font-size:0.8rem;color:#64748B;">استخدم Cisco Packet Tracer أو GNS3. Configure VLANs، OSPF، HSRP، ACLs.</div></div>
+                </div>
+                <div style="display:flex;gap:0.75rem;align-items:flex-start;" id="task4" onclick="completeTask(4)">
+                    <div id="cb4" style="width:22px;height:22px;border-radius:6px;border:2px solid rgba(245,158,11,0.4);flex-shrink:0;margin-top:2px;cursor:pointer;transition:all 0.3s;display:flex;align-items:center;justify-content:center;"></div>
+                    <div><div style="color:#FBBF24;font-weight:700;font-size:0.9rem;">4. Security Hardening</div><div class="rtl-block" style="font-size:0.8rem;color:#64748B;">Disable Telnet، Enable SSH، Configure ACLs، Port Security، DHCP Snooping.</div></div>
+                </div>
+                <div style="display:flex;gap:0.75rem;align-items:flex-start;" id="task5" onclick="completeTask(5)">
+                    <div id="cb5" style="width:22px;height:22px;border-radius:6px;border:2px solid rgba(245,158,11,0.4);flex-shrink:0;margin-top:2px;cursor:pointer;transition:all 0.3s;display:flex;align-items:center;justify-content:center;"></div>
+                    <div><div style="color:#FBBF24;font-weight:700;font-size:0.9rem;">5. Testing & Documentation</div><div class="rtl-block" style="font-size:0.8rem;color:#64748B;">اعمل Ping Tests، Failover Tests. اكتب Network Runbook وسجّل كل حاجة.</div></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="lesson-section">
+        <div class="lesson-bottom-nav">
+            <a href="../Unit9/cloud_networking.html"><i class="fas fa-arrow-left"></i><span>Cloud Networking</span></a>
+            <div style="text-align:center;color:var(--text-faint);font-size:0.85rem;">Unit 10 • Lesson 1</div>
+            <a href="capstone_analysis.html"><span>Capstone Analysis</span><i class="fas fa-arrow-right"></i></a>
+        </div>
+    </section>
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <script>
+        AOS.init({duration:800,once:true,offset:100});
+        window.addEventListener('scroll',()=>{ document.getElementById('reading-progress').style.width=(window.scrollY/(document.documentElement.scrollHeight-window.innerHeight))*100+'%'; });
+        function completeTask(n){ const cb=document.getElementById('cb'+n); const done=cb.innerHTML!==''; if(done){cb.innerHTML='';cb.style.background='';cb.style.borderColor='rgba(245,158,11,0.4)';}else{cb.innerHTML='<i class="fas fa-check" style="color:white;font-size:0.7rem;"></i>';cb.style.background='#F59E0B';cb.style.borderColor='#F59E0B';} }
+    </script>
+    <script>
+        // Auto-save progress when 90% scrolled
+        window.addEventListener('scroll', function() {
+            var pct = window.scrollY / (document.documentElement.scrollHeight - window.innerHeight);
+            if (pct > 0.90) {
+                var prog = JSON.parse(localStorage.getItem('nm_progress') || '{}');
+                prog['unit10_lesson1'] = true;
+                localStorage.setItem('nm_progress', JSON.stringify(prog));
+            }
+        });
+    </script>
+</body>
+</html>

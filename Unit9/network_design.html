@@ -1,0 +1,86 @@
+﻿<!DOCTYPE html>
+<html lang="en" class="scroll-smooth" dir="ltr">
+<head>
+    <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Network Design — تصميم الشبكات | Network Mastery</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&family=Inter:wght@400;500;600;700;800&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    <link href="../css/global-net.css" rel="stylesheet">
+    <style>body{background:#020617;color:#E2E8F0;font-family:'Inter',sans-serif;}.lesson-nav-bar{position:fixed;top:0;left:0;right:0;z-index:100;background:rgba(2,6,23,0.88);backdrop-filter:blur(20px);border-bottom:1px solid rgba(255,255,255,0.06);height:64px;display:flex;align-items:center;padding:0 1.5rem;}.nav-inner{max-width:1280px;margin:0 auto;width:100%;display:flex;align-items:center;justify-content:space-between;}.nav-brand{display:flex;align-items:center;gap:0.75rem;font-weight:700;}.back-btn{width:36px;height:36px;border-radius:10px;background:linear-gradient(135deg,#0EA5E9,#0284C7);display:flex;align-items:center;justify-content:center;color:white;font-size:0.85rem;}.lesson-hero{position:relative;padding:8rem 1.5rem 5rem;text-align:center;overflow:hidden;}.glow-orb{position:absolute;border-radius:50%;filter:blur(128px);pointer-events:none;}.glow-orb-1{width:500px;height:500px;top:-10%;right:-5%;background:rgba(14,165,233,0.12);}.lesson-badge{display:inline-flex;align-items:center;gap:0.5rem;padding:0.35rem 1rem;border-radius:50px;background:rgba(30,41,59,0.6);border:1px solid rgba(255,255,255,0.08);font-family:'Fira Code',monospace;font-size:0.78rem;color:#38BDF8;margin-bottom:1.5rem;}.dot{width:6px;height:6px;border-radius:50%;background:#0EA5E9;animation:pulse-dot 2s ease infinite;}.lesson-hero h1{font-size:clamp(2.5rem,5vw,4rem);font-weight:800;margin-bottom:1rem;}.text-g{background:linear-gradient(135deg,#0EA5E9,#34D399);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;}.subtitle{font-family:'Cairo',sans-serif;font-size:1.6rem;font-weight:700;color:var(--text-muted);direction:rtl;margin-bottom:1.5rem;}.desc{color:var(--text-faint);max-width:640px;margin:0 auto;font-size:1.05rem;font-family:'Cairo',sans-serif;direction:rtl;line-height:1.9;}.lesson-bottom-nav{display:flex;justify-content:space-between;align-items:center;gap:1rem;padding:2rem 0;border-top:1px solid var(--border-subtle);margin-top:3rem;}.lesson-bottom-nav a{display:flex;align-items:center;gap:0.5rem;padding:0.75rem 1.5rem;border-radius:12px;background:rgba(255,255,255,0.04);border:1px solid var(--border-subtle);transition:all 0.3s;font-weight:600;font-size:0.9rem;}.lesson-bottom-nav a:hover{background:rgba(14,165,233,0.1);border-color:rgba(14,165,233,0.3);transform:translateY(-2px);}</style>
+</head>
+<body>
+    <nav class="lesson-nav-bar"><div class="nav-inner"><a href="../index.html" class="nav-brand"><div class="back-btn"><i class="fas fa-arrow-left"></i></div><span>Net<span style="color:#0EA5E9;">Design</span></span></a></div></nav>
+    <div class="progress-bar-container"><div class="progress-bar-fill" id="reading-progress" style="background:linear-gradient(90deg,#0EA5E9,#34D399);"></div></div>
+    <header class="lesson-hero">
+        <div class="glow-orb glow-orb-1"></div>
+        <div style="position:relative;z-index:1;">
+            <div class="lesson-badge" data-aos="fade-down"><span class="dot"></span>UNIT 9 • Lesson 4</div>
+            <h1 data-aos="fade-up" data-aos-delay="150">Network <span class="text-g">Design</span></h1>
+            <div class="subtitle" data-aos="fade-up" data-aos-delay="300">تصميم الشبكات الاحترافية</div>
+            <p class="desc" data-aos="fade-up" data-aos-delay="450">Cisco ثلاثي الطبقات هو الأساس في كل شبكة شركة كبيرة. Core → Distribution → Access. كل طبقة لها دور محدد وأجهزة محددة.</p>
+        </div>
+    </header>
+
+    <section class="lesson-section">
+        <div class="section-header" data-aos="fade-up"><h2><i class="fas fa-sitemap" style="color:#38BDF8;margin-left:0.5rem;"></i> Three-Tier Architecture</h2><p class="en-sub">Core → Distribution → Access</p></div>
+        <div class="glass-card" style="padding:1.8rem;" data-aos="fade-up">
+            <div style="display:flex;flex-direction:column;gap:0.75rem;">
+                <div style="background:rgba(239,68,68,0.08);border:2px solid rgba(239,68,68,0.3);border-radius:12px;padding:1.1rem;text-align:center;">
+                    <div style="font-family:'Fira Code';color:#F87171;font-weight:900;font-size:1rem;direction:ltr;margin-bottom:0.4rem;">🔥 Core Layer</div>
+                    <div class="rtl-block" style="font-size:0.85rem;color:#94A3B8;">العمود الفقري — High-Speed Switching — مش بيعمل أي Filtering. أجهزة: Cisco Nexus 9000، Catalyst 6500. SLA: 99.999% Uptime.</div>
+                </div>
+                <div style="text-align:center;color:#475569;font-size:0.8rem;font-family:'Fira Code';">↑ High-Bandwidth Links ↓</div>
+                <div style="background:rgba(245,158,11,0.08);border:2px solid rgba(245,158,11,0.3);border-radius:12px;padding:1.1rem;text-align:center;">
+                    <div style="font-family:'Fira Code';color:#FBBF24;font-weight:900;font-size:1rem;direction:ltr;margin-bottom:0.4rem;">⚡ Distribution Layer</div>
+                    <div class="rtl-block" style="font-size:0.85rem;color:#94A3B8;">Routing بين VLANs — ACLs — QoS — Route Summarization. Layer-3 Switches. HSS/VRRP للـ Redundancy.</div>
+                </div>
+                <div style="text-align:center;color:#475569;font-size:0.8rem;font-family:'Fira Code';">↑ STP / EtherChannel ↓</div>
+                <div style="background:rgba(16,185,129,0.08);border:2px solid rgba(16,185,129,0.3);border-radius:12px;padding:1.1rem;text-align:center;">
+                    <div style="font-family:'Fira Code';color:#34D399;font-weight:900;font-size:1rem;direction:ltr;margin-bottom:0.4rem;">💻 Access Layer</div>
+                    <div class="rtl-block" style="font-size:0.85rem;color:#94A3B8;">الطبقة اللي بتتوصل بيها الأجهزة. VLAN Assignment — Port Security — PoE للـ IP Phones والـ APs. Layer-2 Switches.</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="lesson-section alt-bg">
+        <div class="section-inner">
+            <div class="section-header" data-aos="fade-up"><h2><i class="fas fa-network-wired" style="color:#34D399;margin-left:0.5rem;"></i> VLAN Design Best Practices</h2></div>
+            <div class="glass-card" style="padding:1.5rem;" data-aos="fade-up" style="overflow-x:auto;">
+                <table class="comparison-table">
+                    <thead><tr><th>VLAN ID</th><th>الاسم</th><th>Subnet</th><th>الأجهزة</th></tr></thead>
+                    <tbody>
+                        <tr><td style="font-family:'Fira Code';">10</td><td>Management</td><td style="direction:ltr;font-family:'Fira Code';">10.0.10.0/24</td><td class="rtl-block">Switches وRouters — SSH Access</td></tr>
+                        <tr><td style="font-family:'Fira Code';">20</td><td>Servers</td><td style="direction:ltr;font-family:'Fira Code';">10.0.20.0/24</td><td class="rtl-block">Web، Database، File Servers</td></tr>
+                        <tr><td style="font-family:'Fira Code';">30</td><td>Employees</td><td style="direction:ltr;font-family:'Fira Code';">10.0.30.0/24</td><td class="rtl-block">Workstations للموظفين</td></tr>
+                        <tr><td style="font-family:'Fira Code';">40</td><td>WiFi-Users</td><td style="direction:ltr;font-family:'Fira Code';">10.0.40.0/23</td><td class="rtl-block">Wireless Clients</td></tr>
+                        <tr><td style="font-family:'Fira Code';">50</td><td>VoIP</td><td style="direction:ltr;font-family:'Fira Code';">10.0.50.0/24</td><td class="rtl-block">IP Phones — عندهم QoS Priority</td></tr>
+                        <tr><td style="font-family:'Fira Code';">99</td><td>Guest</td><td style="direction:ltr;font-family:'Fira Code';">172.16.99.0/24</td><td class="rtl-block">Guests — Internet Only، معزولين</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </section>
+    <section class="lesson-section">
+        <div class="lesson-bottom-nav">
+            <a href="network_troubleshooting.html"><i class="fas fa-arrow-left"></i><span>Troubleshooting</span></a>
+            <div style="text-align:center;color:var(--text-faint);font-size:0.85rem;">Unit 9 • Lesson 4</div>
+            <a href="cloud_networking.html"><span>Cloud Networking</span><i class="fas fa-arrow-right"></i></a>
+        </div>
+    </section>
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <script>AOS.init({duration:800,once:true,offset:100}); window.addEventListener('scroll',()=>{ document.getElementById('reading-progress').style.width=(window.scrollY/(document.documentElement.scrollHeight-window.innerHeight))*100+'%'; });</script>
+    <script>
+        // Auto-save progress when 90% scrolled
+        window.addEventListener('scroll', function() {
+            var pct = window.scrollY / (document.documentElement.scrollHeight - window.innerHeight);
+            if (pct > 0.90) {
+                var prog = JSON.parse(localStorage.getItem('nm_progress') || '{}');
+                prog['unit9_lesson4'] = true;
+                localStorage.setItem('nm_progress', JSON.stringify(prog));
+            }
+        });
+    </script>
+</body>
+</html>

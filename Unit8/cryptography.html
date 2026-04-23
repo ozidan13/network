@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en" class="scroll-smooth" dir="ltr">
 <head>
     <meta charset="UTF-8">
@@ -157,6 +157,17 @@
             q2:{c:'✅ صح! Hash = Integrity check + Password storage (مع salt). مش للتشفير — لأنه One-way.',w:'❌ غلط! Hash = One-way فقط. لا يصلح لتشفير data تحتاج فكها. مناسب للـ Integrity وPassword hashing.'}
         };
         function ans(el,qid,correct){ const q=document.getElementById(qid); if(q.dataset.answered)return; q.dataset.answered='true'; q.querySelectorAll('.quiz-option').forEach(o=>o.style.pointerEvents='none'); el.classList.add(correct?'correct':'wrong'); const f=document.getElementById('fb-'+qid); f.textContent=correct?fb[qid].c:fb[qid].w; f.className='quiz-feedback show '+(correct?'correct-fb':'wrong-fb'); }
+    </script>
+    <script>
+        // Auto-save progress when 90% scrolled
+        window.addEventListener('scroll', function() {
+            var pct = window.scrollY / (document.documentElement.scrollHeight - window.innerHeight);
+            if (pct > 0.90) {
+                var prog = JSON.parse(localStorage.getItem('nm_progress') || '{}');
+                prog['unit8_lesson2'] = true;
+                localStorage.setItem('nm_progress', JSON.stringify(prog));
+            }
+        });
     </script>
 </body>
 </html>

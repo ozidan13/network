@@ -1,0 +1,106 @@
+﻿<!DOCTYPE html>
+<html lang="en" class="scroll-smooth" dir="ltr">
+<head>
+    <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Capstone Analysis — تحليل بروتوكولات حقيقية | Network Mastery</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&family=Inter:wght@400;500;600;700;800&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    <link href="../css/global-net.css" rel="stylesheet">
+    <style>body{background:#020617;color:#E2E8F0;font-family:'Inter',sans-serif;}.lesson-nav-bar{position:fixed;top:0;left:0;right:0;z-index:100;background:rgba(2,6,23,0.88);backdrop-filter:blur(20px);border-bottom:1px solid rgba(255,255,255,0.06);height:64px;display:flex;align-items:center;padding:0 1.5rem;}.nav-inner{max-width:1280px;margin:0 auto;width:100%;display:flex;align-items:center;justify-content:space-between;}.nav-brand{display:flex;align-items:center;gap:0.75rem;font-weight:700;}.back-btn{width:36px;height:36px;border-radius:10px;background:linear-gradient(135deg,#F59E0B,#D97706);display:flex;align-items:center;justify-content:center;color:white;font-size:0.85rem;}.lesson-hero{position:relative;padding:8rem 1.5rem 5rem;text-align:center;overflow:hidden;}.glow-orb{position:absolute;border-radius:50%;filter:blur(128px);pointer-events:none;}.glow-orb-1{width:500px;height:500px;top:-10%;right:-5%;background:rgba(245,158,11,0.12);}.lesson-badge{display:inline-flex;align-items:center;gap:0.5rem;padding:0.35rem 1rem;border-radius:50px;background:rgba(30,41,59,0.6);border:1px solid rgba(255,255,255,0.08);font-family:'Fira Code',monospace;font-size:0.78rem;color:#FBBF24;margin-bottom:1.5rem;}.dot{width:6px;height:6px;border-radius:50%;background:#F59E0B;animation:pulse-dot 2s ease infinite;}.lesson-hero h1{font-size:clamp(2.5rem,5vw,4rem);font-weight:800;margin-bottom:1rem;}.text-g{background:linear-gradient(135deg,#F59E0B,#34D399);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;}.subtitle{font-family:'Cairo',sans-serif;font-size:1.6rem;font-weight:700;color:var(--text-muted);direction:rtl;margin-bottom:1.5rem;}.desc{color:var(--text-faint);max-width:640px;margin:0 auto;font-size:1.05rem;font-family:'Cairo',sans-serif;direction:rtl;line-height:1.9;}.lesson-bottom-nav{display:flex;justify-content:space-between;align-items:center;gap:1rem;padding:2rem 0;border-top:1px solid var(--border-subtle);margin-top:3rem;}.lesson-bottom-nav a{display:flex;align-items:center;gap:0.5rem;padding:0.75rem 1.5rem;border-radius:12px;background:rgba(255,255,255,0.04);border:1px solid var(--border-subtle);transition:all 0.3s;font-weight:600;font-size:0.9rem;}.lesson-bottom-nav a:hover{background:rgba(245,158,11,0.1);border-color:rgba(245,158,11,0.3);transform:translateY(-2px);}</style>
+</head>
+<body>
+    <nav class="lesson-nav-bar"><div class="nav-inner"><a href="../index.html" class="nav-brand"><div class="back-btn"><i class="fas fa-arrow-left"></i></div><span>Cap<span style="color:#F59E0B;">Anlz</span></span></a></div></nav>
+    <div class="progress-bar-container"><div class="progress-bar-fill" id="reading-progress" style="background:linear-gradient(90deg,#F59E0B,#34D399);"></div></div>
+    <header class="lesson-hero">
+        <div class="glow-orb glow-orb-1"></div>
+        <div style="position:relative;z-index:1;">
+            <div class="lesson-badge" data-aos="fade-down"><span class="dot"></span>UNIT 10 • Lesson 2</div>
+            <h1 data-aos="fade-up" data-aos-delay="150">Capstone <span class="text-g">Analysis</span></h1>
+            <div class="subtitle" data-aos="fade-up" data-aos-delay="300">تحليل سيناريوهات حقيقية</div>
+            <p class="desc" data-aos="fade-up" data-aos-delay="450">3 سيناريوهات حقيقية مركّبة — كل واحد يجمع عدة Concepts. فكّر وحل قبل ما تشوف الإجابة. ده اللي بيفرّق بين اللي فاهم ومن حافظ.</p>
+        </div>
+    </header>
+
+    <section class="lesson-section">
+        <div class="section-header" data-aos="fade-up"><h2><i class="fas fa-flask" style="color:#FBBF24;margin-left:0.5rem;"></i> Scenario 1 — Connectivity Failure</h2></div>
+        <div class="glass-card" style="padding:1.8rem;" data-aos="fade-up">
+            <div style="background:rgba(239,68,68,0.06);border:1px solid rgba(239,68,68,0.2);border-radius:10px;padding:1rem;margin-bottom:1rem;" class="rtl-block">
+                🔴 <strong>المشكلة:</strong> Hosts في VLAN 30 مش قادرين يتواصلوا مع VLAN 20. كلاهم على نفس الـ Distribution Switch. كل حاجة تانية تمام. إيه الأسباب المحتملة؟
+            </div>
+            <button onclick="showSol(1)" style="padding:0.4rem 1.1rem;border-radius:8px;background:rgba(245,158,11,0.15);border:1px solid rgba(245,158,11,0.3);color:#FBBF24;font-family:'Cairo';cursor:pointer;font-size:0.85rem;">💡 اظهر الحل</button>
+            <div id="sol1" style="display:none;margin-top:1rem;background:rgba(16,185,129,0.06);border:1px solid rgba(16,185,129,0.2);border-radius:10px;padding:1rem;" class="rtl-block">
+                <strong style="color:#34D399;">✅ الأسباب المحتملة:</strong><br>
+                1. <strong>Inter-VLAN Routing مش مفعّل</strong> — السويتش بـ Layer-3؟ تحقق من <code style="font-family:'Fira Code';color:#60A5FA;">ip routing</code> والـ SVI للـ VLANs.<br>
+                2. <strong>SVI مش موجودة أو Down</strong> — <code style="font-family:'Fira Code';color:#60A5FA;">show interface vlan 20</code> و<code style="font-family:'Fira Code';color:#60A5FA;">show interface vlan 30</code>.<br>
+                3. <strong>ACL بتحجب</strong> — <code style="font-family:'Fira Code';color:#60A5FA;">show ip access-lists</code> وشوف لو في Rule بيرفض.<br>
+                4. <strong>VLANs مش موجودة في الـ VLAN Database</strong> — <code style="font-family:'Fira Code';color:#60A5FA;">show vlan brief</code>.
+            </div>
+        </div>
+    </section>
+
+    <section class="lesson-section alt-bg">
+        <div class="section-inner">
+            <div class="section-header" data-aos="fade-up"><h2><i class="fas fa-flask" style="color:#FBBF24;margin-left:0.5rem;"></i> Scenario 2 — DNS & Internet Failure</h2></div>
+            <div class="glass-card" style="padding:1.8rem;" data-aos="fade-up">
+                <div style="background:rgba(239,68,68,0.06);border:1px solid rgba(239,68,68,0.2);border-radius:10px;padding:1rem;margin-bottom:1rem;" class="rtl-block">
+                    🔴 <strong>المشكلة:</strong> موظفين مش قادرين يفتحوا مواقع بالـ Name (google.com)، لكن بالـ IP (8.8.8.8) بيشتغل. ما المشكلة؟
+                </div>
+                <button onclick="showSol(2)" style="padding:0.4rem 1.1rem;border-radius:8px;background:rgba(245,158,11,0.15);border:1px solid rgba(245,158,11,0.3);color:#FBBF24;font-family:'Cairo';cursor:pointer;font-size:0.85rem;">💡 اظهر الحل</button>
+                <div id="sol2" style="display:none;margin-top:1rem;background:rgba(16,185,129,0.06);border:1px solid rgba(16,185,129,0.2);border-radius:10px;padding:1rem;" class="rtl-block">
+                    <strong style="color:#34D399;">✅ التشخيص:</strong><br>
+                    الـ IP connectivity شغّال (ping 8.8.8.8 OK) — المشكلة في الـ DNS فقط.<br>
+                    1. تحقق من الـ DNS Server في الـ DHCP Options.<br>
+                    2. جرّب <code style="font-family:'Fira Code';color:#60A5FA;">nslookup google.com</code> — هل بيرجع جواب؟<br>
+                    3. لو الـ DNS Server داخلي — تحقق إن الـ DNS Service شغّال.<br>
+                    4. لو الـ DNS خارجي — تحقق من ACL بتسمح UDP Port 53 للخارج.
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="lesson-section">
+        <div class="section-header" data-aos="fade-up"><h2><i class="fas fa-flask" style="color:#FBBF24;margin-left:0.5rem;"></i> Scenario 3 — Security Incident</h2></div>
+        <div class="glass-card" style="padding:1.8rem;" data-aos="fade-up">
+            <div style="background:rgba(239,68,68,0.06);border:1px solid rgba(239,68,68,0.2);border-radius:10px;padding:1rem;margin-bottom:1rem;" class="rtl-block">
+                🔴 <strong>المشكلة:</strong> الـ IDS بيطلع Alert: "ARP Flood from 10.30.0.55". الـ SIEM بيظهر إن الـ Host ده بيبعت آلاف الـ ARP Replies في ثانية. إيه الإجراء؟
+            </div>
+            <button onclick="showSol(3)" style="padding:0.4rem 1.1rem;border-radius:8px;background:rgba(245,158,11,0.15);border:1px solid rgba(245,158,11,0.3);color:#FBBF24;font-family:'Cairo';cursor:pointer;font-size:0.85rem;">💡 اظهر الحل</button>
+            <div id="sol3" style="display:none;margin-top:1rem;background:rgba(16,185,129,0.06);border:1px solid rgba(16,185,129,0.2);border-radius:10px;padding:1rem;" class="rtl-block">
+                <strong style="color:#34D399;">✅ الإجراء الفوري:</strong><br>
+                1. <strong>Isolate</strong>: أقطع الـ Port فوراً — <code style="font-family:'Fira Code';color:#60A5FA;">shutdown</code> على الـ Switch Port.<br>
+                2. <strong>Identify</strong>: مين المستخدم؟ أي جهاز؟ هل Malware أو Intentional؟<br>
+                3. <strong>Contain</strong>: تأكد إنه ما وصلش لـ VLANs تانية (VLAN Trunk Allowed List).<br>
+                4. <strong>Investigate</strong>: Wireshark على الـ Mirror Port — شوف الـ ARP Replies.<br>
+                5. <strong>Prevent</strong>: فعّل <strong>Dynamic ARP Inspection (DAI)</strong> و<strong>DHCP Snooping</strong> على كل الـ Access Ports.<br>
+                <span style="color:#FBBF24;">هذا هجوم ARP Spoofing محتمل للـ MITM.</span>
+            </div>
+        </div>
+    </section>
+
+    <section class="lesson-section">
+        <div class="lesson-bottom-nav">
+            <a href="capstone_design.html"><i class="fas fa-arrow-left"></i><span>Capstone Design</span></a>
+            <div style="text-align:center;color:var(--text-faint);font-size:0.85rem;">Unit 10 • Lesson 2</div>
+            <a href="certifications.html"><span>Certifications</span><i class="fas fa-arrow-right"></i></a>
+        </div>
+    </section>
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <script>
+        AOS.init({duration:800,once:true,offset:100});
+        window.addEventListener('scroll',()=>{ document.getElementById('reading-progress').style.width=(window.scrollY/(document.documentElement.scrollHeight-window.innerHeight))*100+'%'; });
+        function showSol(n){ const s=document.getElementById('sol'+n); s.style.display=s.style.display==='none'?'block':'none'; }
+    </script>
+    <script>
+        // Auto-save progress when 90% scrolled
+        window.addEventListener('scroll', function() {
+            var pct = window.scrollY / (document.documentElement.scrollHeight - window.innerHeight);
+            if (pct > 0.90) {
+                var prog = JSON.parse(localStorage.getItem('nm_progress') || '{}');
+                prog['unit10_lesson2'] = true;
+                localStorage.setItem('nm_progress', JSON.stringify(prog));
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,94 @@
+﻿<!DOCTYPE html>
+<html lang="en" class="scroll-smooth" dir="ltr">
+<head>
+    <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cloud Networking — شبكات السحابة | Network Mastery</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&family=Inter:wght@400;500;600;700;800&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    <link href="../css/global-net.css" rel="stylesheet">
+    <style>body{background:#020617;color:#E2E8F0;font-family:'Inter',sans-serif;}.lesson-nav-bar{position:fixed;top:0;left:0;right:0;z-index:100;background:rgba(2,6,23,0.88);backdrop-filter:blur(20px);border-bottom:1px solid rgba(255,255,255,0.06);height:64px;display:flex;align-items:center;padding:0 1.5rem;}.nav-inner{max-width:1280px;margin:0 auto;width:100%;display:flex;align-items:center;justify-content:space-between;}.nav-brand{display:flex;align-items:center;gap:0.75rem;font-weight:700;}.back-btn{width:36px;height:36px;border-radius:10px;background:linear-gradient(135deg,#0EA5E9,#0284C7);display:flex;align-items:center;justify-content:center;color:white;font-size:0.85rem;}.lesson-hero{position:relative;padding:8rem 1.5rem 5rem;text-align:center;overflow:hidden;}.glow-orb{position:absolute;border-radius:50%;filter:blur(128px);pointer-events:none;}.glow-orb-1{width:500px;height:500px;top:-10%;right:-5%;background:rgba(14,165,233,0.12);}.lesson-badge{display:inline-flex;align-items:center;gap:0.5rem;padding:0.35rem 1rem;border-radius:50px;background:rgba(30,41,59,0.6);border:1px solid rgba(255,255,255,0.08);font-family:'Fira Code',monospace;font-size:0.78rem;color:#38BDF8;margin-bottom:1.5rem;}.dot{width:6px;height:6px;border-radius:50%;background:#0EA5E9;animation:pulse-dot 2s ease infinite;}.lesson-hero h1{font-size:clamp(2.5rem,5vw,4rem);font-weight:800;margin-bottom:1rem;}.text-g{background:linear-gradient(135deg,#0EA5E9,#A78BFA);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;}.subtitle{font-family:'Cairo',sans-serif;font-size:1.6rem;font-weight:700;color:var(--text-muted);direction:rtl;margin-bottom:1.5rem;}.desc{color:var(--text-faint);max-width:640px;margin:0 auto;font-size:1.05rem;font-family:'Cairo',sans-serif;direction:rtl;line-height:1.9;}.lesson-bottom-nav{display:flex;justify-content:space-between;align-items:center;gap:1rem;padding:2rem 0;border-top:1px solid var(--border-subtle);margin-top:3rem;}.lesson-bottom-nav a{display:flex;align-items:center;gap:0.5rem;padding:0.75rem 1.5rem;border-radius:12px;background:rgba(255,255,255,0.04);border:1px solid var(--border-subtle);transition:all 0.3s;font-weight:600;font-size:0.9rem;}.lesson-bottom-nav a:hover{background:rgba(14,165,233,0.1);border-color:rgba(14,165,233,0.3);transform:translateY(-2px);}</style>
+</head>
+<body>
+    <nav class="lesson-nav-bar"><div class="nav-inner"><a href="../index.html" class="nav-brand"><div class="back-btn"><i class="fas fa-arrow-left"></i></div><span>Cloud<span style="color:#0EA5E9;">Net</span></span></a></div></nav>
+    <div class="progress-bar-container"><div class="progress-bar-fill" id="reading-progress" style="background:linear-gradient(90deg,#0EA5E9,#A78BFA);"></div></div>
+    <header class="lesson-hero">
+        <div class="glow-orb glow-orb-1"></div>
+        <div style="position:relative;z-index:1;">
+            <div class="lesson-badge" data-aos="fade-down"><span class="dot"></span>UNIT 9 • Lesson 5</div>
+            <h1 data-aos="fade-up" data-aos-delay="150">Cloud <span class="text-g">Networking</span></h1>
+            <div class="subtitle" data-aos="fade-up" data-aos-delay="300">شبكات السحابة والبنية الحديثة</div>
+            <p class="desc" data-aos="fade-up" data-aos-delay="450">كل شركة دلوقتي hybrid — جزء On-Prem وجزء Cloud. VPC، Subnets، Security Groups، Load Balancers — نفس المفاهيم، بيئة مختلفة.</p>
+        </div>
+    </header>
+
+    <section class="lesson-section">
+        <div class="section-header" data-aos="fade-up"><h2><i class="fas fa-cloud" style="color:#38BDF8;margin-left:0.5rem;"></i> IaaS vs PaaS vs SaaS</h2></div>
+        <div class="problem-grid" data-aos="fade-up">
+            <div class="solution-card" style="border-color:rgba(239,68,68,0.2);"><div class="icon" style="background:rgba(239,68,68,0.1);color:#F87171;">🖥️</div><h4 style="color:#F87171;font-size:0.9rem;">IaaS</h4><p class="rtl-block" style="font-size:0.82rem;">Infrastructure as a Service. VMs، Storage، Networking. أنت إداري كل حاجة. AWS EC2, Azure VM, GCE.</p></div>
+            <div class="solution-card" style="border-color:rgba(245,158,11,0.2);"><div class="icon" style="background:rgba(245,158,11,0.1);color:#FBBF24;">⚙️</div><h4 style="color:#FBBF24;font-size:0.9rem;">PaaS</h4><p class="rtl-block" style="font-size:0.82rem;">Platform as a Service. Deploy Code مباشرة. Heroku, AWS Elastic Beanstalk, Google App Engine.</p></div>
+            <div class="solution-card" style="border-color:rgba(16,185,129,0.2);"><div class="icon" style="background:rgba(16,185,129,0.1);color:#34D399;">☁️</div><h4 style="color:#34D399;font-size:0.9rem;">SaaS</h4><p class="rtl-block" style="font-size:0.82rem;">Software as a Service. تستخدم بس. Gmail، Office 365، Salesforce، Zoom.</p></div>
+        </div>
+    </section>
+
+    <section class="lesson-section alt-bg">
+        <div class="section-inner">
+            <div class="section-header" data-aos="fade-up"><h2><i class="fas fa-network-wired" style="color:#A78BFA;margin-left:0.5rem;"></i> AWS VPC Architecture</h2><p class="en-sub">Virtual Private Cloud — Networking in the Cloud</p></div>
+            <div class="glass-card" style="padding:1.8rem;" data-aos="fade-up">
+                <div style="background:rgba(0,0,0,0.3);border-radius:10px;padding:1rem;font-family:'Fira Code';font-size:0.78rem;direction:ltr;margin-bottom:1rem;">
+                    <div style="color:#A78BFA;">VPC: 10.0.0.0/16  (aws region: us-east-1)</div>
+                    <div style="margin-left:1.5rem;margin-top:0.4rem;">
+                        <div style="color:#34D399;">Public Subnet: 10.0.1.0/24  (AZ-a) → Internet Gateway</div>
+                        <div style="color:#34D399;margin-left:1.5rem;">├── EC2: Web Server (t3.medium) — Public IP</div>
+                        <div style="color:#34D399;margin-left:1.5rem;">└── Load Balancer (ALB)</div>
+                        <div style="color:#FBBF24;margin-top:0.3rem;">Private Subnet: 10.0.2.0/24 (AZ-a) → NAT Gateway</div>
+                        <div style="color:#FBBF24;margin-left:1.5rem;">├── EC2: App Server — No Public IP</div>
+                        <div style="color:#FBBF24;margin-left:1.5rem;">└── RDS: PostgreSQL</div>
+                        <div style="color:#F87171;margin-top:0.3rem;">Security Groups: (Stateful Firewall per Instance)</div>
+                        <div style="color:#F87171;margin-left:1.5rem;">└── sg-web: inbound 443 from 0.0.0.0/0</div>
+                        <div style="color:#F87171;margin-left:1.5rem;">└── sg-db: inbound 5432 from sg-app only</div>
+                    </div>
+                </div>
+                <div class="rtl-block" style="font-size:0.9rem;color:#CBD5E1;line-height:1.8;">
+                    <p>💡 <strong style="color:#A78BFA;">Security Groups</strong> = Stateful Firewall للـ Instance. <strong style="color:#34D399;">NACLs</strong> = Stateless Firewall للـ Subnet. التصميم: Private للـ Databases وPublic للـ Web Servers فقط.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="lesson-section">
+        <div class="section-header" data-aos="fade-up"><h2><i class="fas fa-arrows-left-right" style="color:#34D399;margin-left:0.5rem;"></i> Hybrid Cloud Connectivity</h2></div>
+        <div class="cost-compare" data-aos="fade-up">
+            <div class="cost-card" style="border-color:rgba(14,165,233,0.3);"><h5 style="color:#38BDF8;">Site-to-Site VPN</h5><div class="cost-item">On-Prem ←VPN→ AWS VPC</div><div class="cost-item">✅ سريع التثبيت ورخيص</div><div class="cost-item">⚠️ مرور على الإنترنت العام</div><div class="cost-item">📌 أفضل للبدء والـ Backup</div></div>
+            <div class="cost-card" style="border-color:rgba(139,92,246,0.3);"><h5 style="color:#A78BFA;">AWS Direct Connect</h5><div class="cost-item">On-Prem ←Fiber→ AWS</div><div class="cost-item">✅ سرعة وموثوقية عالية</div><div class="cost-item">✅ Consistent Latency</div><div class="cost-item">📌 للـ Mission Critical Workloads</div></div>
+        </div>
+    </section>
+
+    <section class="lesson-section">
+        <div class="glass-card" style="padding:2rem;text-align:center;border-color:rgba(14,165,233,0.3);margin-bottom:2rem;" data-aos="zoom-in">
+            <div style="font-size:3rem;margin-bottom:1rem;">🎓</div>
+            <h3 style="color:#38BDF8;font-family:'Cairo',sans-serif;">أنهيت الوحدة التاسعة!</h3>
+            <p class="rtl-block" style="color:#CBD5E1;margin:1rem 0;">Practical Skills مكتملة: CLI، Packet Analysis، Troubleshooting، Design، Cloud — دلوقتي جاهز للـ Capstone!</p>
+            <a href="../Unit10/capstone_design.html" style="display:inline-flex;align-items:center;gap:0.75rem;padding:0.9rem 2rem;border-radius:14px;background:linear-gradient(135deg,#F59E0B,#D97706);color:white;font-weight:800;transition:all 0.3s;text-decoration:none;">الوحدة العاشرة: Capstone <i class="fas fa-arrow-right"></i></a>
+        </div>
+        <div class="lesson-bottom-nav">
+            <a href="network_design.html"><i class="fas fa-arrow-left"></i><span>Network Design</span></a>
+            <div style="text-align:center;color:var(--text-faint);font-size:0.85rem;">Unit 9 Complete ✅</div>
+            <a href="../Unit10/capstone_design.html"><span>Unit 10 →</span><i class="fas fa-arrow-right"></i></a>
+        </div>
+    </section>
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <script>AOS.init({duration:800,once:true,offset:100}); window.addEventListener('scroll',()=>{ document.getElementById('reading-progress').style.width=(window.scrollY/(document.documentElement.scrollHeight-window.innerHeight))*100+'%'; });</script>
+    <script>
+        // Auto-save progress when 90% scrolled
+        window.addEventListener('scroll', function() {
+            var pct = window.scrollY / (document.documentElement.scrollHeight - window.innerHeight);
+            if (pct > 0.90) {
+                var prog = JSON.parse(localStorage.getItem('nm_progress') || '{}');
+                prog['unit9_lesson5'] = true;
+                localStorage.setItem('nm_progress', JSON.stringify(prog));
+            }
+        });
+    </script>
+</body>
+</html>

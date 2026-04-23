@@ -1,0 +1,693 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cisco CLI Mastery — واجهة سطر الأوامر | Network Mastery</title>
+    <meta name="description" content="Interactive Cisco IOS CLI simulator — modes, commands, router config, VLAN setup, OSPF basics.">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&family=Inter:wght@400;500;600;700;800&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    <link href="../css/global-net.css" rel="stylesheet">
+    <style>
+        body { background: #020617; color: #E2E8F0; font-family: 'Inter', sans-serif; }
+
+        /* ── Nav ── */
+        .lesson-nav-bar { position: fixed; top: 0; left: 0; right: 0; z-index: 100; background: rgba(2,6,23,0.9); backdrop-filter: blur(20px); border-bottom: 1px solid rgba(255,255,255,0.06); height: 64px; display: flex; align-items: center; padding: 0 1.5rem; }
+        .nav-inner { max-width: 1280px; margin: 0 auto; width: 100%; display: flex; align-items: center; justify-content: space-between; }
+        .nav-brand { display: flex; align-items: center; gap: 0.75rem; font-weight: 700; text-decoration: none; color: inherit; }
+        .back-btn { width: 36px; height: 36px; border-radius: 10px; background: linear-gradient(135deg, #0EA5E9, #0284C7); display: flex; align-items: center; justify-content: center; color: white; font-size: 0.85rem; transition: transform 0.3s; }
+        .back-btn:hover { transform: scale(1.1); }
+        .nav-progress { font-family: 'Fira Code'; font-size: 0.75rem; color: #38BDF8; }
+
+        /* ── Hero ── */
+        .lesson-hero { position: relative; padding: 8rem 1.5rem 5rem; text-align: center; overflow: hidden; }
+        .glow-orb { position: absolute; border-radius: 50%; filter: blur(128px); pointer-events: none; }
+        .glow-orb-1 { width: 600px; height: 600px; top: -15%; right: -10%; background: rgba(14,165,233,0.1); }
+        .glow-orb-2 { width: 400px; height: 400px; bottom: -20%; left: -10%; background: rgba(6,182,212,0.06); }
+        .lesson-badge { display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.35rem 1rem; border-radius: 50px; background: rgba(30,41,59,0.6); border: 1px solid rgba(255,255,255,0.08); font-family: 'Fira Code', monospace; font-size: 0.78rem; color: #38BDF8; margin-bottom: 1.5rem; }
+        .dot { width: 6px; height: 6px; border-radius: 50%; background: #0EA5E9; animation: pulse-dot 2s ease infinite; }
+        .lesson-hero h1 { font-size: clamp(2.5rem, 5vw, 4rem); font-weight: 800; margin-bottom: 1rem; }
+        .text-g { background: linear-gradient(135deg, #0EA5E9, #38BDF8, #06B6D4); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
+        .subtitle { font-family: 'Cairo', sans-serif; font-size: 1.6rem; font-weight: 700; color: var(--text-muted); direction: rtl; margin-bottom: 1.5rem; }
+        .desc { color: var(--text-faint); max-width: 680px; margin: 0 auto; font-size: 1.05rem; font-family: 'Cairo', sans-serif; direction: rtl; line-height: 2; }
+
+        /* ── Bottom Nav ── */
+        .lesson-bottom-nav { display: flex; justify-content: space-between; align-items: center; gap: 1rem; padding: 2rem 0; border-top: 1px solid var(--border-subtle); margin-top: 3rem; }
+        .lesson-bottom-nav a { display: flex; align-items: center; gap: 0.5rem; padding: 0.75rem 1.5rem; border-radius: 12px; background: rgba(255,255,255,0.04); border: 1px solid var(--border-subtle); transition: all 0.3s ease; font-weight: 600; font-size: 0.9rem; text-decoration: none; color: inherit; }
+        .lesson-bottom-nav a:hover { background: rgba(14,165,233,0.1); border-color: rgba(14,165,233,0.3); transform: translateY(-2px); }
+
+        /* ── CLI Terminal ── */
+        .cli-window { background: #0D1117; border: 1px solid rgba(14,165,233,0.3); border-radius: 14px; overflow: hidden; box-shadow: 0 20px 60px rgba(0,0,0,0.5); }
+        .cli-titlebar { background: #161B22; padding: 0.6rem 1rem; display: flex; align-items: center; gap: 0.5rem; border-bottom: 1px solid rgba(255,255,255,0.06); }
+        .cli-dot { width: 12px; height: 12px; border-radius: 50%; }
+        .cli-titlebar-text { flex: 1; text-align: center; font-family: 'Fira Code'; font-size: 0.72rem; color: #475569; }
+        .cli-body { padding: 1rem 1.25rem; font-family: 'Fira Code', monospace; font-size: 0.8rem; direction: ltr; min-height: 260px; max-height: 360px; overflow-y: auto; }
+        .cli-line { margin-bottom: 0.15rem; line-height: 1.5; }
+        .cli-prompt { color: #38BDF8; }
+        .cli-ok { color: #34D399; }
+        .cli-warn { color: #FBBF24; }
+        .cli-err { color: #F87171; }
+        .cli-comment { color: #475569; }
+        .cli-cursor { display: inline-block; width: 8px; height: 15px; background: #38BDF8; animation: blink 1s step-end infinite; vertical-align: text-bottom; margin-left: 1px; }
+        @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0} }
+
+        /* ── Command Buttons ── */
+        .cmd-grid { display: flex; gap: 0.4rem; flex-wrap: wrap; padding: 0.75rem 1rem; background: rgba(0,0,0,0.2); border-top: 1px solid rgba(255,255,255,0.04); }
+        .cmd-btn { padding: 0.3rem 0.75rem; border-radius: 7px; background: rgba(14,165,233,0.1); border: 1px solid rgba(14,165,233,0.2); color: #38BDF8; font-family: 'Fira Code'; cursor: pointer; font-size: 0.7rem; transition: all 0.2s; white-space: nowrap; }
+        .cmd-btn:hover { background: rgba(14,165,233,0.25); transform: translateY(-1px); }
+        .cmd-btn.active { background: rgba(14,165,233,0.3); border-color: #38BDF8; }
+        .cmd-section-label { width: 100%; color: #475569; font-size: 0.65rem; font-family: 'Fira Code'; padding: 0.2rem 0; border-bottom: 1px solid rgba(255,255,255,0.04); margin-top: 0.3rem; }
+
+        /* ── Modes Diagram ── */
+        .mode-flow { display: flex; align-items: center; gap: 0; flex-wrap: wrap; }
+        .mode-box { padding: 0.6rem 1rem; border-radius: 8px; font-family: 'Fira Code'; font-size: 0.75rem; font-weight: 700; text-align: center; flex-shrink: 0; }
+        .mode-arrow { color: #475569; font-size: 1rem; padding: 0 0.3rem; flex-shrink: 0; }
+        .m1 { background: rgba(100,116,139,0.1); border: 1px solid rgba(100,116,139,0.3); color: #94A3B8; }
+        .m2 { background: rgba(245,158,11,0.1); border: 1px solid rgba(245,158,11,0.3); color: #FBBF24; }
+        .m3 { background: rgba(14,165,233,0.1); border: 1px solid rgba(14,165,233,0.3); color: #38BDF8; }
+        .m4 { background: rgba(16,185,129,0.1); border: 1px solid rgba(16,185,129,0.3); color: #34D399; }
+        .m5 { background: rgba(139,92,246,0.1); border: 1px solid rgba(139,92,246,0.3); color: #A78BFA; }
+
+        /* ── Lab Steps ── */
+        .lab-step { padding: 1rem; background: rgba(0,0,0,0.25); border: 1px solid rgba(255,255,255,0.05); border-radius: 10px; margin-bottom: 0.6rem; }
+        .lab-step-num { display: inline-flex; align-items: center; justify-content: center; width: 26px; height: 26px; border-radius: 50%; font-size: 0.72rem; font-weight: 900; color: white; background: #0EA5E9; flex-shrink: 0; margin-left: 0.75rem; }
+        .lab-code { background: rgba(0,0,0,0.4); border-radius: 8px; padding: 0.6rem 0.8rem; margin-top: 0.5rem; font-family: 'Fira Code'; font-size: 0.75rem; direction: ltr; border-left: 3px solid #38BDF8; }
+        .lab-code .cmd { color: #38BDF8; }
+        .lab-code .val { color: #FBBF24; }
+        .lab-code .cmt { color: #475569; }
+
+        /* ── Quiz ── */
+        .quiz-container { display: flex; flex-direction: column; gap: 1.5rem; }
+        .quiz-question { background: rgba(15,23,42,0.7); border: 1px solid rgba(255,255,255,0.06); border-radius: 14px; padding: 1.5rem; }
+        .quiz-question h4 { font-family: 'Cairo', sans-serif; direction: rtl; font-size: 1rem; color: #E2E8F0; margin-bottom: 1rem; }
+        .quiz-options { display: flex; flex-direction: column; gap: 0.5rem; }
+        .quiz-option { padding: 0.7rem 1rem; border-radius: 10px; border: 1px solid rgba(255,255,255,0.08); cursor: pointer; transition: all 0.25s; font-family: 'Cairo', sans-serif; font-size: 0.9rem; direction: rtl; }
+        .quiz-option:hover { background: rgba(14,165,233,0.08); border-color: rgba(14,165,233,0.3); }
+        .quiz-option.correct { background: rgba(16,185,129,0.12); border-color: #34D399; color: #34D399; }
+        .quiz-option.wrong { background: rgba(239,68,68,0.1); border-color: #EF4444; color: #F87171; }
+        .quiz-feedback { display: none; margin-top: 0.75rem; padding: 0.75rem; border-radius: 8px; font-family: 'Cairo', sans-serif; font-size: 0.88rem; direction: rtl; line-height: 1.7; }
+        .quiz-feedback.show { display: block; }
+        .quiz-feedback.correct-fb { background: rgba(16,185,129,0.08); border: 1px solid rgba(16,185,129,0.2); color: #34D399; }
+        .quiz-feedback.wrong-fb { background: rgba(239,68,68,0.08); border: 1px solid rgba(239,68,68,0.2); color: #F87171; }
+
+        /* ── Cheat Sheet ── */
+        .cheat-table { width: 100%; border-collapse: collapse; font-size: 0.8rem; }
+        .cheat-table th { background: rgba(14,165,233,0.1); color: #38BDF8; padding: 0.6rem 0.75rem; text-align: right; font-weight: 700; border-bottom: 1px solid rgba(14,165,233,0.2); }
+        .cheat-table td { padding: 0.55rem 0.75rem; border-bottom: 1px solid rgba(255,255,255,0.04); vertical-align: top; }
+        .cheat-table tr:hover td { background: rgba(255,255,255,0.02); }
+        .cheat-table .cmd-cell { font-family: 'Fira Code'; color: #38BDF8; direction: ltr; white-space: nowrap; }
+        .cheat-table .mode-cell { font-family: 'Fira Code'; font-size: 0.7rem; color: #FBBF24; direction: ltr; }
+        .cheat-table .desc-cell { font-family: 'Cairo'; direction: rtl; color: #94A3B8; }
+        .cheat-table .cat { background: rgba(0,0,0,0.3); }
+        .cheat-table .cat td { color: #475569; font-size: 0.7rem; font-family: 'Fira Code'; padding: 0.3rem 0.75rem; }
+    </style>
+</head>
+<body>
+    <!-- Nav -->
+    <nav class="lesson-nav-bar">
+        <div class="nav-inner">
+            <a href="../index.html" class="nav-brand">
+                <div class="back-btn"><i class="fas fa-arrow-left"></i></div>
+                <span>Cisco <span style="color:#0EA5E9;">CLI</span></span>
+            </a>
+            <span class="nav-progress">Unit 9 · Lesson 1 of 5</span>
+        </div>
+    </nav>
+    <div class="progress-bar-container"><div class="progress-bar-fill" id="reading-progress" style="background:linear-gradient(90deg,#0EA5E9,#38BDF8);"></div></div>
+
+    <!-- Hero -->
+    <header class="lesson-hero">
+        <div class="glow-orb glow-orb-1"></div>
+        <div class="glow-orb glow-orb-2"></div>
+        <div style="position:relative;z-index:1;">
+            <div class="lesson-badge" data-aos="fade-down"><span class="dot"></span>UNIT 9 · Lesson 1 — CCNA Prep</div>
+            <h1 data-aos="fade-up" data-aos-delay="150">Cisco <span class="text-g">IOS CLI</span></h1>
+            <div class="subtitle" data-aos="fade-up" data-aos-delay="300">واجهة سطر الأوامر — بوابة كل مهندس شبكات</div>
+            <p class="desc" data-aos="fade-up" data-aos-delay="450">كل Engineer بيعمل على Cisco بيتكلم مع الجهاز بلغة واحدة — الـ IOS CLI. متقدرش تبرمج Router بـ Mouse. 90% من الـ Network Jobs محتاج تتقن CLI. هنتعلمه بالتفصيل دلوقتي.</p>
+        </div>
+    </header>
+
+    <!-- ═══ Section 1: IOS Modes ═══ -->
+    <section class="lesson-section">
+        <div class="section-header" data-aos="fade-up">
+            <h2><i class="fas fa-layer-group" style="color:#38BDF8;margin-left:0.5rem;"></i> Cisco IOS Modes — الأوضاع الرئيسية</h2>
+            <p class="en-sub">Every command has a home mode — wrong mode = command not found</p>
+        </div>
+        <div class="glass-card" style="padding:1.8rem;" data-aos="fade-up">
+            <div class="rtl-block" style="margin-bottom:1.25rem;color:#CBD5E1;font-size:0.95rem;line-height:1.9;">
+                <p>الـ IOS مش شاشة واحدة — ده نظام هرمي من الأوضاع. كل وضع عنده صلاحيات مختلفة. الـ Prompt هو اللي بيقولك إنت فين.</p>
+            </div>
+            <!-- Mode flow -->
+            <div class="mode-flow" style="margin-bottom:1.25rem;gap:0.5rem;">
+                <div class="mode-box m1">Router&gt;<br><span style="font-size:0.6rem;color:#64748B;">User EXEC</span></div>
+                <div class="mode-arrow">→</div>
+                <div class="mode-box m2">Router#<br><span style="font-size:0.6rem;color:#92742A;">Priv EXEC</span></div>
+                <div class="mode-arrow">→</div>
+                <div class="mode-box m3">Router(config)#<br><span style="font-size:0.6rem;color:#1A5F7A;">Global Config</span></div>
+                <div class="mode-arrow">→</div>
+                <div class="mode-box m4">Router(config-if)#<br><span style="font-size:0.6rem;color:#064E3B;">Interface</span></div>
+                <div class="mode-arrow">→</div>
+                <div class="mode-box m5">Router(config-router)#<br><span style="font-size:0.6rem;color:#3B0764;">Routing Proto</span></div>
+            </div>
+            <!-- Mode details -->
+            <div style="display:flex;flex-direction:column;gap:0.6rem;">
+                <div style="padding:0.85rem;background:rgba(100,116,139,0.07);border:1px solid rgba(100,116,139,0.15);border-radius:10px;display:flex;gap:1rem;align-items:flex-start;">
+                    <code style="color:#94A3B8;font-size:0.78rem;white-space:nowrap;min-width:120px;">Router&gt;</code>
+                    <div><div style="color:#94A3B8;font-weight:700;font-size:0.82rem;">User EXEC Mode — وضع القراءة فقط</div><div class="rtl-block" style="font-size:0.78rem;color:#64748B;margin-top:0.2rem;">للـ Basic monitoring فقط. <code style="color:#94A3B8;">ping</code>، <code style="color:#94A3B8;">show version</code>. مش تقدر تعدل أي إعداد. الدخول: تفتح Console أو SSH.</div></div>
+                </div>
+                <div style="padding:0.85rem;background:rgba(245,158,11,0.07);border:1px solid rgba(245,158,11,0.15);border-radius:10px;display:flex;gap:1rem;align-items:flex-start;">
+                    <code style="color:#FBBF24;font-size:0.78rem;white-space:nowrap;min-width:120px;">Router#</code>
+                    <div><div style="color:#FBBF24;font-weight:700;font-size:0.82rem;">Privileged EXEC — وضع المشرف</div><div class="rtl-block" style="font-size:0.78rem;color:#94A3B8;margin-top:0.2rem;">الدخول: <code style="color:#FBBF24;">enable</code> (أو <code style="color:#FBBF24;">en</code>). كل الـ show commands، debug، copy، reload. <strong style="color:#FBBF24;">مهم جداً: حماية بـ enable password.</strong></div></div>
+                </div>
+                <div style="padding:0.85rem;background:rgba(14,165,233,0.07);border:1px solid rgba(14,165,233,0.15);border-radius:10px;display:flex;gap:1rem;align-items:flex-start;">
+                    <code style="color:#38BDF8;font-size:0.78rem;white-space:nowrap;min-width:120px;">Router(config)#</code>
+                    <div><div style="color:#38BDF8;font-weight:700;font-size:0.82rem;">Global Configuration — وضع الإعداد</div><div class="rtl-block" style="font-size:0.78rem;color:#94A3B8;margin-top:0.2rem;">الدخول: <code style="color:#38BDF8;">configure terminal</code> (أو <code style="color:#38BDF8;">conf t</code>). هنا بتغير الـ hostname، بتعمل routing، بتضيف passwords. للخروج: <code style="color:#38BDF8;">exit</code> أو <code style="color:#38BDF8;">Ctrl+Z</code>.</div></div>
+                </div>
+                <div style="padding:0.85rem;background:rgba(16,185,129,0.07);border:1px solid rgba(16,185,129,0.15);border-radius:10px;display:flex;gap:1rem;align-items:flex-start;">
+                    <code style="color:#34D399;font-size:0.78rem;white-space:nowrap;min-width:120px;">Router(config-if)#</code>
+                    <div><div style="color:#34D399;font-weight:700;font-size:0.82rem;">Interface Configuration — إعداد الـ Interface</div><div class="rtl-block" style="font-size:0.78rem;color:#94A3B8;margin-top:0.2rem;">الدخول: <code style="color:#34D399;">interface GigabitEthernet0/0</code>. هنا بتحط IP Address، بتشغل/توقف الـ Interface، بتضبط Speed.</div></div>
+                </div>
+                <div style="padding:0.85rem;background:rgba(139,92,246,0.07);border:1px solid rgba(139,92,246,0.15);border-radius:10px;display:flex;gap:1rem;align-items:flex-start;">
+                    <code style="color:#A78BFA;font-size:0.78rem;white-space:nowrap;min-width:120px;">Router(config-router)#</code>
+                    <div><div style="color:#A78BFA;font-weight:700;font-size:0.82rem;">Router Configuration — إعداد بروتوكول التوجيه</div><div class="rtl-block" style="font-size:0.78rem;color:#94A3B8;margin-top:0.2rem;">الدخول: <code style="color:#A78BFA;">router ospf 1</code> أو <code style="color:#A78BFA;">router rip</code>. هنا بتضيف الشبكات، بتضبط Timer، بتعمل Redistribution.</div></div>
+                </div>
+            </div>
+            <div class="note" style="margin-top:1rem;">
+                <div class="rtl-block" style="font-size:0.85rem;">💡 <strong>Shorthand:</strong> Cisco بتسمحلك تاخد أول حرفين/تلاتة من أي أمر — <code style="color:#38BDF8;">conf t</code> بدل <code style="color:#38BDF8;">configure terminal</code>، <code style="color:#38BDF8;">sh ip int br</code> بدل <code style="color:#38BDF8;">show ip interface brief</code>.</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ═══ Section 2: Interactive CLI ═══ -->
+    <section class="lesson-section alt-bg">
+        <div class="section-inner">
+            <div class="section-header" data-aos="fade-up">
+                <h2><i class="fas fa-terminal" style="color:#38BDF8;margin-left:0.5rem;"></i> محاكي IOS CLI التفاعلي</h2>
+                <p class="en-sub">Simulate a real Cisco Router — click commands to execute</p>
+            </div>
+            <div class="glass-card" style="padding:1.2rem;border-color:rgba(14,165,233,0.2);" data-aos="fade-up">
+                <!-- Terminal Window -->
+                <div class="cli-window">
+                    <div class="cli-titlebar">
+                        <div class="cli-dot" style="background:#EF4444;"></div>
+                        <div class="cli-dot" style="background:#F59E0B;"></div>
+                        <div class="cli-dot" style="background:#22C55E;"></div>
+                        <span class="cli-titlebar-text">Cisco IOS — R1 [Console 0]</span>
+                    </div>
+                    <div class="cli-body" id="cli-output">
+                        <div class="cli-line" style="color:#475569;">Cisco IOS Software, Version 15.7(3)M5</div>
+                        <div class="cli-line" style="color:#475569;">Copyright (c) 1986-2019 Cisco Systems, Inc.</div>
+                        <div class="cli-line" style="color:#475569;">Press RETURN to get started.</div>
+                        <div class="cli-line">&nbsp;</div>
+                        <div class="cli-line"><span class="cli-prompt">Router&gt; </span><span class="cli-cursor"></span></div>
+                    </div>
+                    <div class="cmd-grid" id="cmd-grid">
+                        <span class="cmd-section-label">▸ User EXEC Mode</span>
+                        <button class="cmd-btn" onclick="cliExec('ping')">ping 8.8.8.8</button>
+                        <button class="cmd-btn" onclick="cliExec('enable')">enable</button>
+                        <span class="cmd-section-label">▸ Privileged EXEC Mode</span>
+                        <button class="cmd-btn" onclick="cliExec('showver')">show version</button>
+                        <button class="cmd-btn" onclick="cliExec('showipbr')">show ip int brief</button>
+                        <button class="cmd-btn" onclick="cliExec('showroute')">show ip route</button>
+                        <button class="cmd-btn" onclick="cliExec('showrun')">show run (excerpt)</button>
+                        <button class="cmd-btn" onclick="cliExec('showmac')">show mac table</button>
+                        <span class="cmd-section-label">▸ Configuration Mode</span>
+                        <button class="cmd-btn" onclick="cliExec('conft')">conf t</button>
+                        <button class="cmd-btn" onclick="cliExec('hostname')">hostname R1</button>
+                        <button class="cmd-btn" onclick="cliExec('banner')">banner motd</button>
+                        <button class="cmd-btn" onclick="cliExec('enablepw')">enable secret</button>
+                        <button class="cmd-btn" onclick="cliExec('ssh')">SSH Setup</button>
+                        <span class="cmd-section-label">▸ Interface Config</span>
+                        <button class="cmd-btn" onclick="cliExec('intg0')">interface Gi0/0</button>
+                        <button class="cmd-btn" onclick="cliExec('ipaddr')">ip address</button>
+                        <button class="cmd-btn" onclick="cliExec('noshut')">no shutdown</button>
+                        <button class="cmd-btn" onclick="cliExec('desc')">description</button>
+                        <span class="cmd-section-label">▸ Save & Verify</span>
+                        <button class="cmd-btn" onclick="cliExec('save')">write memory</button>
+                        <button class="cmd-btn" onclick="cliExec('ctrlz')">Ctrl+Z (end)</button>
+                        <button class="cmd-btn" onclick="clearCli()">🗑 Clear</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ═══ Section 3: Guided Lab ═══ -->
+    <section class="lesson-section">
+        <div class="section-header" data-aos="fade-up">
+            <h2><i class="fas fa-flask" style="color:#34D399;margin-left:0.5rem;"></i> Lab عملي — إعداد Router من الصفر</h2>
+            <p class="en-sub">Step-by-step router configuration walkthrough</p>
+        </div>
+        <div class="glass-card" style="padding:1.8rem;" data-aos="fade-up">
+            <div class="rtl-block" style="background:rgba(245,158,11,0.07);border:1px solid rgba(245,158,11,0.15);border-radius:10px;padding:1rem;margin-bottom:1.25rem;">
+                <strong style="color:#FBBF24;">📋 Scenario:</strong> Router جديد خارج من الكرتون. محتاج تعمل الإعدادات الأساسية وتوصله بـ Network.
+            </div>
+            <div style="display:flex;flex-direction:column;gap:0.5rem;">
+                <div class="lab-step">
+                    <div style="display:flex;align-items:center;margin-bottom:0.4rem;">
+                        <div class="lab-step-num">1</div>
+                        <div><strong style="font-size:0.9rem;color:#38BDF8;">تأمين الجهاز — Secure the Router</strong></div>
+                    </div>
+                    <div class="rtl-block" style="font-size:0.82rem;color:#94A3B8;">أول حاجة تعملها: ضيف Enable Password وامنع الوصول غير المصرح به.</div>
+                    <div class="lab-code">
+                        <div><span class="cmd">Router# configure terminal</span></div>
+                        <div><span class="cmd">Router(config)# hostname</span> <span class="val">R1</span></div>
+                        <div><span class="cmd">R1(config)# enable secret</span> <span class="val">Str0ng@Pass!</span>  <span class="cmt">! encrypted password</span></div>
+                        <div><span class="cmd">R1(config)# service password-encryption</span>  <span class="cmt">! encrypt all passwords</span></div>
+                        <div><span class="cmd">R1(config)# no ip domain-lookup</span>  <span class="cmt">! prevent typo DNS lookup delays</span></div>
+                    </div>
+                </div>
+                <div class="lab-step">
+                    <div style="display:flex;align-items:center;margin-bottom:0.4rem;">
+                        <div class="lab-step-num">2</div>
+                        <div><strong style="font-size:0.9rem;color:#38BDF8;">إعداد SSH — Enable Remote Access</strong></div>
+                    </div>
+                    <div class="rtl-block" style="font-size:0.82rem;color:#94A3B8;">Telnet مشفروش — SSH هو البديل الآمن للـ Remote Management.</div>
+                    <div class="lab-code">
+                        <div><span class="cmd">R1(config)# ip domain-name</span> <span class="val">company.local</span></div>
+                        <div><span class="cmd">R1(config)# crypto key generate rsa modulus</span> <span class="val">2048</span></div>
+                        <div><span class="cmd">R1(config)# ip ssh version</span> <span class="val">2</span></div>
+                        <div><span class="cmd">R1(config)# username</span> <span class="val">admin</span> <span class="cmd">privilege</span> <span class="val">15</span> <span class="cmd">secret</span> <span class="val">Admin@2024</span></div>
+                        <div><span class="cmd">R1(config)# line vty 0 4</span></div>
+                        <div><span class="cmd">R1(config-line)# transport input</span> <span class="val">ssh</span>  <span class="cmt">! block telnet</span></div>
+                        <div><span class="cmd">R1(config-line)# login local</span></div>
+                    </div>
+                </div>
+                <div class="lab-step">
+                    <div style="display:flex;align-items:center;margin-bottom:0.4rem;">
+                        <div class="lab-step-num">3</div>
+                        <div><strong style="font-size:0.9rem;color:#38BDF8;">إعداد الـ Interfaces — Configure Interfaces</strong></div>
+                    </div>
+                    <div class="rtl-block" style="font-size:0.82rem;color:#94A3B8;">كل Interface محتاج IP، Description، وتفعيل بـ no shutdown.</div>
+                    <div class="lab-code">
+                        <div><span class="cmd">R1(config)# interface</span> <span class="val">GigabitEthernet0/0</span></div>
+                        <div><span class="cmd">R1(config-if)# description</span> <span class="val">LAN-to-Switch-Core</span></div>
+                        <div><span class="cmd">R1(config-if)# ip address</span> <span class="val">192.168.1.1 255.255.255.0</span></div>
+                        <div><span class="cmd">R1(config-if)# no shutdown</span></div>
+                        <div>&nbsp;</div>
+                        <div><span class="cmd">R1(config)# interface</span> <span class="val">GigabitEthernet0/1</span>  <span class="cmt">! WAN interface</span></div>
+                        <div><span class="cmd">R1(config-if)# description</span> <span class="val">WAN-to-ISP</span></div>
+                        <div><span class="cmd">R1(config-if)# ip address</span> <span class="val">203.0.113.2 255.255.255.252</span></div>
+                        <div><span class="cmd">R1(config-if)# no shutdown</span></div>
+                    </div>
+                </div>
+                <div class="lab-step">
+                    <div style="display:flex;align-items:center;margin-bottom:0.4rem;">
+                        <div class="lab-step-num">4</div>
+                        <div><strong style="font-size:0.9rem;color:#38BDF8;">Default Route — بوابة الإنترنت</strong></div>
+                    </div>
+                    <div class="lab-code">
+                        <div><span class="cmd">R1(config)# ip route</span> <span class="val">0.0.0.0 0.0.0.0</span> <span class="val">203.0.113.1</span>  <span class="cmt">! default route to ISP</span></div>
+                    </div>
+                </div>
+                <div class="lab-step">
+                    <div style="display:flex;align-items:center;margin-bottom:0.4rem;">
+                        <div class="lab-step-num">5</div>
+                        <div><strong style="font-size:0.9rem;color:#38BDF8;">التحقق والحفظ — Verify and Save</strong></div>
+                    </div>
+                    <div class="rtl-block" style="font-size:0.82rem;color:#94A3B8;">تحقق من الإعدادات قبل الحفظ — بعد الحفظ بتبقى دايمة حتى بعد الريستارت.</div>
+                    <div class="lab-code">
+                        <div><span class="cmd">R1# show ip interface brief</span>  <span class="cmt">! verify all interfaces UP</span></div>
+                        <div><span class="cmd">R1# show ip route</span>  <span class="cmt">! verify routing table</span></div>
+                        <div><span class="cmd">R1# ping</span> <span class="val">203.0.113.1</span>  <span class="cmt">! test ISP gateway</span></div>
+                        <div><span class="cmd">R1# copy running-config startup-config</span>  <span class="cmt">! or: write memory</span></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ═══ Section 4: Cheat Sheet ═══ -->
+    <section class="lesson-section alt-bg">
+        <div class="section-inner">
+            <div class="section-header" data-aos="fade-up">
+                <h2><i class="fas fa-book" style="color:#FBBF24;margin-left:0.5rem;"></i> Cisco CLI Cheat Sheet — المرجع السريع</h2>
+                <p class="en-sub">The commands every CCNA candidate must memorize</p>
+            </div>
+            <div class="glass-card" style="padding:1rem;overflow-x:auto;" data-aos="fade-up">
+                <table class="cheat-table">
+                    <thead>
+                        <tr><th>الأمر</th><th>الـ Mode</th><th>الوظيفة</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr class="cat"><td colspan="3">── EXEC / Show Commands ──</td></tr>
+                        <tr><td class="cmd-cell">show ip interface brief</td><td class="mode-cell">Priv#</td><td class="desc-cell">حالة كل Interface (IP + Status)</td></tr>
+                        <tr><td class="cmd-cell">show ip route</td><td class="mode-cell">Priv#</td><td class="desc-cell">جدول التوجيه الكامل</td></tr>
+                        <tr><td class="cmd-cell">show running-config</td><td class="mode-cell">Priv#</td><td class="desc-cell">الكونفيج الحالي في RAM</td></tr>
+                        <tr><td class="cmd-cell">show startup-config</td><td class="mode-cell">Priv#</td><td class="desc-cell">الكونفيج المحفوظ في NVRAM</td></tr>
+                        <tr><td class="cmd-cell">show version</td><td class="mode-cell">Priv#</td><td class="desc-cell">معلومات الـ IOS والـ Hardware</td></tr>
+                        <tr><td class="cmd-cell">show cdp neighbors detail</td><td class="mode-cell">Priv#</td><td class="desc-cell">الأجهزة المتصلة بيك (Cisco)</td></tr>
+                        <tr><td class="cmd-cell">show vlan brief</td><td class="mode-cell">Priv#</td><td class="desc-cell">قائمة الـ VLANs (Switch)</td></tr>
+                        <tr><td class="cmd-cell">show spanning-tree</td><td class="mode-cell">Priv#</td><td class="desc-cell">حالة STP — Root Bridge</td></tr>
+                        <tr class="cat"><td colspan="3">── Configuration Commands ──</td></tr>
+                        <tr><td class="cmd-cell">hostname &lt;name&gt;</td><td class="mode-cell">config#</td><td class="desc-cell">تغيير اسم الجهاز</td></tr>
+                        <tr><td class="cmd-cell">enable secret &lt;pass&gt;</td><td class="mode-cell">config#</td><td class="desc-cell">Password للـ Enable Mode (Encrypted)</td></tr>
+                        <tr><td class="cmd-cell">ip route 0.0.0.0 0.0.0.0 &lt;next-hop&gt;</td><td class="mode-cell">config#</td><td class="desc-cell">Default Route للإنترنت</td></tr>
+                        <tr><td class="cmd-cell">ip route &lt;net&gt; &lt;mask&gt; &lt;next-hop&gt;</td><td class="mode-cell">config#</td><td class="desc-cell">Static Route</td></tr>
+                        <tr><td class="cmd-cell">router ospf &lt;pid&gt;</td><td class="mode-cell">config#</td><td class="desc-cell">تفعيل OSPF</td></tr>
+                        <tr><td class="cmd-cell">network &lt;net&gt; &lt;wildcard&gt; area &lt;n&gt;</td><td class="mode-cell">config-router#</td><td class="desc-cell">إضافة شبكة لـ OSPF</td></tr>
+                        <tr class="cat"><td colspan="3">── Interface Commands ──</td></tr>
+                        <tr><td class="cmd-cell">ip address &lt;ip&gt; &lt;mask&gt;</td><td class="mode-cell">config-if#</td><td class="desc-cell">تعيين IP للـ Interface</td></tr>
+                        <tr><td class="cmd-cell">no shutdown</td><td class="mode-cell">config-if#</td><td class="desc-cell">تشغيل الـ Interface (افتراضياً معطل)</td></tr>
+                        <tr><td class="cmd-cell">description &lt;text&gt;</td><td class="mode-cell">config-if#</td><td class="desc-cell">إضافة وصف للـ Interface</td></tr>
+                        <tr><td class="cmd-cell">switchport mode access/trunk</td><td class="mode-cell">config-if#</td><td class="desc-cell">تحديد نوع الـ Port (Switch)</td></tr>
+                        <tr><td class="cmd-cell">switchport access vlan &lt;n&gt;</td><td class="mode-cell">config-if#</td><td class="desc-cell">تعيين VLAN للـ Access Port</td></tr>
+                        <tr class="cat"><td colspan="3">── Save / Maintenance ──</td></tr>
+                        <tr><td class="cmd-cell">copy run start</td><td class="mode-cell">Priv#</td><td class="desc-cell">حفظ الكونفيج في NVRAM</td></tr>
+                        <tr><td class="cmd-cell">write memory</td><td class="mode-cell">Priv#</td><td class="desc-cell">نفس الأمر — حفظ الكونفيج</td></tr>
+                        <tr><td class="cmd-cell">erase startup-config</td><td class="mode-cell">Priv#</td><td class="desc-cell">مسح كل الإعدادات المحفوظة</td></tr>
+                        <tr><td class="cmd-cell">reload</td><td class="mode-cell">Priv#</td><td class="desc-cell">إعادة تشغيل الجهاز</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </section>
+
+    <!-- ═══ Section 5: Quiz ═══ -->
+    <section class="lesson-section" id="quiz">
+        <div class="section-header" data-aos="fade-up">
+            <h2><i class="fas fa-brain" style="color:#0EA5E9;margin-left:0.5rem;"></i> اختبر نفسك — CCNA Style</h2>
+            <p class="en-sub">These question types appear in the real CCNA 200-301 exam</p>
+        </div>
+        <div class="quiz-container" data-aos="fade-up">
+            <div class="quiz-question" id="q1">
+                <h4>أنت في Router# وكتبت <code style="color:#38BDF8;">configure terminal</code> — إيه الـ Prompt اللي هيظهر؟</h4>
+                <div class="quiz-options">
+                    <div class="quiz-option" onclick="ans(this,'q1',false)">Router&gt;</div>
+                    <div class="quiz-option" onclick="ans(this,'q1',false)">Router#</div>
+                    <div class="quiz-option" onclick="ans(this,'q1',true)">Router(config)#</div>
+                    <div class="quiz-option" onclick="ans(this,'q1',false)">Router(config-if)#</div>
+                </div>
+                <div class="quiz-feedback" id="fb-q1"></div>
+            </div>
+            <div class="quiz-question" id="q2">
+                <h4>إيه الفرق بين <code style="color:#38BDF8;">enable password</code> و <code style="color:#38BDF8;">enable secret</code>؟</h4>
+                <div class="quiz-options">
+                    <div class="quiz-option" onclick="ans(this,'q2',false)">مفيش فرق — نفس الأمر</div>
+                    <div class="quiz-option" onclick="ans(this,'q2',true)">enable secret مشفر بـ MD5 في الكونفيج — enable password بيظهر كـ plain text</div>
+                    <div class="quiz-option" onclick="ans(this,'q2',false)">enable secret للـ SSH فقط</div>
+                    <div class="quiz-option" onclick="ans(this,'q2',false)">enable password أقوى لأنه أحدث</div>
+                </div>
+                <div class="quiz-feedback" id="fb-q2"></div>
+            </div>
+            <div class="quiz-question" id="q3">
+                <h4>Interface GE0/0 عليها <code style="color:#FBBF24;">administratively down</code> — إيه السبب وكيف تصلحها؟</h4>
+                <div class="quiz-options">
+                    <div class="quiz-option" onclick="ans(this,'q3',false)">الكابل مش موصول — غير الكابل</div>
+                    <div class="quiz-option" onclick="ans(this,'q3',false)">الـ IOS فيه bug — upgrade</div>
+                    <div class="quiz-option" onclick="ans(this,'q3',true)">تم تعطيلها يدوياً بـ shutdown — الحل: <code>no shutdown</code> في الـ Interface config mode</div>
+                    <div class="quiz-option" onclick="ans(this,'q3',false)">الـ VLAN مش موجود</div>
+                </div>
+                <div class="quiz-feedback" id="fb-q3"></div>
+            </div>
+            <div class="quiz-question" id="q4">
+                <h4>عايز تحفظ الكونفيج عشان يبقى موجود بعد الريستارت — إيه الأمر الصح؟</h4>
+                <div class="quiz-options">
+                    <div class="quiz-option" onclick="ans(this,'q4',false)">show running-config</div>
+                    <div class="quiz-option" onclick="ans(this,'q4',false)">save config</div>
+                    <div class="quiz-option" onclick="ans(this,'q4',true)">copy running-config startup-config (أو write memory)</div>
+                    <div class="quiz-option" onclick="ans(this,'q4',false)">backup config flash</div>
+                </div>
+                <div class="quiz-feedback" id="fb-q4"></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ═══ Bottom Nav ═══ -->
+    <section class="lesson-section">
+        <div class="lesson-bottom-nav">
+            <a href="../Unit8/ethical_hacking.html"><i class="fas fa-arrow-left"></i><span>Unit 8 — Ethical Hacking</span></a>
+            <div style="text-align:center;color:var(--text-faint);font-size:0.8rem;">Unit 9 · Lesson 1 of 5</div>
+            <a href="packet_analysis.html"><span>Packet Analysis</span><i class="fas fa-arrow-right"></i></a>
+        </div>
+    </section>
+
+    <!-- Scripts -->
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <script>
+        AOS.init({ duration: 800, once: true, offset: 100 });
+        window.addEventListener('scroll', () => {
+            document.getElementById('reading-progress').style.width =
+                (window.scrollY / (document.documentElement.scrollHeight - window.innerHeight)) * 100 + '%';
+        });
+
+        // ── CLI Simulator ──
+        const cmds = {
+            ping: {
+                p: 'Router>',
+                lines: [
+                    { t: 'cmd', v: 'ping 8.8.8.8' },
+                    { t: 'warn', v: 'Type escape sequence to abort.' },
+                    { t: 'out', v: 'Sending 5, 100-byte ICMP Echos to 8.8.8.8, timeout is 2 seconds:' },
+                    { t: 'ok', v: '!!!!!' },
+                    { t: 'ok', v: 'Success rate is 100 percent (5/5), round-trip min/avg/max = 12/14/18 ms' },
+                ]
+            },
+            enable: {
+                p: 'Router#',
+                lines: [
+                    { t: 'cmd', v: 'enable' },
+                    { t: 'warn', v: 'Password: ●●●●●●●●' },
+                    { t: 'ok', v: '⚡ Privileged EXEC Mode — full access granted!' },
+                ]
+            },
+            showver: {
+                p: 'Router#',
+                lines: [
+                    { t: 'cmd', v: 'show version' },
+                    { t: 'out', v: 'Cisco IOS Software, Version 15.7(3)M5, RELEASE SOFTWARE' },
+                    { t: 'out', v: 'Router uptime is 3 days, 4 hours, 20 minutes' },
+                    { t: 'out', v: 'System image file is "flash:c1900-universalk9-mz.SPA.157-3.M5.bin"' },
+                    { t: 'out', v: 'cisco C1900 (revision 1.0) with 512MB RAM' },
+                    { t: 'out', v: '1 FastEthernet interface, 2 GigabitEthernet interfaces' },
+                    { t: 'out', v: 'Configuration register is 0x2102' },
+                ]
+            },
+            showipbr: {
+                p: 'Router#',
+                lines: [
+                    { t: 'cmd', v: 'show ip interface brief' },
+                    { t: 'comment', v: 'Interface              IP-Address      OK? Method Status             Protocol' },
+                    { t: 'ok', v: 'GigabitEthernet0/0    192.168.1.1     YES manual up                 up      ' },
+                    { t: 'ok', v: 'GigabitEthernet0/1    203.0.113.2     YES manual up                 up      ' },
+                    { t: 'err', v: 'FastEthernet0/0       unassigned      YES unset  administratively down down    ' },
+                ]
+            },
+            showroute: {
+                p: 'Router#',
+                lines: [
+                    { t: 'cmd', v: 'show ip route' },
+                    { t: 'comment', v: 'Codes: C-connected, S-static, O-OSPF, R-RIP, * candidate default' },
+                    { t: 'out', v: 'Gateway of last resort is 203.0.113.1 to network 0.0.0.0' },
+                    { t: 'ok', v: 'C     192.168.1.0/24 is directly connected, GigabitEthernet0/0' },
+                    { t: 'ok', v: 'C     203.0.113.0/30 is directly connected, GigabitEthernet0/1' },
+                    { t: 'warn', v: 'S*    0.0.0.0/0 [1/0] via 203.0.113.1  ← Default Route' },
+                    { t: 'out', v: 'O     10.10.0.0/24 [110/2] via 192.168.1.2, GigabitEthernet0/0  ← OSPF' },
+                ]
+            },
+            showrun: {
+                p: 'Router#',
+                lines: [
+                    { t: 'cmd', v: 'show running-config' },
+                    { t: 'comment', v: 'Building configuration...' },
+                    { t: 'out', v: 'hostname R1' },
+                    { t: 'out', v: 'enable secret 5 $1$mERr$hx5rVt7rPNoS4wqbXKX7m0  ← MD5 encrypted' },
+                    { t: 'out', v: 'ip domain-name company.local' },
+                    { t: 'out', v: 'interface GigabitEthernet0/0' },
+                    { t: 'out', v: ' description LAN-to-Switch-Core' },
+                    { t: 'out', v: ' ip address 192.168.1.1 255.255.255.0' },
+                    { t: 'out', v: ' no shutdown' },
+                    { t: 'out', v: 'ip route 0.0.0.0 0.0.0.0 203.0.113.1' },
+                ]
+            },
+            showmac: {
+                p: 'Switch#',
+                lines: [
+                    { t: 'cmd', v: 'show mac address-table' },
+                    { t: 'comment', v: 'Vlan    Mac Address       Type        Ports' },
+                    { t: 'out', v: '   1    aabb.cc11.2233    DYNAMIC     Fa0/1' },
+                    { t: 'out', v: '  10    aabb.cc44.5566    DYNAMIC     Fa0/5' },
+                    { t: 'out', v: '  20    aabb.cc77.8899    STATIC      Gi0/1' },
+                    { t: 'ok', v: 'Total Mac Addresses for this criterion: 3' },
+                ]
+            },
+            conft: {
+                p: 'Router(config)#',
+                lines: [
+                    { t: 'cmd', v: 'configure terminal' },
+                    { t: 'out', v: 'Enter configuration commands, one per line. End with CNTL/Z.' },
+                    { t: 'ok', v: '→ Global Configuration Mode entered!' },
+                ]
+            },
+            hostname: {
+                p: 'R1(config)#',
+                lines: [
+                    { t: 'cmd', v: 'hostname R1' },
+                    { t: 'ok', v: '✅ Prompt changes immediately — hostname applied!' },
+                ]
+            },
+            banner: {
+                p: 'R1(config)#',
+                lines: [
+                    { t: 'cmd', v: 'banner motd #' },
+                    { t: 'out', v: 'Enter TEXT message.  End with the character \'#\'.' },
+                    { t: 'warn', v: '⚠ AUTHORIZED ACCESS ONLY — All activity is monitored and logged!' },
+                    { t: 'out', v: '#' },
+                    { t: 'ok', v: '✅ Banner set — displayed at every login!' },
+                ]
+            },
+            enablepw: {
+                p: 'R1(config)#',
+                lines: [
+                    { t: 'cmd', v: 'enable secret Str0ng@Pass!' },
+                    { t: 'ok', v: '✅ Enable secret set (MD5 encrypted in running-config)' },
+                    { t: 'warn', v: '⚠ Tip: always use "enable secret" not "enable password" — it\'s encrypted!' },
+                ]
+            },
+            ssh: {
+                p: 'R1(config)#',
+                lines: [
+                    { t: 'cmd', v: 'ip domain-name company.local' },
+                    { t: 'cmd', v: 'crypto key generate rsa modulus 2048' },
+                    { t: 'out', v: 'The name for the keys will be: R1.company.local' },
+                    { t: 'out', v: 'Generating 2048 bit RSA keys, keys will be non-exportable...' },
+                    { t: 'ok', v: '[OK] (elapsed time was 3 seconds)' },
+                    { t: 'cmd', v: 'ip ssh version 2' },
+                    { t: 'ok', v: '✅ SSH v2 enabled — Telnet should now be disabled on VTY!' },
+                ]
+            },
+            intg0: {
+                p: 'R1(config-if)#',
+                lines: [
+                    { t: 'cmd', v: 'interface GigabitEthernet0/0' },
+                    { t: 'ok', v: '→ Interface Configuration Mode — GigabitEthernet0/0' },
+                ]
+            },
+            ipaddr: {
+                p: 'R1(config-if)#',
+                lines: [
+                    { t: 'cmd', v: 'ip address 192.168.1.1 255.255.255.0' },
+                    { t: 'ok', v: '✅ IP Address configured on GigabitEthernet0/0' },
+                    { t: 'warn', v: 'Note: Interface is still administratively down until you run "no shutdown"!' },
+                ]
+            },
+            noshut: {
+                p: 'R1(config-if)#',
+                lines: [
+                    { t: 'cmd', v: 'no shutdown' },
+                    { t: 'warn', v: '%LINK-5-CHANGED: Interface GigabitEthernet0/0, changed state to up' },
+                    { t: 'ok', v: '%LINEPROTO-5-UPDOWN: Line protocol on GigabitEthernet0/0, changed state to up' },
+                    { t: 'ok', v: '✅ Interface is UP/UP — operational!' },
+                ]
+            },
+            desc: {
+                p: 'R1(config-if)#',
+                lines: [
+                    { t: 'cmd', v: 'description LAN-to-Core-Switch' },
+                    { t: 'ok', v: '✅ Description set — appears in show ip interface brief' },
+                ]
+            },
+            save: {
+                p: 'R1#',
+                lines: [
+                    { t: 'cmd', v: 'copy running-config startup-config' },
+                    { t: 'out', v: 'Destination filename [startup-config]? ' },
+                    { t: 'out', v: 'Building configuration...' },
+                    { t: 'ok', v: '[OK]  ✅ Config saved to NVRAM — survives reboot!' },
+                ]
+            },
+            ctrlz: {
+                p: 'R1#',
+                lines: [
+                    { t: 'warn', v: '<Ctrl+Z pressed>' },
+                    { t: 'warn', v: '%SYS-5-CONFIG_I: Configured from console by admin on console' },
+                    { t: 'ok', v: '→ Returned to Privileged EXEC Mode (Router#)' },
+                ]
+            },
+        };
+
+        let isAnimating = false;
+
+        function cliExec(k) {
+            if (isAnimating) return;
+            const out = document.getElementById('cli-output');
+            const c = cmds[k];
+            if (!c) return;
+            isAnimating = true;
+
+            // Remove cursor
+            const oldCursor = out.querySelector('.cli-cursor');
+            if (oldCursor) oldCursor.remove();
+
+            let delay = 0;
+            c.lines.forEach((line, i) => {
+                setTimeout(() => {
+                    const d = document.createElement('div');
+                    d.className = 'cli-line';
+                    let cls = '';
+                    if (line.t === 'cmd') { cls = 'cli-prompt'; d.innerHTML = `<span class="${cls}">${c.p} </span><span style="color:#E2E8F0;">${line.v}</span>`; }
+                    else if (line.t === 'ok') { d.innerHTML = `<span class="cli-ok">${line.v}</span>`; }
+                    else if (line.t === 'warn') { d.innerHTML = `<span class="cli-warn">${line.v}</span>`; }
+                    else if (line.t === 'err') { d.innerHTML = `<span class="cli-err">${line.v}</span>`; }
+                    else if (line.t === 'comment') { d.innerHTML = `<span class="cli-comment">${line.v}</span>`; }
+                    else { d.innerHTML = `<span style="color:#CBD5E1;">${line.v}</span>`; }
+                    out.appendChild(d);
+                    out.scrollTop = out.scrollHeight;
+
+                    if (i === c.lines.length - 1) {
+                        setTimeout(() => {
+                            const np = document.createElement('div');
+                            np.className = 'cli-line';
+                            np.innerHTML = `<span class="cli-prompt">${c.p} </span><span class="cli-cursor"></span>`;
+                            out.appendChild(np);
+                            out.scrollTop = out.scrollHeight;
+                            isAnimating = false;
+                        }, 200);
+                    }
+                }, delay);
+                delay += 120;
+            });
+        }
+
+        function clearCli() {
+            const out = document.getElementById('cli-output');
+            out.innerHTML = `
+                <div class="cli-line" style="color:#475569;">Terminal cleared.</div>
+                <div class="cli-line">&nbsp;</div>
+                <div class="cli-line"><span class="cli-prompt">Router# </span><span class="cli-cursor"></span></div>
+            `;
+            isAnimating = false;
+        }
+
+        // ── Quiz ──
+        const answers = {
+            q1: { c: '✅ صح! configure terminal (أو conf t) بيودّيك من Privileged# لـ Global Config mode. الـ Prompt بيتغير لـ (config)#.', w: '❌ غلط. configure terminal من Router# بيدخلك Global Config Mode — الـ Prompt بيبقى Router(config)#.' },
+            q2: { c: '✅ تماماً! enable secret بيخزن الـ Password مشفر بـ MD5 في الـ running-config. enable password بيظهر as plain text ما لم تشغل service password-encryption.', w: '❌ غلط. enable secret دايماً مشفر (MD5). enable password plain text إلا مع service password-encryption. استخدم enable secret دايماً!' },
+            q3: { c: '✅ صح! "administratively down" معناها إن حد عمل shutdown يدوي على الـ Interface. الحل: ادخل interface config mode واعمل no shutdown.', w: '❌ غلط. "administratively down" تعني shutdown يدوي — مش كابل ولا حاجة hardware. الحل: no shutdown في interface config mode.' },
+            q4: { c: '✅ صح! copy running-config startup-config بينقل الكونفيج من RAM لـ NVRAM. write memory (أو wr) نفس الأمر. بدونه — بعد reload كل حاجة بترجع blank!', w: '❌ غلط. الحفظ يحتاج copy running-config startup-config أو write memory. بدون ده — الريستارت بيمحي كل التعديلات!' }
+        };
+
+        function ans(el, qid, correct) {
+            const q = document.getElementById(qid);
+            if (q.dataset.answered) return;
+            q.dataset.answered = 'true';
+            q.querySelectorAll('.quiz-option').forEach(o => o.style.pointerEvents = 'none');
+            el.classList.add(correct ? 'correct' : 'wrong');
+            const fb = document.getElementById('fb-' + qid);
+            fb.textContent = correct ? answers[qid].c : answers[qid].w;
+            fb.className = 'quiz-feedback show ' + (correct ? 'correct-fb' : 'wrong-fb');
+        }
+
+        // Mark lesson complete on scroll to bottom
+        window.addEventListener('scroll', () => {
+            const pct = window.scrollY / (document.documentElement.scrollHeight - window.innerHeight);
+            if (pct > 0.92) {
+                const prog = JSON.parse(localStorage.getItem('nm_progress') || '{}');
+                prog['unit9_lesson1'] = true;
+                localStorage.setItem('nm_progress', JSON.stringify(prog));
+            }
+        });
+    </script>
+</body>
+</html>

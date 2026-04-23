@@ -1,0 +1,140 @@
+﻿<!DOCTYPE html>
+<html lang="en" class="scroll-smooth" dir="ltr">
+<head>
+    <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Career Guide — دليل المسار المهني | Network Mastery</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&family=Inter:wght@400;500;600;700;800&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    <link href="../css/global-net.css" rel="stylesheet">
+    <style>
+        body{background:#020617;color:#E2E8F0;font-family:'Inter',sans-serif;}
+        .lesson-nav-bar{position:fixed;top:0;left:0;right:0;z-index:100;background:rgba(2,6,23,0.88);backdrop-filter:blur(20px);border-bottom:1px solid rgba(255,255,255,0.06);height:64px;display:flex;align-items:center;padding:0 1.5rem;}
+        .nav-inner{max-width:1280px;margin:0 auto;width:100%;display:flex;align-items:center;justify-content:space-between;}
+        .nav-brand{display:flex;align-items:center;gap:0.75rem;font-weight:700;}
+        .back-btn{width:36px;height:36px;border-radius:10px;background:linear-gradient(135deg,#F59E0B,#D97706);display:flex;align-items:center;justify-content:center;color:white;font-size:0.85rem;}
+        .lesson-hero{position:relative;padding:8rem 1.5rem 5rem;text-align:center;overflow:hidden;}
+        .glow-orb{position:absolute;border-radius:50%;filter:blur(128px);pointer-events:none;}
+        .glow-orb-1{width:500px;height:500px;top:-10%;right:-5%;background:rgba(245,158,11,0.15);}
+        .glow-orb-2{width:400px;height:400px;bottom:-20%;left:-10%;background:rgba(236,72,153,0.08);}
+        .lesson-badge{display:inline-flex;align-items:center;gap:0.5rem;padding:0.35rem 1rem;border-radius:50px;background:rgba(30,41,59,0.6);border:1px solid rgba(255,255,255,0.08);font-family:'Fira Code',monospace;font-size:0.78rem;color:#FBBF24;margin-bottom:1.5rem;}
+        .dot{width:6px;height:6px;border-radius:50%;background:#F59E0B;animation:pulse-dot 2s ease infinite;}
+        .lesson-hero h1{font-size:clamp(2.5rem,5vw,4rem);font-weight:800;margin-bottom:1rem;}
+        .text-g{background:linear-gradient(135deg,#F59E0B,#EC4899);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;}
+        .subtitle{font-family:'Cairo',sans-serif;font-size:1.6rem;font-weight:700;color:var(--text-muted);direction:rtl;margin-bottom:1.5rem;}
+        .desc{color:var(--text-faint);max-width:640px;margin:0 auto;font-size:1.05rem;font-family:'Cairo',sans-serif;direction:rtl;line-height:1.9;}
+        .role-card{border-radius:16px;padding:1.5rem;border:1px solid;transition:all 0.3s;cursor:pointer;}
+        .role-card:hover{transform:translateY(-4px);box-shadow:0 8px 30px rgba(0,0,0,0.3);}
+        /* Salary bar */
+        .salary-bar{height:8px;border-radius:4px;margin:0.3rem 0 0.6rem;overflow:hidden;}
+        .salary-fill{height:100%;border-radius:4px;transition:width 1s ease;}
+        /* Final celebration */
+        .celebration{background:linear-gradient(135deg,rgba(245,158,11,0.1),rgba(236,72,153,0.1));border:2px solid rgba(245,158,11,0.3);border-radius:20px;padding:3rem;text-align:center;}
+    </style>
+</head>
+<body>
+    <nav class="lesson-nav-bar"><div class="nav-inner"><a href="../index.html" class="nav-brand"><div class="back-btn"><i class="fas fa-arrow-left"></i></div><span>Career<span style="color:#F59E0B;">Guide</span></span></a></div></nav>
+    <div class="progress-bar-container"><div class="progress-bar-fill" id="reading-progress" style="background:linear-gradient(90deg,#F59E0B,#EC4899);"></div></div>
+    <header class="lesson-hero">
+        <div class="glow-orb glow-orb-1"></div><div class="glow-orb glow-orb-2"></div>
+        <div style="position:relative;z-index:1;">
+            <div class="lesson-badge" data-aos="fade-down"><span class="dot"></span>UNIT 10 • Lesson 4 — FINAL</div>
+            <h1 data-aos="fade-up" data-aos-delay="150">Career <span class="text-g">Guide</span></h1>
+            <div class="subtitle" data-aos="fade-up" data-aos-delay="300">دليلك للمسار المهني في الشبكات</div>
+            <p class="desc" data-aos="fade-up" data-aos-delay="450">مبروك على إتمامك رحلة Network Mastery! دلوقتي تعرف أكثر من 80% من Network Engineers في السوق. الخطوة الجاية؟ اختار مسارك ووطّبق.</p>
+        </div>
+    </header>
+
+    <section class="lesson-section">
+        <div class="section-header" data-aos="fade-up"><h2><i class="fas fa-road" style="color:#FBBF24;margin-left:0.5rem;"></i> Career Paths في الشبكات</h2><p class="en-sub">Click a Role to See Details</p></div>
+        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:0.75rem;margin-bottom:1rem;" data-aos="fade-up">
+            <div class="role-card" style="background:rgba(59,130,246,0.06);border-color:rgba(59,130,246,0.2);" onclick="showRole('neteng')"><div style="font-size:1.5rem;margin-bottom:0.4rem;">🌐</div><div style="color:#60A5FA;font-weight:700;font-size:0.9rem;">Network Engineer</div><div class="rtl-block" style="font-size:0.75rem;color:#64748B;">تصميم وتشغيل وصيانة البنية التحتية</div></div>
+            <div class="role-card" style="background:rgba(236,72,153,0.06);border-color:rgba(236,72,153,0.2);" onclick="showRole('seceng')"><div style="font-size:1.5rem;margin-bottom:0.4rem;">🔐</div><div style="color:#F472B6;font-weight:700;font-size:0.9rem;">Security Engineer</div><div class="rtl-block" style="font-size:0.75rem;color:#64748B;">حماية الشبكات — SIEM، Firewalls، Pen Testing</div></div>
+            <div class="role-card" style="background:rgba(245,158,11,0.06);border-color:rgba(245,158,11,0.2);" onclick="showRole('cloudnet')"><div style="font-size:1.5rem;margin-bottom:0.4rem;">☁️</div><div style="color:#FBBF24;font-weight:700;font-size:0.9rem;">Cloud Network Eng.</div><div class="rtl-block" style="font-size:0.75rem;color:#64748B;">AWS/Azure VPC، Hybrid, SD-WAN</div></div>
+            <div class="role-card" style="background:rgba(16,185,129,0.06);border-color:rgba(16,185,129,0.2);" onclick="showRole('soc')"><div style="font-size:1.5rem;margin-bottom:0.4rem;">👁️</div><div style="color:#34D399;font-weight:700;font-size:0.9rem;">SOC Analyst</div><div class="rtl-block" style="font-size:0.75rem;color:#64748B;">مراقبة وتحليل التهديدات 24/7</div></div>
+            <div class="role-card" style="background:rgba(239,68,68,0.06);border-color:rgba(239,68,68,0.2);" onclick="showRole('pentest')"><div style="font-size:1.5rem;margin-bottom:0.4rem;">💀</div><div style="color:#F87171;font-weight:700;font-size:0.9rem;">Penetration Tester</div><div class="rtl-block" style="font-size:0.75rem;color:#64748B;">Ethical Hacking — Bug Bounty</div></div>
+        </div>
+        <div id="role-detail" style="display:none;" data-aos="fade-up">
+            <div class="glass-card" style="padding:1.5rem;" id="role-content"></div>
+        </div>
+    </section>
+
+    <section class="lesson-section alt-bg">
+        <div class="section-inner">
+            <div class="section-header" data-aos="fade-up"><h2><i class="fas fa-route" style="color:#EC4899;margin-left:0.5rem;"></i> خريطة الطريق — 12 شهر للـ Job Ready</h2></div>
+            <div class="glass-card" style="padding:1.8rem;" data-aos="fade-up">
+                <div style="display:flex;flex-direction:column;gap:0.6rem;">
+                    <div style="display:flex;gap:0.75rem;align-items:center;padding:0.7rem;background:rgba(16,185,129,0.06);border:1px solid rgba(16,185,129,0.15);border-radius:9px;">
+                        <span style="background:#34D399;color:white;border-radius:50%;width:28px;height:28px;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:0.75rem;flex-shrink:0;">1-3</span>
+                        <div><strong style="color:#34D399;font-size:0.85rem;">الأشهر 1-3: أتقن الأساسيات</strong><div class="rtl-block" style="font-size:0.78rem;color:#64748B;">انهي Network Mastery Platform ← CompTIA Network+ ← ابدأ Cisco Packet Tracer Labs</div></div>
+                    </div>
+                    <div style="display:flex;gap:0.75rem;align-items:center;padding:0.7rem;background:rgba(245,158,11,0.06);border:1px solid rgba(245,158,11,0.15);border-radius:9px;">
+                        <span style="background:#F59E0B;color:white;border-radius:50%;width:28px;height:28px;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:0.75rem;flex-shrink:0;">4-6</span>
+                        <div><strong style="color:#FBBF24;font-size:0.85rem;">الأشهر 4-6: CCNA</strong><div class="rtl-block" style="font-size:0.78rem;color:#64748B;">Neil Anderson CCNA Course ← CBT Nuggets ← Labs يومياً ← اجتز الامتحان 200-301</div></div>
+                    </div>
+                    <div style="display:flex;gap:0.75rem;align-items:center;padding:0.7rem;background:rgba(59,130,246,0.06);border:1px solid rgba(59,130,246,0.15);border-radius:9px;">
+                        <span style="background:#3B82F6;color:white;border-radius:50%;width:28px;height:28px;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:0.75rem;flex-shrink:0;">7-9</span>
+                        <div><strong style="color:#60A5FA;font-size:0.85rem;">الأشهر 7-9: Specialization</strong><div class="rtl-block" style="font-size:0.78rem;color:#64748B;">اختار: Security (Security+) أو Cloud (AWS SAA) أو Routing (CCNP) ← ابدأ Projects للـ Portfolio</div></div>
+                    </div>
+                    <div style="display:flex;gap:0.75rem;align-items:center;padding:0.7rem;background:rgba(236,72,153,0.06);border:1px solid rgba(236,72,153,0.15);border-radius:9px;">
+                        <span style="background:#EC4899;color:white;border-radius:50%;width:28px;height:28px;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:0.75rem;flex-shrink:0;">10-12</span>
+                        <div><strong style="color:#F472B6;font-size:0.85rem;">الأشهر 10-12: Job Hunting</strong><div class="rtl-block" style="font-size:0.78rem;color:#64748B;">LinkedIn Profile ← GitHub Portfolio ← Network في المجتمع ← Apply للـ L1/L2 Network Support</div></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Final Celebration -->
+    <section class="lesson-section">
+        <div class="celebration" data-aos="zoom-in">
+            <div style="font-size:4rem;margin-bottom:1rem;animation:float 3s ease infinite;">🎓</div>
+            <h2 style="font-family:'Cairo',sans-serif;font-size:2rem;font-weight:900;margin-bottom:1rem;">
+                <span style="background:linear-gradient(135deg,#F59E0B,#EC4899,#8B5CF6);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;">مبروك — أكملت Network Mastery!</span>
+            </h2>
+            <p class="rtl-block" style="color:#CBD5E1;font-size:1.05rem;line-height:1.9;max-width:600px;margin:0 auto 2rem;">
+                43 درس — 10 وحدات — من الـ Physical Layer حتى الـ Cloud — من الـ Binary حتى الـ CCIE Path. 
+                دلوقتي عندك أساس قوي يفتح لك أبواب في أي مسار في الشبكات.
+            </p>
+            <div style="display:flex;gap:1rem;flex-wrap:wrap;justify-content:center;">
+                <a href="../index.html" style="display:inline-flex;align-items:center;gap:0.75rem;padding:0.9rem 2rem;border-radius:14px;background:linear-gradient(135deg,#F59E0B,#D97706);color:white;font-weight:800;text-decoration:none;">🏠 الصفحة الرئيسية</a>
+                <a href="certifications.html" style="display:inline-flex;align-items:center;gap:0.75rem;padding:0.9rem 2rem;border-radius:14px;background:rgba(245,158,11,0.1);border:1px solid rgba(245,158,11,0.3);color:#FBBF24;font-weight:700;text-decoration:none;">📜 الشهادات</a>
+            </div>
+        </div>
+        <div class="lesson-bottom-nav" style="margin-top:2rem;">
+            <a href="certifications.html"><i class="fas fa-arrow-left"></i><span>Certifications</span></a>
+            <div style="text-align:center;color:var(--text-faint);font-size:0.85rem;">🎉 All 43 Lessons Complete!</div>
+            <a href="../index.html"><span>Home</span><i class="fas fa-home"></i></a>
+        </div>
+    </section>
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <script>
+        AOS.init({duration:800,once:true,offset:100});
+        window.addEventListener('scroll',()=>{ document.getElementById('reading-progress').style.width=(window.scrollY/(document.documentElement.scrollHeight-window.innerHeight))*100+'%'; });
+        const roles={
+            neteng:{color:'#60A5FA',title:'Network Engineer',sal:'$65k–$130k+ USD',skills:['CCNA/CCNP Required','Cisco/Juniper CLI','Routing Protocols (OSPF, BGP)','Switching & VLANs','Troubleshooting'],desc:'الدور الأشيع — بتصمم وتشغل وتحل مشاكل الشبكات في الشركات. NOC Engineer → Network Engineer → Senior → Architect.'},
+            seceng:{color:'#F472B6',title:'Security Engineer',sal:'$80k–$160k+ USD',skills:['CCNA Security / Security+','Firewall Config (Palo Alto)','SIEM (Splunk, QRadar)','Vulnerability Management','Incident Response'],desc:'أكثر طلباً سنة بسنة. الشركات بتدفع Premium للـ Talent النادر. مبني على أساس Network Engineering.'},
+            cloudnet:{color:'#FBBF24',title:'Cloud Network Engineer',sal:'$100k–$180k+ USD',skills:['AWS/Azure/GCP Certified','VPC Design','Terraform/Infrastructure as Code','SD-WAN','Zero Trust Architecture'],desc:'المستقبل. كل Infrastructure بيروح Cloud. Hybrid networking experts في طلب كبير جداً.'},
+            soc:{color:'#34D399',title:'SOC Analyst',sal:'$50k–$100k+ USD',skills:['SIEM Operations','Log Analysis','Incident Response','Threat Intelligence','CompTIA Security+'],desc:'L1 (Alert Triage) → L2 (Investigation) → L3 (Threat Hunting). مدخل ممتاز لـ Security. ليالي وايام.'},
+            pentest:{color:'#F87171',title:'Penetration Tester',sal:'$90k–$200k+ (Bug Bounty)',skills:['OSCP Required','Offensive Security','Metasploit & Burp Suite','Network Exploitation','Report Writing'],desc:'مهمش إلا بـ Foundation قوية. ابدأ بـ CEH ثم OSCP. Bug Bounty = عشرات الآلاف من أي مكان في العالم.'}
+        };
+        function showRole(k){ const r=roles[k]; document.getElementById('role-detail').style.display='block'; document.getElementById('role-content').innerHTML=`
+            <div style="display:flex;align-items:center;gap:1rem;margin-bottom:1rem;"><div><div style="color:${r.color};font-weight:900;font-size:1.1rem;">${r.title}</div><div style="color:#34D399;font-family:'Fira Code';font-size:0.85rem;direction:ltr;">${r.sal}</div></div></div>
+            <div class="rtl-block" style="color:#CBD5E1;font-size:0.9rem;line-height:1.8;margin-bottom:1rem;">${r.desc}</div>
+            <div><div style="color:#94A3B8;font-size:0.8rem;margin-bottom:0.4rem;">Required Skills:</div><div style="display:flex;flex-wrap:wrap;gap:0.3rem;">${r.skills.map(s=>`<span style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08);border-radius:6px;padding:0.2rem 0.6rem;font-size:0.72rem;font-family:'Fira Code';direction:ltr;">${s}</span>`).join('')}</div></div>
+        `; }
+    </script>
+    <style>@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-12px)}}</style>
+    <script>
+        // Auto-save progress when 90% scrolled
+        window.addEventListener('scroll', function() {
+            var pct = window.scrollY / (document.documentElement.scrollHeight - window.innerHeight);
+            if (pct > 0.90) {
+                var prog = JSON.parse(localStorage.getItem('nm_progress') || '{}');
+                prog['unit10_lesson4'] = true;
+                localStorage.setItem('nm_progress', JSON.stringify(prog));
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,126 @@
+﻿<!DOCTYPE html>
+<html lang="en" class="scroll-smooth" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Packet Analysis — تحليل الحزم | Network Mastery</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&family=Inter:wght@400;500;600;700;800&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    <link href="../css/global-net.css" rel="stylesheet">
+    <style>
+        body{background:#020617;color:#E2E8F0;font-family:'Inter',sans-serif;}
+        .lesson-nav-bar{position:fixed;top:0;left:0;right:0;z-index:100;background:rgba(2,6,23,0.88);backdrop-filter:blur(20px);border-bottom:1px solid rgba(255,255,255,0.06);height:64px;display:flex;align-items:center;padding:0 1.5rem;}
+        .nav-inner{max-width:1280px;margin:0 auto;width:100%;display:flex;align-items:center;justify-content:space-between;}
+        .nav-brand{display:flex;align-items:center;gap:0.75rem;font-weight:700;}
+        .back-btn{width:36px;height:36px;border-radius:10px;background:linear-gradient(135deg,#0EA5E9,#0284C7);display:flex;align-items:center;justify-content:center;color:white;font-size:0.85rem;}
+        .lesson-hero{position:relative;padding:8rem 1.5rem 5rem;text-align:center;overflow:hidden;}
+        .glow-orb{position:absolute;border-radius:50%;filter:blur(128px);pointer-events:none;}
+        .glow-orb-1{width:500px;height:500px;top:-10%;right:-5%;background:rgba(14,165,233,0.12);}
+        .lesson-badge{display:inline-flex;align-items:center;gap:0.5rem;padding:0.35rem 1rem;border-radius:50px;background:rgba(30,41,59,0.6);border:1px solid rgba(255,255,255,0.08);font-family:'Fira Code',monospace;font-size:0.78rem;color:#38BDF8;margin-bottom:1.5rem;}
+        .dot{width:6px;height:6px;border-radius:50%;background:#0EA5E9;animation:pulse-dot 2s ease infinite;}
+        .lesson-hero h1{font-size:clamp(2.5rem,5vw,4rem);font-weight:800;margin-bottom:1rem;}
+        .text-g{background:linear-gradient(135deg,#0EA5E9,#06B6D4);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;}
+        .subtitle{font-family:'Cairo',sans-serif;font-size:1.6rem;font-weight:700;color:var(--text-muted);direction:rtl;margin-bottom:1.5rem;}
+        .desc{color:var(--text-faint);max-width:640px;margin:0 auto;font-size:1.05rem;font-family:'Cairo',sans-serif;direction:rtl;line-height:1.9;}
+        .lesson-bottom-nav{display:flex;justify-content:space-between;align-items:center;gap:1rem;padding:2rem 0;border-top:1px solid var(--border-subtle);margin-top:3rem;}
+        .lesson-bottom-nav a{display:flex;align-items:center;gap:0.5rem;padding:0.75rem 1.5rem;border-radius:12px;background:rgba(255,255,255,0.04);border:1px solid var(--border-subtle);transition:all 0.3s;font-weight:600;font-size:0.9rem;}
+        .lesson-bottom-nav a:hover{background:rgba(14,165,233,0.1);border-color:rgba(14,165,233,0.3);transform:translateY(-2px);}
+        /* Wireshark sim */
+        .ws-row{display:grid;grid-template-columns:40px 90px 110px 110px 60px 1fr;gap:0.3rem;padding:0.35rem 0.5rem;font-size:0.72rem;font-family:'Fira Code';border-radius:4px;cursor:pointer;direction:ltr;transition:background 0.2s;}
+        .ws-row:hover,.ws-row.selected{background:rgba(14,165,233,0.15);}
+        .ws-header{background:rgba(14,165,233,0.1);color:#38BDF8;font-weight:700;}
+        .ws-row.dns{border-left:3px solid #A78BFA;}
+        .ws-row.tcp{border-left:3px solid #34D399;}
+        .ws-row.http{border-left:3px solid #FBBF24;}
+        .ws-row.arp{border-left:3px solid #22D3EE;}
+        /* Decode tree */
+        .decode-tree{font-family:'Fira Code';font-size:0.75rem;direction:ltr;background:rgba(0,0,0,0.3);border-radius:10px;padding:0.75rem;}
+        .dt-layer{cursor:pointer;padding:0.2rem 0;}
+        .dt-field{padding:0.1rem 0 0.1rem 1.5rem;color:#94A3B8;font-size:0.7rem;}
+    </style>
+</head>
+<body>
+    <nav class="lesson-nav-bar"><div class="nav-inner"><a href="../index.html" class="nav-brand"><div class="back-btn"><i class="fas fa-arrow-left"></i></div><span>Packet<span style="color:#0EA5E9;">Anlz</span></span></a></div></nav>
+    <div class="progress-bar-container"><div class="progress-bar-fill" id="reading-progress" style="background:linear-gradient(90deg,#0EA5E9,#06B6D4);"></div></div>
+    <header class="lesson-hero">
+        <div class="glow-orb glow-orb-1"></div>
+        <div style="position:relative;z-index:1;">
+            <div class="lesson-badge" data-aos="fade-down"><span class="dot"></span>UNIT 9 • Lesson 2</div>
+            <h1 data-aos="fade-up" data-aos-delay="150">Packet <span class="text-g">Analysis</span></h1>
+            <div class="subtitle" data-aos="fade-up" data-aos-delay="300">تحليل حزم الشبكة</div>
+            <p class="desc" data-aos="fade-up" data-aos-delay="450">Wireshark هو مجهر الشبكات. كل مشكلة — كل هجوم — كل بروتوكول — تقدر تـ capture وتقرأ بيانات بالتفصيل. مهارة أساسية لكل Network Engineer.</p>
+        </div>
+    </header>
+
+    <section class="lesson-section">
+        <div class="section-header" data-aos="fade-up"><h2><i class="fas fa-magnifying-glass" style="color:#38BDF8;margin-left:0.5rem;"></i> محاكي Wireshark</h2><p class="en-sub">Click Any Packet to See Full Decode</p></div>
+        <div class="glass-card" style="padding:1.5rem;" data-aos="fade-up">
+            <div style="overflow-x:auto;margin-bottom:0.75rem;">
+                <div class="ws-row ws-header"><span>No.</span><span>Time</span><span>Source</span><span>Dest.</span><span>Proto</span><span>Info</span></div>
+                <div class="ws-row dns" onclick="showDecode('dns',this)"><span style="color:#94A3B8;">1</span><span>0.000</span><span>192.168.1.5</span><span>8.8.8.8</span><span style="color:#A78BFA;">DNS</span><span>Standard query A google.com</span></div>
+                <div class="ws-row dns" onclick="showDecode('dnsres',this)"><span style="color:#94A3B8;">2</span><span>0.012</span><span>8.8.8.8</span><span>192.168.1.5</span><span style="color:#A78BFA;">DNS</span><span>Standard query response A 142.250.80.68</span></div>
+                <div class="ws-row tcp" onclick="showDecode('syn',this)"><span style="color:#94A3B8;">3</span><span>0.013</span><span>192.168.1.5</span><span>142.250.80.68</span><span style="color:#34D399;">TCP</span><span>52341 → 443 [SYN] Seq=0 Win=65535</span></div>
+                <div class="ws-row tcp" onclick="showDecode('synack',this)"><span style="color:#94A3B8;">4</span><span>0.025</span><span>142.250.80.68</span><span>192.168.1.5</span><span style="color:#34D399;">TCP</span><span>443 → 52341 [SYN, ACK] Seq=0 Ack=1</span></div>
+                <div class="ws-row http" onclick="showDecode('http',this)"><span style="color:#94A3B8;">5</span><span>0.030</span><span>192.168.1.5</span><span>142.250.80.68</span><span style="color:#FBBF24;">TLS</span><span>Client Hello (TLSv1.3)</span></div>
+                <div class="ws-row arp" onclick="showDecode('arp',this)"><span style="color:#94A3B8;">6</span><span>1.200</span><span>Broadcast</span><span>192.168.1.1</span><span style="color:#22D3EE;">ARP</span><span>Who has 192.168.1.1? Tell 192.168.1.5</span></div>
+            </div>
+            <div id="decode-panel" class="decode-tree" style="display:none;">
+                <div id="decode-content"></div>
+            </div>
+        </div>
+    </section>
+
+    <section class="lesson-section alt-bg">
+        <div class="section-inner">
+            <div class="section-header" data-aos="fade-up"><h2><i class="fas fa-filter" style="color:#06B6D4;margin-left:0.5rem;"></i> Wireshark Display Filters</h2><p class="en-sub">Filtering the Noise to Find the Signal</p></div>
+            <div class="glass-card" style="padding:1.5rem;" data-aos="fade-up">
+                <div style="background:rgba(0,0,0,0.3);border-radius:10px;padding:1rem;font-family:'Fira Code';font-size:0.78rem;direction:ltr;">
+                    <div style="color:#94A3B8;margin-bottom:0.5rem;"># Essential Wireshark Filters</div>
+                    <div style="margin:0.3rem 0;"><span style="color:#38BDF8;">http</span>  <span style="color:#94A3B8;">— All HTTP traffic</span></div>
+                    <div style="margin:0.3rem 0;"><span style="color:#38BDF8;">dns</span>  <span style="color:#94A3B8;">— DNS queries & responses</span></div>
+                    <div style="margin:0.3rem 0;"><span style="color:#38BDF8;">tcp.port == 443</span>  <span style="color:#94A3B8;">— HTTPS traffic</span></div>
+                    <div style="margin:0.3rem 0;"><span style="color:#38BDF8;">ip.src == 192.168.1.5</span>  <span style="color:#94A3B8;">— From specific IP</span></div>
+                    <div style="margin:0.3rem 0;"><span style="color:#38BDF8;">tcp.flags.syn == 1</span>  <span style="color:#94A3B8;">— SYN packets only</span></div>
+                    <div style="margin:0.3rem 0;"><span style="color:#38BDF8;">!(arp or dns)</span>  <span style="color:#94A3B8;">— Exclude ARP and DNS (reduce noise)</span></div>
+                    <div style="margin:0.3rem 0;"><span style="color:#38BDF8;">frame contains "password"</span>  <span style="color:#94A3B8;">— Search payload content</span></div>
+                    <div style="margin:0.3rem 0;"><span style="color:#38BDF8;">tcp.analysis.retransmission</span>  <span style="color:#94A3B8;">— Find retransmissions</span></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="lesson-section">
+        <div class="lesson-bottom-nav">
+            <a href="cisco_cli.html"><i class="fas fa-arrow-left"></i><span>Cisco CLI</span></a>
+            <div style="text-align:center;color:var(--text-faint);font-size:0.85rem;">Unit 9 • Lesson 2</div>
+            <a href="network_troubleshooting.html"><span>Troubleshooting</span><i class="fas fa-arrow-right"></i></a>
+        </div>
+    </section>
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <script>
+        AOS.init({duration:800,once:true,offset:100});
+        window.addEventListener('scroll',()=>{ document.getElementById('reading-progress').style.width=(window.scrollY/(document.documentElement.scrollHeight-window.innerHeight))*100+'%'; });
+        const decodes={
+            dns:`<div class="dt-layer" style="color:#A78BFA;">▼ Domain Name System (query)</div><div class="dt-field">Transaction ID: 0x1234</div><div class="dt-field">Flags: 0x0100 Standard query</div><div class="dt-field">Questions: 1</div><div class="dt-layer" style="color:#A78BFA;padding-left:1rem;">▼ Queries</div><div class="dt-field" style="padding-left:2.5rem;">Name: google.com</div><div class="dt-field" style="padding-left:2.5rem;">Type: A (Host Address)</div><div class="dt-field" style="padding-left:2.5rem;">Class: IN (0x0001)</div>`,
+            dnsres:`<div class="dt-layer" style="color:#A78BFA;">▼ Domain Name System (response)</div><div class="dt-field">Transaction ID: 0x1234</div><div class="dt-field">Flags: 0x8180 Standard query response, No error</div><div class="dt-layer" style="color:#34D399;padding-left:1rem;">▼ Answers</div><div class="dt-field" style="padding-left:2.5rem;">Name: google.com</div><div class="dt-field" style="padding-left:2.5rem;">Type: A</div><div class="dt-field" style="padding-left:2.5rem;color:#34D399;">Address: 142.250.80.68 ✅</div><div class="dt-field" style="padding-left:2.5rem;">TTL: 293 seconds</div>`,
+            syn:`<div class="dt-layer" style="color:#34D399;">▼ Transmission Control Protocol</div><div class="dt-field">Source Port: 52341</div><div class="dt-field">Destination Port: 443</div><div class="dt-field" style="color:#FBBF24;">Flags: 0x002 (SYN) — Connection Request</div><div class="dt-field">Sequence number: 0</div><div class="dt-field">Window size: 65535</div>`,
+            synack:`<div class="dt-layer" style="color:#34D399;">▼ Transmission Control Protocol</div><div class="dt-field">Source Port: 443</div><div class="dt-field">Destination Port: 52341</div><div class="dt-field" style="color:#34D399;">Flags: 0x012 (SYN, ACK) ✅ — Server responds!</div><div class="dt-field">Sequence number: 0</div><div class="dt-field">Acknowledgment: 1</div>`,
+            http:`<div class="dt-layer" style="color:#FBBF24;">▼ Transport Layer Security</div><div class="dt-field" style="color:#FBBF24;">TLSv1.3 Record Layer: Client Hello</div><div class="dt-field">Handshake Type: Client Hello (1)</div><div class="dt-field">Version: TLS 1.0 (0x0301) [outer, backwards compat]</div><div class="dt-field">Random: 4a2f... [32 bytes]</div><div class="dt-field">Supported Versions: TLS 1.3, TLS 1.2</div><div class="dt-field">Server Name: www.google.com (SNI)</div>`,
+            arp:`<div class="dt-layer" style="color:#22D3EE;">▼ Address Resolution Protocol (request)</div><div class="dt-field">Hardware type: Ethernet (1)</div><div class="dt-field">Protocol type: IPv4 (0x0800)</div><div class="dt-field" style="color:#22D3EE;">Opcode: request (1)</div><div class="dt-field">Sender MAC: 00:1a:2b:3c:4d:5e</div><div class="dt-field">Sender IP: 192.168.1.5</div><div class="dt-field">Target MAC: 00:00:00:00:00:00 (unknown)</div><div class="dt-field" style="color:#FBBF24;">Target IP: 192.168.1.1 ← Who has this?</div>`
+        };
+        function showDecode(k,el){ document.querySelectorAll('.ws-row').forEach(r=>r.classList.remove('selected')); el.classList.add('selected'); const p=document.getElementById('decode-panel'); p.style.display='block'; document.getElementById('decode-content').innerHTML=decodes[k]; }
+    </script>
+    <script>
+        // Auto-save progress when 90% scrolled
+        window.addEventListener('scroll', function() {
+            var pct = window.scrollY / (document.documentElement.scrollHeight - window.innerHeight);
+            if (pct > 0.90) {
+                var prog = JSON.parse(localStorage.getItem('nm_progress') || '{}');
+                prog['unit9_lesson2'] = true;
+                localStorage.setItem('nm_progress', JSON.stringify(prog));
+            }
+        });
+    </script>
+</body>
+</html>
