@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en" class="scroll-smooth" dir="ltr">
 <head>
     <meta charset="UTF-8">
@@ -79,6 +79,50 @@
         </div>
     </section>
 
+    <section class="lesson-section">
+        <div class="section-header" data-aos="fade-up"><h2><i class="fas fa-bug" style="color:#FBBF24;margin-left:0.5rem;"></i> Bug Bounty</h2><p class="en-sub">Get Paid to Hack — Legally</p></div>
+        <div class="glass-card" style="padding:1.5rem;" data-aos="fade-up">
+            <div class="rtl-block" style="margin-bottom:1rem;color:#CBD5E1;font-size:0.92rem;line-height:1.8;">
+                <p>شركات زي Google وMeta وApple بتدفع <strong style="color:#FBBF24;">$500 - $100,000+</strong> لأي حد يلاقي ثغرة. المنصات:</p>
+            </div>
+            <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:0.5rem;">
+                <div style="padding:0.6rem;background:rgba(245,158,11,0.06);border:1px solid rgba(245,158,11,0.15);border-radius:8px;text-align:center;"><div style="font-family:'Fira Code';color:#FBBF24;font-weight:700;font-size:0.85rem;">HackerOne</div><div style="font-size:0.72rem;color:#64748B;">الأشهر عالمياً</div></div>
+                <div style="padding:0.6rem;background:rgba(59,130,246,0.06);border:1px solid rgba(59,130,246,0.15);border-radius:8px;text-align:center;"><div style="font-family:'Fira Code';color:#60A5FA;font-weight:700;font-size:0.85rem;">Bugcrowd</div><div style="font-size:0.72rem;color:#64748B;">منافس قوي</div></div>
+                <div style="padding:0.6rem;background:rgba(16,185,129,0.06);border:1px solid rgba(16,185,129,0.15);border-radius:8px;text-align:center;"><div style="font-family:'Fira Code';color:#34D399;font-weight:700;font-size:0.85rem;">Synack</div><div style="font-size:0.72rem;color:#64748B;">Private/Elite</div></div>
+            </div>
+        </div>
+    </section>
+
+    <section class="lesson-section" id="quiz">
+        <div class="section-header" data-aos="fade-up"><h2><i class="fas fa-brain" style="color:#EC4899;margin-left:0.5rem;"></i> اختبر نفسك</h2></div>
+        <div class="quiz-container" data-aos="fade-up">
+            <div class="quiz-question" id="q1"><h4>أول مرحلة في الـ Pen Test هي؟</h4>
+                <div class="quiz-options">
+                    <div class="quiz-option" onclick="ans(this,'q1',false)">Exploitation</div>
+                    <div class="quiz-option" onclick="ans(this,'q1',true)">Reconnaissance — جمع المعلومات (OSINT, DNS, Whois)</div>
+                    <div class="quiz-option" onclick="ans(this,'q1',false)">Reporting</div>
+                    <div class="quiz-option" onclick="ans(this,'q1',false)">Post-Exploitation</div>
+                </div><div class="quiz-feedback" id="fb-q1"></div>
+            </div>
+            <div class="quiz-question" id="q2"><h4>nmap -sV -O 192.168.1.1 بيعمل إيه؟</h4>
+                <div class="quiz-options">
+                    <div class="quiz-option" onclick="ans(this,'q2',false)">يحذف الملفات</div>
+                    <div class="quiz-option" onclick="ans(this,'q2',true)">Port Scan + Service Version Detection + OS Detection</div>
+                    <div class="quiz-option" onclick="ans(this,'q2',false)">يشفر الاتصال</div>
+                    <div class="quiz-option" onclick="ans(this,'q2',false)">يعمل Exploit تلقائي</div>
+                </div><div class="quiz-feedback" id="fb-q2"></div>
+            </div>
+            <div class="quiz-question" id="q3"><h4>الفرق بين White Hat و Grey Hat؟</h4>
+                <div class="quiz-options">
+                    <div class="quiz-option" onclick="ans(this,'q3',false)">مفيش فرق</div>
+                    <div class="quiz-option" onclick="ans(this,'q3',false)">White Hat أسرع</div>
+                    <div class="quiz-option" onclick="ans(this,'q3',true)">White Hat بإذن مكتوب — Grey Hat بدون إذن لكن لا يستغل</div>
+                    <div class="quiz-option" onclick="ans(this,'q3',false)">Grey Hat بيستخدم أدوات أقوى</div>
+                </div><div class="quiz-feedback" id="fb-q3"></div>
+            </div>
+        </div>
+    </section>
+
     <section class="lesson-section alt-bg">
         <div class="section-inner">
             <div class="glass-card" style="padding:2rem;text-align:center;border-color:rgba(236,72,153,0.3);" data-aos="zoom-in">
@@ -98,7 +142,10 @@
         </div>
     </section>
     <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
-    <script>AOS.init({duration:800,once:true,offset:100}); window.addEventListener('scroll',()=>{ document.getElementById('reading-progress').style.width=(window.scrollY/(document.documentElement.scrollHeight-window.innerHeight))*100+'%'; });</script>
+    <script>AOS.init({duration:800,once:true,offset:100}); window.addEventListener('scroll',()=>{ document.getElementById('reading-progress').style.width=(window.scrollY/(document.documentElement.scrollHeight-window.innerHeight))*100+'%'; });
+        const qfb={q1:{c:'✅ Recon دايماً أولاً. لازم تعرف الهدف قبل ما تبدأ أي هجوم.',w:'❌ أول مرحلة = Reconnaissance. جمع معلومات عن الهدف.'},q2:{c:'✅ -sV = Service Version Detection. -O = OS Fingerprinting. النتيجة: خريطة كاملة للهدف.',w:'❌ nmap -sV -O = Port Scan + Service Versions + OS Detection.'},q3:{c:'✅ White Hat = Authorized (عقد مكتوب). Grey Hat = Unauthorized لكن مش بيستغل.',w:'❌ الفرق: White Hat بإذن مكتوب. Grey Hat بدون إذن لكن لا يسرق.'}};
+        function ans(el,qid,correct){const q=document.getElementById(qid);if(q.dataset.answered)return;q.dataset.answered='true';q.querySelectorAll('.quiz-option').forEach(o=>o.style.pointerEvents='none');el.classList.add(correct?'correct':'wrong');const f=document.getElementById('fb-'+qid);f.textContent=correct?qfb[qid].c:qfb[qid].w;f.className='quiz-feedback show '+(correct?'correct-fb':'wrong-fb');}
+    </script>
     <script>
         // Auto-save progress when 90% scrolled
         window.addEventListener('scroll', function() {

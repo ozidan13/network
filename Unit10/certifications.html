@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en" class="scroll-smooth" dir="ltr">
 <head>
     <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -54,6 +54,68 @@
     </section>
 
     <section class="lesson-section">
+        <div class="section-header" data-aos="fade-up"><h2><i class="fas fa-book-open" style="color:#34D399;margin-left:0.5rem;"></i> موارد الدراسة</h2><p class="en-sub">Study Resources for CCNA</p></div>
+        <div class="glass-card" style="padding:1.5rem;" data-aos="fade-up">
+            <div class="rtl-block" style="margin-bottom:1rem;color:#CBD5E1;font-size:0.92rem;line-height:1.8;">
+                <p><strong style="color:#34D399;">الخطة المثالية لـ CCNA في 3 شهور:</strong></p>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:0.5rem;">
+                <div class="step-box" style="border-color:rgba(16,185,129,0.3);"><strong>شهر 1:</strong> Networking Fundamentals + OSI + IP Addressing + Subnetting. كتاب: OCG (Official Cert Guide) by Wendell Odom</div>
+                <div class="step-box" style="border-color:rgba(59,130,246,0.3);"><strong>شهر 2:</strong> Routing, Switching, VLANs, STP, OSPF. لابات: Packet Tracer أو GNS3. فيديوهات: Jeremy's IT Lab (YouTube مجاني)</div>
+                <div class="step-box" style="border-color:rgba(245,158,11,0.3);"><strong>شهر 3:</strong> Security, Wireless, Automation. Practice exams: Boson ExSim. مراجعة + إعادة Labs</div>
+            </div>
+        </div>
+    </section>
+
+    <section class="lesson-section alt-bg">
+        <div class="section-inner">
+            <div class="section-header" data-aos="fade-up"><h2><i class="fas fa-coins" style="color:#FBBF24;margin-left:0.5rem;"></i> السوق المصري</h2><p class="en-sub">Egyptian Market — Network Engineer Salaries</p></div>
+            <div class="glass-card" style="padding:1.5rem;overflow-x:auto;" data-aos="fade-up">
+                <table class="comparison-table">
+                    <thead><tr><th>الشهادة</th><th>الوظيفة المتوقعة</th><th>الراتب (مصر/شهر)</th><th>Remote/Gulf</th></tr></thead>
+                    <tbody>
+                        <tr><td style="font-family:'Fira Code';color:#34D399;">CCNA</td><td class="rtl-block">Network Engineer Junior</td><td class="rtl-block">8K-15K EGP</td><td class="rtl-block">$800-1500</td></tr>
+                        <tr><td style="font-family:'Fira Code';color:#60A5FA;">CCNP</td><td class="rtl-block">Senior Network Engineer</td><td class="rtl-block">18K-35K EGP</td><td class="rtl-block">$2000-4000</td></tr>
+                        <tr><td style="font-family:'Fira Code';color:#FBBF24;">CCIE</td><td class="rtl-block">Network Architect</td><td class="rtl-block">40K-80K+ EGP</td><td class="rtl-block">$5000-12000</td></tr>
+                        <tr><td style="font-family:'Fira Code';color:#F87171;">Security+</td><td class="rtl-block">SOC Analyst</td><td class="rtl-block">10K-20K EGP</td><td class="rtl-block">$1200-2500</td></tr>
+                        <tr><td style="font-family:'Fira Code';color:#FB923C;">AWS Net</td><td class="rtl-block">Cloud Network Engineer</td><td class="rtl-block">25K-50K EGP</td><td class="rtl-block">$3000-6000</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </section>
+
+    <section class="lesson-section" id="ccna-sample">
+        <div class="section-header" data-aos="fade-up"><h2><i class="fas fa-clipboard-check" style="color:#22D3EE;margin-left:0.5rem;"></i> نماذج أسئلة CCNA</h2></div>
+        <div class="quiz-container" data-aos="fade-up">
+            <div class="quiz-question" id="q1"><h4>Which layer of the OSI model is responsible for logical addressing and routing?</h4>
+                <div class="quiz-options">
+                    <div class="quiz-option" onclick="ans(this,'q1',false)">Data Link Layer</div>
+                    <div class="quiz-option" onclick="ans(this,'q1',true)">Network Layer</div>
+                    <div class="quiz-option" onclick="ans(this,'q1',false)">Transport Layer</div>
+                    <div class="quiz-option" onclick="ans(this,'q1',false)">Session Layer</div>
+                </div><div class="quiz-feedback" id="fb-q1"></div>
+            </div>
+            <div class="quiz-question" id="q2"><h4>What is the subnet mask for a /26 network?</h4>
+                <div class="quiz-options">
+                    <div class="quiz-option" onclick="ans(this,'q2',false)">255.255.255.128</div>
+                    <div class="quiz-option" onclick="ans(this,'q2',false)">255.255.255.240</div>
+                    <div class="quiz-option" onclick="ans(this,'q2',true)">255.255.255.192</div>
+                    <div class="quiz-option" onclick="ans(this,'q2',false)">255.255.255.224</div>
+                </div><div class="quiz-feedback" id="fb-q2"></div>
+            </div>
+            <div class="quiz-question" id="q3"><h4>Which protocol uses port 443?</h4>
+                <div class="quiz-options">
+                    <div class="quiz-option" onclick="ans(this,'q3',false)">HTTP</div>
+                    <div class="quiz-option" onclick="ans(this,'q3',true)">HTTPS</div>
+                    <div class="quiz-option" onclick="ans(this,'q3',false)">FTP</div>
+                    <div class="quiz-option" onclick="ans(this,'q3',false)">SSH</div>
+                </div><div class="quiz-feedback" id="fb-q3"></div>
+            </div>
+        </div>
+    </section>
+
+    <section class="lesson-section">
         <div class="lesson-bottom-nav">
             <a href="capstone_analysis.html"><i class="fas fa-arrow-left"></i><span>Capstone Analysis</span></a>
             <div style="text-align:center;color:var(--text-faint);font-size:0.85rem;">Unit 10 • Lesson 3</div>
@@ -61,7 +123,10 @@
         </div>
     </section>
     <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
-    <script>AOS.init({duration:800,once:true,offset:100}); window.addEventListener('scroll',()=>{ document.getElementById('reading-progress').style.width=(window.scrollY/(document.documentElement.scrollHeight-window.innerHeight))*100+'%'; });</script>
+    <script>AOS.init({duration:800,once:true,offset:100}); window.addEventListener('scroll',()=>{ document.getElementById('reading-progress').style.width=(window.scrollY/(document.documentElement.scrollHeight-window.innerHeight))*100+'%'; });
+        const qfb={q1:{c:'✅ Network Layer (L3) = IP Addressing + Routing. Data Link = MAC.',w:'❌ Network Layer مسؤول عن Logical Addressing (IP) والـ Routing.'},q2:{c:'✅ /26 = 26 bits network = 255.255.255.192. يسيب 6 bits = 64 عنوان (62 host).',w:'❌ /26 = 11111111.11111111.11111111.11000000 = 255.255.255.192'},q3:{c:'✅ HTTPS = HTTP + TLS/SSL على Port 443. HTTP = Port 80.',w:'❌ Port 443 = HTTPS (HTTP Secure).'}};
+        function ans(el,qid,correct){const q=document.getElementById(qid);if(q.dataset.answered)return;q.dataset.answered='true';q.querySelectorAll('.quiz-option').forEach(o=>o.style.pointerEvents='none');el.classList.add(correct?'correct':'wrong');const f=document.getElementById('fb-'+qid);f.textContent=correct?qfb[qid].c:qfb[qid].w;f.className='quiz-feedback show '+(correct?'correct-fb':'wrong-fb');}
+    </script>
     <script>
         // Auto-save progress when 90% scrolled
         window.addEventListener('scroll', function() {

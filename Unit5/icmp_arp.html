@@ -65,7 +65,7 @@
     <header class="lesson-hero">
         <div class="glow-orb glow-orb-1"></div><div class="glow-orb glow-orb-2"></div>
         <div style="position:relative;z-index:1;">
-            <div class="lesson-badge" data-aos="fade-down"><span class="dot"></span>UNIT 5 • Lesson 4</div>
+            <div class="lesson-badge" data-aos="fade-down"><span class="dot"></span>UNIT 5 • Lesson 7</div>
             <h1 data-aos="fade-up" data-aos-delay="150">ICMP &amp; <span class="text-g">ARP</span></h1>
             <div class="subtitle" data-aos="fade-up" data-aos-delay="300">النداء والاستجواب في الشبكة</div>
             <p class="desc" data-aos="fade-up" data-aos-delay="450">كل مرة بتعمل Ping — بتستخدم ICMP. وكل مرة موبايلك يتصل بـ Router — بيعمل ARP أول. البروتوكولان اللي ما بيتكلمش عنهم.</p>
@@ -183,14 +183,14 @@
             <div style="font-size:3rem;margin-bottom:1rem;">🎓</div>
             <h3 style="color:#34D399;font-family:'Cairo',sans-serif;">أنهيت الوحدة الخامسة!</h3>
             <p class="rtl-block" style="color:#CBD5E1;margin:1rem 0;">Network Layer — IP، Subnetting، Routing، ICMP & ARP. دلوقتي الـ Transport Layer!</p>
-            <a href="../Unit6/tcp_deep.html" style="display:inline-flex;align-items:center;gap:0.75rem;padding:0.9rem 2rem;border-radius:14px;background:linear-gradient(135deg,#10B981,#059669);color:white;font-weight:800;transition:all 0.3s;text-decoration:none;">
+            <a href="../Unit6/tcp_udp.html" style="display:inline-flex;align-items:center;gap:0.75rem;padding:0.9rem 2rem;border-radius:14px;background:linear-gradient(135deg,#10B981,#059669);color:white;font-weight:800;transition:all 0.3s;text-decoration:none;">
                 الوحدة السادسة: Transport Layer <i class="fas fa-arrow-right"></i>
             </a>
         </div>
         <div class="lesson-bottom-nav">
-            <a href="routing_basics.html"><i class="fas fa-arrow-left"></i><span>Routing</span></a>
+            <a href="nat_dhcp.html"><i class="fas fa-arrow-left"></i><span>NAT & DHCP</span></a>
             <div style="text-align:center;color:var(--text-faint);font-size:0.85rem;">Unit 5 Complete ✅</div>
-            <a href="../Unit6/tcp_deep.html"><span>Unit 6 →</span><i class="fas fa-arrow-right"></i></a>
+            <a href="../Unit6/tcp_udp.html"><span>Unit 6 →</span><i class="fas fa-arrow-right"></i></a>
         </div>
     </section>
 
@@ -243,6 +243,22 @@
             q2:{c:'✅ صح! Traceroute بيبعت Packets بـ TTL=1 (يموت عند R1)، TTL=2 (عند R2)، إلخ. كل Router بيرد بـ ICMP Time Exceeded.',w:'❌ غلط! Traceroute بيبعت TTL متزايد (1,2,3…). كل Router بيقلل TTL بـ 1، لما يوصل صفر بيرد بـ ICMP Time Exceeded → بيكشف الـ Hop.'}
         };
         function ans(el,qid,correct){ const q=document.getElementById(qid); if(q.dataset.answered)return; q.dataset.answered='true'; q.querySelectorAll('.quiz-option').forEach(o=>o.style.pointerEvents='none'); el.classList.add(correct?'correct':'wrong'); const f=document.getElementById('fb-'+qid); f.textContent=correct?fb[qid].c:fb[qid].w; f.className='quiz-feedback show '+(correct?'correct-fb':'wrong-fb'); }
+    </script>
+    <script>
+        // Auto-save progress when 90% scrolled
+        (function() {
+            var saved = false;
+            window.addEventListener('scroll', function() {
+                if (saved) return;
+                var pct = window.scrollY / (document.documentElement.scrollHeight - window.innerHeight);
+                if (pct > 0.90) {
+                    var prog = JSON.parse(localStorage.getItem('nm_progress') || '{}');
+                    prog['unit5_lesson7'] = true;
+                    localStorage.setItem('nm_progress', JSON.stringify(prog));
+                    saved = true;
+                }
+            });
+        })();
     </script>
 </body>
 </html>

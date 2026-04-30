@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en" class="scroll-smooth" dir="ltr">
 <head>
     <meta charset="UTF-8">
@@ -68,6 +68,80 @@
         </div>
     </section>
 
+    <section class="lesson-section" id="scenarios">
+        <div class="section-header" data-aos="fade-up"><h2><i class="fas fa-map-signs" style="color:#34D399;margin-left:0.5rem;"></i> سيناريوهات شائعة</h2><p class="en-sub">Common Problems — Diagnostic Flowchart</p></div>
+        <div class="glass-card" style="padding:1.8rem;" data-aos="fade-up">
+            <div class="rtl-block" style="margin-bottom:1rem;color:#CBD5E1;font-size:0.95rem;line-height:1.8;">
+                <p>أشهر مشكلة: <strong style="color:#F87171;">"الإنترنت مش شغال!"</strong> — اتبع الخطوات دي بالترتيب:</p>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:0.5rem;" id="flowchart">
+                <div class="fc-step" onclick="fcStep(1)" style="padding:0.8rem;border-radius:10px;background:rgba(16,185,129,0.06);border:1px solid rgba(16,185,129,0.2);cursor:pointer;transition:all 0.3s;">
+                    <div style="display:flex;align-items:center;gap:0.75rem;"><span style="background:#10B981;color:white;padding:0.15rem 0.5rem;border-radius:5px;font-family:'Fira Code';font-size:0.75rem;">1</span><div><div style="font-weight:700;color:#34D399;font-size:0.88rem;">الكابل موصول؟ LEDs بتنور؟</div><div class="rtl-block" style="font-size:0.78rem;color:#94A3B8;">Physical: شوف الكابل، الـ NIC LED، جرّب كابل تاني</div></div></div>
+                    <div id="fc1" style="display:none;margin-top:0.4rem;padding:0.4rem;border-radius:6px;font-family:'Fira Code';font-size:0.72rem;direction:ltr;"></div>
+                </div>
+                <div class="fc-step" onclick="fcStep(2)" style="padding:0.8rem;border-radius:10px;background:rgba(245,158,11,0.06);border:1px solid rgba(245,158,11,0.2);cursor:pointer;transition:all 0.3s;">
+                    <div style="display:flex;align-items:center;gap:0.75rem;"><span style="background:#F59E0B;color:white;padding:0.15rem 0.5rem;border-radius:5px;font-family:'Fira Code';font-size:0.75rem;">2</span><div><div style="font-weight:700;color:#FBBF24;font-size:0.88rem;">ipconfig — عندك IP صحيح؟</div><div class="rtl-block" style="font-size:0.78rem;color:#94A3B8;">لو IP = 169.254.x.x → DHCP فشل. لو 0.0.0.0 → مفيش IP أصلاً</div></div></div>
+                    <div id="fc2" style="display:none;margin-top:0.4rem;padding:0.4rem;border-radius:6px;font-family:'Fira Code';font-size:0.72rem;direction:ltr;"></div>
+                </div>
+                <div class="fc-step" onclick="fcStep(3)" style="padding:0.8rem;border-radius:10px;background:rgba(59,130,246,0.06);border:1px solid rgba(59,130,246,0.2);cursor:pointer;transition:all 0.3s;">
+                    <div style="display:flex;align-items:center;gap:0.75rem;"><span style="background:#3B82F6;color:white;padding:0.15rem 0.5rem;border-radius:5px;font-family:'Fira Code';font-size:0.75rem;">3</span><div><div style="font-weight:700;color:#60A5FA;font-size:0.88rem;">ping Gateway → ping 8.8.8.8</div><div class="rtl-block" style="font-size:0.78rem;color:#94A3B8;">لو Gateway فشل → مشكلة Local. لو 8.8.8.8 فشل → مشكلة Routing</div></div></div>
+                    <div id="fc3" style="display:none;margin-top:0.4rem;padding:0.4rem;border-radius:6px;font-family:'Fira Code';font-size:0.72rem;direction:ltr;"></div>
+                </div>
+                <div class="fc-step" onclick="fcStep(4)" style="padding:0.8rem;border-radius:10px;background:rgba(139,92,246,0.06);border:1px solid rgba(139,92,246,0.2);cursor:pointer;transition:all 0.3s;">
+                    <div style="display:flex;align-items:center;gap:0.75rem;"><span style="background:#8B5CF6;color:white;padding:0.15rem 0.5rem;border-radius:5px;font-family:'Fira Code';font-size:0.75rem;">4</span><div><div style="font-weight:700;color:#A78BFA;font-size:0.88rem;">nslookup google.com</div><div class="rtl-block" style="font-size:0.78rem;color:#94A3B8;">لو 8.8.8.8 نجح بس الموقع لا → مشكلة DNS. غيّر DNS Server</div></div></div>
+                    <div id="fc4" style="display:none;margin-top:0.4rem;padding:0.4rem;border-radius:6px;font-family:'Fira Code';font-size:0.72rem;direction:ltr;"></div>
+                </div>
+            </div>
+            <div class="note" style="margin-top:1rem;"><strong>💡 القاعدة الذهبية:</strong> ابدأ من الـ Physical Layer واطلع — معظم المشاكل بتكون في أول 3 layers!</div>
+        </div>
+    </section>
+
+    <section class="lesson-section alt-bg">
+        <div class="section-inner">
+            <div class="section-header" data-aos="fade-up"><h2><i class="fas fa-route" style="color:#22D3EE;margin-left:0.5rem;"></i> Traceroute المحاكي</h2><p class="en-sub">Trace the Path — Find the Bottleneck</p></div>
+            <div class="glass-card" style="padding:1.5rem;" data-aos="fade-up">
+                <div class="rtl-block" style="margin-bottom:1rem;color:#CBD5E1;font-size:0.92rem;line-height:1.8;">
+                    <p>الـ <span class="english">traceroute</span> بيوريك كل Router الـ Packet عدت عليه. لو Hop معين بطيء أو مش رد → لقيت المشكلة.</p>
+                </div>
+                <div style="display:flex;gap:0.5rem;align-items:center;margin-bottom:0.75rem;flex-wrap:wrap;">
+                    <input id="tr-target" value="google.com" style="flex:1;min-width:120px;background:rgba(0,0,0,0.3);border:1px solid rgba(6,182,212,0.2);border-radius:8px;color:#E2E8F0;font-family:'Fira Code';font-size:0.82rem;padding:0.4rem 0.7rem;outline:none;">
+                    <button onclick="runTrace()" style="padding:0.4rem 1rem;border-radius:8px;background:rgba(6,182,212,0.15);border:1px solid rgba(6,182,212,0.3);color:#22D3EE;font-family:'Fira Code';font-size:0.8rem;cursor:pointer;">tracert</button>
+                </div>
+                <div id="tr-out" style="background:rgba(0,0,0,0.4);border:1px solid rgba(255,255,255,0.06);border-radius:10px;padding:0.75rem;font-family:'Fira Code';font-size:0.75rem;direction:ltr;min-height:60px;color:#94A3B8;">Click tracert to start...</div>
+            </div>
+        </div>
+    </section>
+
+    <section class="lesson-section" id="quiz">
+        <div class="section-header" data-aos="fade-up"><h2><i class="fas fa-brain" style="color:#14B8A6;margin-left:0.5rem;"></i> اختبر نفسك</h2></div>
+        <div class="quiz-container" data-aos="fade-up">
+            <div class="quiz-question" id="q1"><h4>ping 127.0.0.1 نجح بس ping للـ Gateway فشل. المشكلة فين؟</h4>
+                <div class="quiz-options">
+                    <div class="quiz-option" onclick="ans(this,'q1',false)">Application Layer</div>
+                    <div class="quiz-option" onclick="ans(this,'q1',false)">NIC Card معطوبة</div>
+                    <div class="quiz-option" onclick="ans(this,'q1',true)">الكابل أو الـ Switch أو IP/Subnet خطأ (L1-L3)</div>
+                    <div class="quiz-option" onclick="ans(this,'q1',false)">DNS Server</div>
+                </div><div class="quiz-feedback" id="fb-q1"></div>
+            </div>
+            <div class="quiz-question" id="q2"><h4>ping 8.8.8.8 نجح بس google.com مش بيفتح. المشكلة إيه؟</h4>
+                <div class="quiz-options">
+                    <div class="quiz-option" onclick="ans(this,'q2',false)">الكابل مقطوع</div>
+                    <div class="quiz-option" onclick="ans(this,'q2',true)">DNS Resolution — غيّر DNS Server أو افحص بـ nslookup</div>
+                    <div class="quiz-option" onclick="ans(this,'q2',false)">Routing Table فاضية</div>
+                    <div class="quiz-option" onclick="ans(this,'q2',false)">الـ Firewall بيمنع كل Traffic</div>
+                </div><div class="quiz-feedback" id="fb-q2"></div>
+            </div>
+            <div class="quiz-question" id="q3"><h4>أمر traceroute بيستخدم أنهي Protocol؟</h4>
+                <div class="quiz-options">
+                    <div class="quiz-option" onclick="ans(this,'q3',false)">TCP SYN</div>
+                    <div class="quiz-option" onclick="ans(this,'q3',false)">ARP Broadcast</div>
+                    <div class="quiz-option" onclick="ans(this,'q3',true)">ICMP (TTL متزايد — كل Router يرد بـ Time Exceeded)</div>
+                    <div class="quiz-option" onclick="ans(this,'q3',false)">SNMP Trap</div>
+                </div><div class="quiz-feedback" id="fb-q3"></div>
+            </div>
+        </div>
+    </section>
+
     <section class="lesson-section">
         <div class="lesson-bottom-nav">
             <a href="packet_analysis.html"><i class="fas fa-arrow-left"></i><span>Packet Analysis</span></a>
@@ -86,6 +160,46 @@
             4:{ok:true,txt:'> nslookup google.com (after fix): 142.250.x.x ✅'}
         };
         function runStep(n){ const s=steps[n]; const r=document.getElementById('step'+n+'-result'); r.style.display='block'; r.style.color=s.ok?'#34D399':'#F87171'; r.style.whiteSpace='pre'; r.textContent=s.txt; }
+
+        // Flowchart steps
+        const fcData={
+            1:{txt:'> Cable: Connected ✅  LED: Link/Activity blinking ✅',color:'#34D399'},
+            2:{txt:'> ipconfig\nIPv4: 192.168.1.50  Subnet: 255.255.255.0  Gateway: 192.168.1.1 ✅',color:'#FBBF24'},
+            3:{txt:'> ping 192.168.1.1: Reply ✅\n> ping 8.8.8.8: Reply ✅  (Internet reachable)',color:'#60A5FA'},
+            4:{txt:'> nslookup google.com\n❌ DNS request timed out. Server: 192.168.1.1\n→ الحل: غيّر DNS لـ 8.8.8.8 أو 1.1.1.1',color:'#F87171'}
+        };
+        function fcStep(n){const d=fcData[n];const el=document.getElementById('fc'+n);el.style.display='block';el.style.color=d.color;el.style.whiteSpace='pre';el.textContent=d.txt;}
+
+        // Traceroute simulator
+        function runTrace(){
+            const t=document.getElementById('tr-target').value||'google.com';
+            const out=document.getElementById('tr-out');
+            out.innerHTML='';
+            const hops=[
+                {n:1,ip:'192.168.1.1',ms:[1,2,1],name:'Local Gateway'},
+                {n:2,ip:'10.0.0.1',ms:[8,7,9],name:'ISP Edge'},
+                {n:3,ip:'172.16.0.1',ms:[15,14,16],name:'ISP Core'},
+                {n:4,ip:'209.85.248.1',ms:[22,21,23],name:'Google Edge'},
+                {n:5,ip:'142.250.185.78',ms:[25,24,26],name:t}
+            ];
+            const add=(txt,clr,d)=>{setTimeout(()=>{const l=document.createElement('div');l.style.color=clr||'#94A3B8';l.textContent=txt;out.appendChild(l);out.scrollTop=out.scrollHeight;},d);};
+            add('Tracing route to '+t+' over a maximum of 30 hops:','#E2E8F0',100);
+            add('','#94A3B8',200);
+            hops.forEach((h,i)=>{
+                const ms=h.ms.map(m=>m+'ms').join('  ');
+                add('  '+h.n+'    '+ms+'    '+h.ip+' ['+h.name+']','#34D399',500+i*600);
+            });
+            add('','#94A3B8',500+hops.length*600);
+            add('Trace complete. 5 hops.','#22D3EE',600+hops.length*600);
+        }
+
+        // Quiz
+        const qfb={
+            q1:{c:'✅ صح! Loopback نجح = NIC شغالة. Gateway فشل = مشكلة بين الجهاز والـ Router (كابل، Switch، IP خطأ).',w:'❌ غلط! لو 127.0.0.1 نجح = الـ NIC سليمة. المشكلة بين الجهاز والـ Gateway.'},
+            q2:{c:'✅ صح! IP Connectivity شغالة (8.8.8.8 نجح). المشكلة في DNS — مش بيقدر يحول Domain لـ IP.',w:'❌ غلط! لو 8.8.8.8 نجح بس Domain مش بيفتح = DNS مش شغال.'},
+            q3:{c:'✅ صح! Traceroute بيبعت Packets بـ TTL متزايد. كل Router بيقلل TTL بـ 1 — لما يوصل 0 بيرد ICMP Time Exceeded.',w:'❌ غلط! Traceroute = ICMP مع TTL متزايد (1,2,3…). كل Router بيرد بـ Time Exceeded.'}
+        };
+        function ans(el,qid,correct){const q=document.getElementById(qid);if(q.dataset.answered)return;q.dataset.answered='true';q.querySelectorAll('.quiz-option').forEach(o=>o.style.pointerEvents='none');el.classList.add(correct?'correct':'wrong');const f=document.getElementById('fb-'+qid);f.textContent=correct?qfb[qid].c:qfb[qid].w;f.className='quiz-feedback show '+(correct?'correct-fb':'wrong-fb');}
     </script>
     <script>
         // Auto-save progress when 90% scrolled
